@@ -66,11 +66,15 @@ npm run format
 ```
 
 ### Passo 5: Subindo suas alterações (Git Flow)
-1. Nunca trabalhe direto na main. Crie uma branch para a sua tarefa:
+
+1. Nunca trabalhe direto na `main`. Crie sua branch diretamente pelo botão **Create a branch** na Issue correspondente no GitHub.
+2. No seu terminal, baixe as atualizações e acesse a branch recém-criada (não utilize o `-b`):
+
 ```bash
-git checkout -b nome-da-sua-branch
+git fetch origin
+git checkout nome-da-branch-da-issue
 git add .
 git commit -m "feat: adiciona nova tela de login"
-git push origin nome-da-sua-branch
+git push origin nome-da-branch-da-issue
 ```
 
