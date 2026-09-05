@@ -1,9 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { EmConstrucao } from './EmConstrucao';
-// utilize o placeholder enquanto as telas ainda não existem
+import { EmConstrucao } from './emConstrucao';
 
 export const router = createBrowserRouter([
-  // crie os placeholder aqui, conforme as telas forem criadas vamos substituindo os placeholder
   {
     path: '/login',
     element: <EmConstrucao nome="Login" />,
