@@ -2,7 +2,7 @@ name: CI Frontend Web
 
 on:
   pull_request:
-    branches: [ develop, homologacao, main, 'release/**' ]
+    branches: [ develop, main, 'release/**', epic/** ]
 
 jobs:
   test:
