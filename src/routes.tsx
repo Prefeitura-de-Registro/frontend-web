@@ -50,14 +50,3 @@ export const router = createBrowserRouter([
     element: <EmConstrucao nome="" />,
   },
 ]);
-
-// /login	Login
-// /	Home (vazia)
-// /chamados	Home com chamados listados
-// /chamados/:id	Detalhes do chamado
-// /formulario/ocorrencia	Formulário — Passo 1 (ocorrência)
-// /formulario/endereco	Formulário — Passo 2 (endereço/mapa)
-// /formulario/fotos	Formulário — Passo 3 (anexar fotos)
-// /formulario/confirmacao	Formulário — Passo 4 (confirmação)
-// /formulario/revisao	Revisão antes de enviar
-// /formulario/sucesso	Confirmação de chamado aberto
