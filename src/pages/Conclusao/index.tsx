@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Copy, CheckCheck } from 'lucide-react';
 import { Footer } from '../../components/ui/Footer';
-import { GradientHeader } from '../../components/ui/GradientHeader'; // Ajuste o caminho se necessário
+import { GradientHeader } from '../../components/ui/GradientHeader';
 import ButtonLarger from '../../components/ui/ButtonLarger';
 
 export function Conclusao() {
@@ -13,7 +13,7 @@ export function Conclusao() {
   const handleCopiarProtocolo = () => {
     navigator.clipboard.writeText(protocolo);
     setCopiado(true);
-    setTimeout(() => setCopiado(false), 2500); // Reseta o ícone após 2.5s
+    setTimeout(() => setCopiado(false), 2500);
   };
 
   return (
