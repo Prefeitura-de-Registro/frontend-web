@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export type TipoIconeFormulario = 'ocorrencia' | 'endereco' | 'fotos';
 
 interface IconeFormularioProps {
@@ -8,10 +10,10 @@ interface IconeFormularioProps {
 /**
  * Ícone de etapa do formulário (usado no topo das telas de preenchimento).
  * Specs do diagrama: container ~44x44, corner-radius ~12, ícone ~20x20.
- * Estado ativo: fundo preenchido na cor primária, ícone branco.
- * Estado inativo: fundo transparente, borda e ícone na cor primária.
+ * Estado ativo: fundo preenchido na cor primária, ícone branco[cite: 12].
+ * Estado inativo: fundo transparente, borda e ícone na cor primária[cite: 12].
  */
-const ICONES: Record<TipoIconeFormulario, JSX.Element> = {
+const ICONES: Record<TipoIconeFormulario, ReactNode> = {
   ocorrencia: (
     <svg
       viewBox="0 0 24 24"
