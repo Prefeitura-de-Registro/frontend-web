@@ -1,0 +1,33 @@
+name: Sync Main to Develop
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  sync-branches:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout do repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Atualizar branch Develop
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Entra na develop local da maquina virtual
+          git checkout develop
+          
+          # Puxa o codigo atualizado da main recem-aprovada
+          git merge origin/main --no-edit
+          
+          # Empurra as alteracoes de volta para a develop no servidor
+          git push origin develop
