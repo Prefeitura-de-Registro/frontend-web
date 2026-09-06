@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
+import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
 // import { HomeLayout } from '../components/layouts/HomeLayout';
 // import { FormLayout } from '../components/layouts/FormLayout';
@@ -7,7 +8,7 @@ import TesteComponentes from '../pages/TesteComponentes';
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <EmConstrucao nome="Login" />,
+    element: <LoginMunicipe />,
   },
   {
     path: '/',
