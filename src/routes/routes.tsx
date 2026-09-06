@@ -1,5 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
+import TesteComponentes from '../pages/TesteComponentes';
+import { HomeLayout } from '../components/layouts/HomeLayout';
+import { FormLayout } from '../components/layouts/FormLayout';
 
 export const router = createBrowserRouter([
   {
@@ -8,43 +11,54 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <EmConstrucao nome="" />,
+    element: <HomeLayout />,
+    children: [
+      {
+        path: '',
+        element: <div>Sua Tela Home Aqui</div>,
+      },
+      {
+        path: 'chamados',
+        element: <div>Lista de Chamados</div>,
+      },
+    ],
   },
   {
-    path: '/chamados',
-    element: <EmConstrucao nome="Home com chamados listados" />,
+    path: '/formulario',
+    element: <FormLayout />,
+    children: [
+      {
+        path: '',
+        element: <EmConstrucao nome="" />,
+      },
+      {
+        path: 'ocorrencia',
+        element: <EmConstrucao nome="Ocorrência" />,
+      },
+      {
+        path: 'endereco',
+        element: <EmConstrucao nome="Endereço" />,
+      },
+      {
+        path: 'fotos',
+        element: <EmConstrucao nome="Fotos" />,
+      },
+      {
+        path: 'confirmacao',
+        element: <EmConstrucao nome="Confirmação" />,
+      },
+      {
+        path: 'revisao',
+        element: <EmConstrucao nome="Revisão" />,
+      },
+    ],
   },
-  {
-    path: '/chamados/:id',
-    element: <EmConstrucao nome="Detalhes do chamado" />,
-  },
-  {
-    path: '/formulario/ocorrencia',
-    element: <EmConstrucao nome="Formulário — Passo 1 (ocorrência)" />,
-  },
-  {
-    path: '/formulario/endereco',
-    element: <EmConstrucao nome="Formulário — Passo 2 (endereço/mapa)" />,
-  },
-  {
-    path: '/formulario/fotos',
-    element: <EmConstrucao nome="Formulário — Passo 3 (anexar fotos)" />,
-  },
-  {
-    path: '/formulario/confirmacao',
-    element: <EmConstrucao nome="Formulário — Passo 4 (confirmação)" />,
-  },
-  {
-    path: '/formulario/revisao',
-    element: <EmConstrucao nome="Revisão antes de enviar" />,
-  },
-  {
-    path: '/formulario/sucesso',
-    element: <EmConstrucao nome="Confirmação de chamado aberto" />,
-  },
-
   {
     path: '*',
     element: <EmConstrucao nome="" />,
+  },
+  {
+    path: '/teste-componentes',
+    element: <TesteComponentes />,
   },
 ]);
