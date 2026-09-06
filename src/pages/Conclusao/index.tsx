@@ -31,10 +31,10 @@ export function Conclusao() {
           <h1 className="text-slate-800 text-2xl font-normal leading-tight">
             Chamado
           </h1>
-          <h2 className="text-sky-700 text-4xl font-extrabold tracking-tight leading-tight">
+          <h2 className="text-primary text-4xl font-extrabold tracking-tight leading-tight">
             Aberto!
           </h2>
-          <div className="w-40 h-[1px] bg-slate-300 mx-auto mt-4" />
+          <div className="w-60 h-[1px] bg-primary mx-auto mt-2 opacity-50" />
         </div>
 
         <p className="text-slate-700 text-sm mb-6 max-w-xs leading-relaxed">
@@ -79,7 +79,7 @@ export function Conclusao() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="w-full bg-slate-100 border border-slate-300 text-sky-700 font-bold py-3.5 px-6 shadow-sm hover:bg-slate-200 transition"
+            className="w-full bg-slate-100 border border-primary text-sky-700 font-bold py-3.5 px-6 shadow-sm hover:bg-slate-200 transition"
           >
             Voltar ao início
           </button>
