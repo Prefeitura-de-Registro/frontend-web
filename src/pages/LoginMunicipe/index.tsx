@@ -10,11 +10,13 @@ function LoginMunicipe() {
   const navigate = useNavigate();
 
   return (
-    <div
-      className="min-h-screen flex flex-col justify-between bg-[length:100%_365px] bg-top bg-no-repeat"
-      style={{ backgroundImage: `url(${degradeRegistro})` }}
-    >
-      <main className="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-6 text-center max-w-xs mx-auto w-full">
+    <div className="relative min-h-screen flex flex-col justify-between overflow-hidden">
+      <img
+        src={degradeRegistro}
+        alt=""
+        className="absolute top-0 left-0 w-full h-85 object-cover pointer-events-none z-0 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"
+      />
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pt-6 pb-6 text-center max-w-xs mx-auto w-full">
         <img
           src={brasao}
           alt="Brasão de Registro"
