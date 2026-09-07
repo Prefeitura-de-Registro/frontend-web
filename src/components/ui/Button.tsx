@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
@@ -27,7 +28,7 @@ function Button({
   };
 
   return (
-    <button className={`${base} ${variants[variant]} ${className}`} {...props}>
+    <button className={twMerge(base, variants[variant], className)} {...props}>
       {icon && (
         <span className="w-4 h-4 flex items-center justify-center">{icon}</span>
       )}

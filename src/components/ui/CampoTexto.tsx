@@ -1,7 +1,10 @@
-import type { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface CampoTextoProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  labelClassName?: string;
+  icon?: ReactNode;
 }
 
 /**
@@ -9,12 +12,26 @@ interface CampoTextoProps extends InputHTMLAttributes<HTMLInputElement> {
  * Specs extraídas do SVG: label em negrito na cor primária, input em formato
  * "pill" (border-radius total), borda cinza clara (#E5E7EB), placeholder cinza.
  */
-function CampoTexto({ label, className = '', ...props }: CampoTextoProps) {
+function CampoTexto({
+  label,
+  labelClassName = '',
+  icon = '',
+  className = '',
+  ...props
+}: CampoTextoProps) {
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label className="font-bold text-primary text-lg">{label}:</label>
+      <label
+        className={twMerge('font-bold text-primary text-lg', labelClassName)}
+      >
+        {label}:
+      </label>
       <input
-        className={`w-full rounded-full border border-gray-200 px-6 py-3.5 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary ${className}`}
+        className={twMerge(
+          'w-full rounded-full border border-gray-200 px-6 py-3.5 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary',
+          icon ? 'pl-10' : '',
+          className,
+        )}
         {...props}
       />
     </div>
