@@ -4,6 +4,7 @@ import TesteComponentes from '../pages/TesteComponentes';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 // import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
+import HomeAnonimo from '../pages/HomeAnonimo';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
         element: <div>Lista de Chamados</div>,
       },
     ],
+  },
+  {
+    path: 'anonimo',
+    element: <HomeAnonimo />,
   },
   {
     path: '/formulario',
