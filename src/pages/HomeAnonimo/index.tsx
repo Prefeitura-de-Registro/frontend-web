@@ -4,7 +4,7 @@ import CardAcaoHome from '../../components/layouts/CardAcaoHome';
 import Button from '../../components/ui/Button';
 import { Footer } from '../../components/ui/Footer';
 import { CircleCheck } from 'lucide-react';
-import decorativoPesquisar from '../../assets/decorativo-pesquisar.png';
+import decorativoClique from '../../assets/decorativo-clique.png';
 
 function HomeAnonimo() {
   const navigate = useNavigate();
@@ -20,8 +20,8 @@ function HomeAnonimo() {
   }
 
   const beneficios = [
-    'Histórico completo dos chamados.',
-    'Notificações em tempo real.',
+    'Histórico completo dos chamados',
+    'Notificações em tempo real',
     'Maior controle',
     'Agilidade nos registros',
   ];
@@ -48,7 +48,7 @@ function HomeAnonimo() {
         </div>
 
         <img
-          src={decorativoPesquisar}
+          src={decorativoClique}
           className="w-30 h-30 self-end -mt-30"
           alt="Ilustração de celular com aprovação"
         />
