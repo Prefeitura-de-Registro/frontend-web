@@ -19,11 +19,11 @@ export const router = createBrowserRouter([
         path: '',
         element: <Home />,
       },
-      {
-        path: 'chamados',
-        element: <ListaChamadosAnonimo />,
-      },
     ],
+  },
+  {
+    path: 'chamados',
+    element: <ListaChamadosAnonimo />,
   },
   {
     path: '/formulario',

@@ -7,33 +7,37 @@ interface CampoTextoProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: ReactNode;
 }
 
-/**
- * Input com label, usado nos campos do formulário de endereço (Rua, Bairro, Número, etc).
- * Specs extraídas do SVG: label em negrito na cor primária, input em formato
- * "pill" (border-radius total), borda cinza clara (#E5E7EB), placeholder cinza.
- */
 function CampoTexto({
   label,
   labelClassName = '',
-  icon = '',
+  icon,
   className = '',
   ...props
 }: CampoTextoProps) {
   return (
     <div className="flex flex-col gap-1 w-full">
       <label
-        className={twMerge('font-bold text-primary text-lg', labelClassName)}
+        className={twMerge('font-bold text-primary text-lg ', labelClassName)}
       >
         {label}:
       </label>
-      <input
-        className={twMerge(
-          'w-full rounded-full border border-gray-200 px-6 py-3.5 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary',
-          icon ? 'pl-10' : '',
-          className,
+
+      <div className="relative w-fit mx-auto">
+        {icon && (
+          <span className="absolute left-3 top-6/9 -translate-y-1/2 w-4 h-4 text-primary">
+            {/* A métrica top do icon foi realizada para alinhar corretamente ao CampoTexto da page ListaChamadosAnonimos */}
+            {icon}
+          </span>
         )}
-        {...props}
-      />
+        <input
+          className={twMerge(
+            'rounded-full border border-gray-200 px-6 py-3.5 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary',
+            icon ? 'pl-10' : '',
+            className,
+          )}
+          {...props}
+        />
+      </div>
     </div>
   );
 }
