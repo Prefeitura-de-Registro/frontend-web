@@ -2,8 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import TesteComponentes from '../pages/TesteComponentes';
 import { HomeLayout } from '../components/layouts/HomeLayout';
-// import { FormLayout } from '../components/layouts/FormLayout';
+import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
+import Revisao from '../pages/Revisao';
 
 export const router = createBrowserRouter([
   {
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/formulario',
-    element: <EmConstrucao nome="formulario" />,
+    element: <FormLayout />,
     children: [
       {
         path: '',
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'revisao',
-        element: <EmConstrucao nome="Revisão" />,
+        element: <Revisao />,
       },
     ],
   },
