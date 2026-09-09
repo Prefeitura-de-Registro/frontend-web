@@ -1,7 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import TesteComponentes from '../pages/TesteComponentes';
-// import { HomeLayout } from '../components/layouts/HomeLayout';
+import { HomeLayout } from '../components/layouts/HomeLayout';
+import HomeSecundaria from '../pages/HomeSecundaria';
 // import { FormLayout } from '../components/layouts/FormLayout';
 
 export const router = createBrowserRouter([
@@ -11,8 +12,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    // element: <HomeLayout />,
-    element: <EmConstrucao nome="home" />,
+    element: <HomeLayout />,
     children: [
       {
         path: '',
@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'chamados',
-        element: <div>Lista de Chamados</div>,
+        element: <HomeSecundaria />,
       },
     ],
   },
