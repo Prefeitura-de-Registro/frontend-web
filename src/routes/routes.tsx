@@ -4,7 +4,6 @@ import TesteComponentes from '../pages/TesteComponentes';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import { HomeLayout } from '../components/layouts/HomeLayout';
-import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
 
 export const router = createBrowserRouter([
