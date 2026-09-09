@@ -4,6 +4,7 @@ import TesteComponentes from '../pages/TesteComponentes';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import HomeSecundaria from '../pages/HomeSecundaria';
 // import { FormLayout } from '../components/layouts/FormLayout';
+import Home from '../pages/Home';
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <div>Sua Tela Home Aqui</div>,
+        element: <Home />,
       },
       {
         path: 'chamados',
