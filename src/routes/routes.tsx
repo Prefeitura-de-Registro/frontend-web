@@ -2,12 +2,14 @@ import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
-import { DetalhesChamado } from '../pages/Detalhes';
+import { FormularioFotos } from '../pages/FormularioFotos';
+import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import HomeSecundaria from '../pages/HomeSecundaria';
-import { FormLayout } from '../components/layouts/FormLayout';
+import { DetalhesChamado } from '../pages/Detalhes';
 import Home from '../pages/Home';
+import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 
 export const router = createBrowserRouter([
@@ -24,10 +26,14 @@ export const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: 'chamados',
+        path: 'chamados-id',
         element: <HomeSecundaria />,
       },
     ],
+  },
+  {
+    path: 'chamados',
+    element: <ListaChamadosAnonimo />,
   },
   {
     path: '/formulario',
@@ -47,7 +53,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'fotos',
-        element: <EmConstrucao nome="Fotos" />,
+        element: <FormularioFotos />,
       },
       {
         path: 'confirmacao',
