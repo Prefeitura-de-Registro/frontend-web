@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import CardAcaoHome from '../../components/layouts/CardAcaoHome';
 import FiltroTextoTabs from '../../components/ui/FiltroTextoTabs';
 import StepperFormulario from '../../components/ui/StepperFormulario';
+import ButtonBack from '../../components/ui/ButtonBack';
 
 /**
  * Página temporária só para visualizar todos os componentes do Design System
@@ -39,6 +40,7 @@ function TesteComponentes() {
         <div className="flex flex-wrap items-center gap-3">
           <Button>Enviar chamado</Button>
           <Button variant="outline">Cancelar</Button>
+          <ButtonBack onClick={() => navigate(-1)} />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
