@@ -7,6 +7,7 @@ import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
+import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 
 export const router = createBrowserRouter([
@@ -22,11 +23,11 @@ export const router = createBrowserRouter([
         path: '',
         element: <Home />,
       },
-      {
-        path: 'chamados',
-        element: <div>Lista de Chamados</div>,
-      },
     ],
+  },
+  {
+    path: 'chamados',
+    element: <ListaChamadosAnonimo />,
   },
   {
     path: '/formulario',
