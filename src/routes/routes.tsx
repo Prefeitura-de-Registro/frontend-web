@@ -5,7 +5,6 @@ import TesteComponentes from '../pages/TesteComponentes';
 import FormularioOcorrencia from '../pages/form-ocorrencia';
 import Conclusao from '../pages/Conclusao';
 import { DetalhesChamado } from '../pages/Detalhes';
-import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
