@@ -10,9 +10,9 @@ function FormularioOcorrencia() {
     <div className="w-full max-w-[382px] mx-auto bg-slate-200/80 rounded-[20px] px-7 pt-7 pb-2 shadow-md">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <label className="font-bold text-primary text-base">
+          <span className="font-bold text-primary text-base">
             Selecione uma ocorrência:
-          </label>
+          </span>
 
           <Select
             options={[

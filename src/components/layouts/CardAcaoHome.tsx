@@ -10,10 +10,7 @@ interface CardAcaoHomeProps {
 }
 
 /**
- * Card de ação da Home (ex: "Abrir chamado", "Pesquisar chamado").
- * Mesma estrutura visual nos dois casos, só muda a paleta, o conteúdo e a
- * ilustração — como só existem essas duas variantes, as imagens já ficam
- * embutidas aqui dentro, sem precisar passar por prop.
+ * Card de ação da Home (ex: "Abrir chamado", "Pesquisar chamado")[cite: 3].
  */
 function CardAcaoHome({
   variante,
@@ -41,27 +38,30 @@ function CardAcaoHome({
 
   return (
     <div
-      className={`relative w-full max-w-md overflow-hidden rounded-[32px] px-8 py-9 ${estilos.fundo}`}
+      className={`relative w-full overflow-hidden rounded-[28px] px-6 py-6 shadow-md ${estilos.fundo}`}
     >
+      {/* Ilustração posicionada à direita, centralizada verticalmente */}
       <img
         src={estilos.imagem}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none select-none absolute -right-6 top-3/4 -translate-y-1/2 w-40 h-40 object-contain opacity-95"
+        className="pointer-events-none select-none absolute -right-2 top-3/4 -translate-y-1/2 w-24 h-24 object-contain opacity-95"
       />
 
-      <div className="relative z-10 flex flex-col gap-1 max-w-[65%]">
+      {/* Bloco de texto com pr-24 para não encostar na imagem */}
+      <div className="relative z-10 pr-24 flex flex-col gap-0.5">
         <h2
-          className={`font-extrabold text-3xl leading-tight ${estilos.titulo}`}
+          className={`font-extrabold text-2xl tracking-tight leading-tight ${estilos.titulo}`}
         >
           {titulo}
         </h2>
-        <p className={`text-lg ${estilos.subtitulo}`}>{subtitulo}</p>
+        <p className={`text-sm ${estilos.subtitulo}`}>{subtitulo}</p>
       </div>
 
+      {/* Botão de ação compactado e elegante */}
       <button
         onClick={onAction}
-        className={`relative z-10 mt-7 font-semibold text-lg px-10 py-3 rounded-full shadow-sm transition-colors ${estilos.botao}`}
+        className={`relative z-10 mt-5 font-semibold text-sm px-6 py-2.5 rounded-full shadow-sm transition-colors ${estilos.botao}`}
       >
         {textoBotao}
       </button>

@@ -7,12 +7,6 @@ interface IconeFormularioProps {
   ativo?: boolean;
 }
 
-/**
- * Ícone de etapa do formulário (usado no topo das telas de preenchimento).
- * Specs do diagrama: container ~44x44, corner-radius ~12, ícone ~20x20.
- * Estado ativo: fundo preenchido na cor primária, ícone branco[cite: 12].
- * Estado inativo: fundo transparente, borda e ícone na cor primária[cite: 12].
- */
 const ICONES: Record<TipoIconeFormulario, ReactNode> = {
   ocorrencia: (
     <svg
@@ -52,8 +46,11 @@ const ICONES: Record<TipoIconeFormulario, ReactNode> = {
 function IconeFormulario({ tipo, ativo = false }: IconeFormularioProps) {
   return (
     <div
-      className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors
-        ${ativo ? 'bg-primary text-white' : 'bg-transparent text-primary border-2 border-primary'}`}
+      className={`relative z-10 w-11 h-11 rounded-xl flex items-center justify-center transition-all shadow-sm ${
+        ativo
+          ? 'bg-primary text-white'
+          : 'bg-white text-primary border-2 border-primary'
+      }`}
     >
       <span className="w-5 h-5">{ICONES[tipo]}</span>
     </div>

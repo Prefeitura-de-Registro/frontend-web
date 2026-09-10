@@ -27,7 +27,7 @@ function HomeAnonimo() {
   ];
 
   return (
-    <div className="w-90 h-200 mx-auto overflow-y-auto flex flex-col bg-white relative">
+    <div className="w-full h-200 mx-auto overflow-y-auto flex flex-col bg-white relative">
       <GradientHeader />
 
       <div className="flex flex-col px-4 pt-5 gap-2 mt-12">
@@ -55,7 +55,7 @@ function HomeAnonimo() {
 
         <Button
           variant="solid"
-          className="mt-2 w-45 h-10 rounded-3xl! text-xl font-light"
+          className="mt-2 w-45 h-10 rounded-3xl! text-lg font-light"
           onClick={criarConta}
         >
           Criar Conta

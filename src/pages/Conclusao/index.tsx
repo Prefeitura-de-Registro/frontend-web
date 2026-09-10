@@ -74,7 +74,9 @@ export function Conclusao() {
         </p>
 
         <div className="w-full max-w-xs flex flex-col gap-3">
-          <ButtonLarger>Acompanhar chamado</ButtonLarger>
+          <ButtonLarger onClick={() => navigate('/detalhes')}>
+            Acompanhar chamado
+          </ButtonLarger>
 
           <button
             type="button"

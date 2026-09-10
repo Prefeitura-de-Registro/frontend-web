@@ -23,7 +23,7 @@ export function FormularioFotos() {
         </button>
         <button
           type="button"
-          onClick={() => navigate('/formulario/confirmacao')}
+          onClick={() => navigate('/formulario/revisao')}
           className="w-full py-2.5 rounded-xl bg-primary text-secondary font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm"
         >
           Próximo

@@ -4,7 +4,7 @@ import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
 import { FormularioLocalizacao } from '../pages/FormularioLocalizacao';
 import { DetalhesChamado } from '../pages/Detalhes';
-import FormularioOcorrencia from '../pages/form-ocorrencia';
+import FormularioOcorrencia from '../pages/FormularioOcorrencia';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';

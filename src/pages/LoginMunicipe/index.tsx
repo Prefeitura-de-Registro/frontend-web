@@ -36,13 +36,13 @@ function LoginMunicipe() {
         </p>
 
         <div className="w-full space-y-3.5">
-          <Button onClick={() => navigate('/em-construcao')} className="w-full">
+          <Button onClick={() => navigate('/')} className="w-full">
             Criar uma conta
           </Button>
 
           <Button
             variant="outline"
-            onClick={() => navigate('/em-construcao')}
+            onClick={() => navigate('/')}
             className="w-full"
           >
             Logar
@@ -57,7 +57,7 @@ function LoginMunicipe() {
           <Button
             variant="dark"
             icon={<EyeOff className="w-4 h-4" />}
-            onClick={() => navigate('/em-construcao')}
+            onClick={() => navigate('/anonimo')}
             className="w-full"
           >
             Entrar Anônimo
