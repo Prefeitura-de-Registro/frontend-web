@@ -9,6 +9,7 @@ import { HomeLayout } from '../components/layouts/HomeLayout';
 import HomeSecundaria from '../pages/HomeSecundaria';
 import { DetalhesChamado } from '../pages/Detalhes';
 import Home from '../pages/Home';
+import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
         element: <HomeSecundaria />,
       },
     ],
+  },
+  {
+    path: 'anonimo',
+    element: <HomeAnonimo />,
   },
   {
     path: 'chamados',
