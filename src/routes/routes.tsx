@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
+import FormularioOcorrencia from '../pages/form-ocorrencia';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'ocorrencia',
-        element: <EmConstrucao nome="Ocorrência" />,
+        element: <FormularioOcorrencia />,
       },
       {
         path: 'endereco',
