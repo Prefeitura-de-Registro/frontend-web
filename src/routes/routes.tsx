@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import TesteComponentes from '../pages/TesteComponentes';
 import { DetalhesChamado } from '../pages/Detalhes';
+import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 // import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
@@ -58,6 +59,8 @@ export const router = createBrowserRouter([
   {
     path: '/detalhes',
     element: <DetalhesChamado />,
+    path: '/conclusao',
+    element: <Conclusao />,
   },
   {
     path: '*',
