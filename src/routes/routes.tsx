@@ -1,16 +1,19 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
+import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
+import { DetalhesChamado } from '../pages/Detalhes';
 import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
-// import { FormLayout } from '../components/layouts/FormLayout';
+import { FormLayout } from '../components/layouts/FormLayout';
 import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
+import Revisao from '../pages/Revisao';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <EmConstrucao nome="Login" />,
+    element: <LoginMunicipe />,
   },
   {
     path: '/',
@@ -32,7 +35,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/formulario',
-    element: <EmConstrucao nome="formulario" />,
+    element: <FormLayout />,
     children: [
       {
         path: '',
@@ -56,9 +59,13 @@ export const router = createBrowserRouter([
       },
       {
         path: 'revisao',
-        element: <EmConstrucao nome="Revisão" />,
+        element: <Revisao />,
       },
     ],
+  },
+  {
+    path: '/detalhes',
+    element: <DetalhesChamado />,
   },
   {
     path: '/conclusao',
