@@ -8,6 +8,7 @@ import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import { DetalhesChamado } from '../pages/Detalhes';
 import Home from '../pages/Home';
+import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 
 export const router = createBrowserRouter([
@@ -23,11 +24,11 @@ export const router = createBrowserRouter([
         path: '',
         element: <Home />,
       },
-      {
-        path: 'chamados',
-        element: <div>Lista de Chamados</div>,
-      },
     ],
+  },
+  {
+    path: 'chamados',
+    element: <ListaChamadosAnonimo />,
   },
   {
     path: '/formulario',
