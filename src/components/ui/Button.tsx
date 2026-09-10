@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
-  variant?: 'solid' | 'outline';
+  variant?: 'solid' | 'outline' | 'dark';
   children: ReactNode;
 }
 
@@ -24,6 +24,7 @@ function Button({
   const variants = {
     solid: 'bg-primary text-white hover:bg-primary/90',
     outline: 'border border-primary text-primary hover:bg-primary/10',
+    dark: 'bg-[#2B2B2B] text-white border-2 border-white hover:bg-[#2B2B2B]/90',
   };
 
   return (
