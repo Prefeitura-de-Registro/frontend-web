@@ -4,11 +4,15 @@ import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
 import { FormularioLocalizacao } from '../pages/FormularioLocalizacao';
 import { DetalhesChamado } from '../pages/Detalhes';
+import FormularioOcorrencia from '../pages/form-ocorrencia';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
+import HomeSecundaria from '../pages/HomeSecundaria';
+import { DetalhesChamado } from '../pages/Detalhes';
 import Home from '../pages/Home';
+import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 
@@ -25,7 +29,15 @@ export const router = createBrowserRouter([
         path: '',
         element: <Home />,
       },
+      {
+        path: 'chamados-id',
+        element: <HomeSecundaria />,
+      },
     ],
+  },
+  {
+    path: 'anonimo',
+    element: <HomeAnonimo />,
   },
   {
     path: 'chamados',
@@ -41,7 +53,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'ocorrencia',
-        element: <EmConstrucao nome="Ocorrência" />,
+        element: <FormularioOcorrencia />,
       },
       {
         path: 'endereco',
