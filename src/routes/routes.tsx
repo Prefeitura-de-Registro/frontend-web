@@ -6,7 +6,6 @@ import FormularioOcorrencia from '../pages/form-ocorrencia';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';
-import { DetalhesChamado } from '../pages/Detalhes';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import { DetalhesChamado } from '../pages/Detalhes';
 import Home from '../pages/Home';
