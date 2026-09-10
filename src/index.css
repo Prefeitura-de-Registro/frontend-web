@@ -1,12 +1,12 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Cores principais */
-  --color-primary: #0073A9;
-  --color-secondary: #F2F2F2;
-  --color-tertiary: #DFE8F1;
-  --color-danger: #D92117;
+  --color-primary: #0073a9;
+  --color-secondary: #f2f2f2;
+  --color-tertiary: #dfe8f1;
+  --color-danger: #d92117;
 
   /* Tipografia */
-  --font-sans: "Inter", sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
