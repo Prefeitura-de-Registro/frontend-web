@@ -17,10 +17,10 @@ function CampoTextoArea({
 }: CampoTextoAreaProps) {
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label className="font-bold text-primary text-lg">{label}:</label>
+      <label className="font-bold text-primary text-base">{label}:</label>
       <textarea
         rows={rows}
-        className={`w-full rounded-2xl border border-gray-200 px-6 py-4 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary resize-none ${className}`}
+        className={`bg-white w-full rounded-2xl border border-gray-200 px-6 py-4 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary resize-none ${className}`}
         {...props}
       />
     </div>
