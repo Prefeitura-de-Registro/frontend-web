@@ -3,6 +3,7 @@ import { EmConstrucao } from './emConstrucao';
 import TesteComponentes from '../pages/TesteComponentes';
 import { FormularioLocalizacao } from '../pages/FormularioLocalizacao';
 import { FormLayout } from '../components/layouts/FormLayout';
+import Conclusao from '../pages/Conclusao';
 import { HomeLayout } from '../components/layouts/HomeLayout';
 import Home from '../pages/Home';
 
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
         element: <EmConstrucao nome="Revisão" />,
       },
     ],
+  },
+  {
+    path: '/conclusao',
+    element: <Conclusao />,
   },
   {
     path: '*',
