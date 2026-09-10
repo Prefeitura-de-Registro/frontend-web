@@ -2,8 +2,10 @@ import { createBrowserRouter } from 'react-router-dom';
 import { EmConstrucao } from './emConstrucao';
 import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
-// import { HomeLayout } from '../components/layouts/HomeLayout';
+import Conclusao from '../pages/Conclusao';
+import { HomeLayout } from '../components/layouts/HomeLayout';
 // import { FormLayout } from '../components/layouts/FormLayout';
+import Home from '../pages/Home';
 
 export const router = createBrowserRouter([
   {
@@ -12,12 +14,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
-    // element: <HomeLayout />,
-    element: <EmConstrucao nome="home" />,
+    element: <HomeLayout />,
     children: [
       {
         path: '',
-        element: <div>Sua Tela Home Aqui</div>,
+        element: <Home />,
       },
       {
         path: 'chamados',
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
         element: <EmConstrucao nome="Revisão" />,
       },
     ],
+  },
+  {
+    path: '/conclusao',
+    element: <Conclusao />,
   },
   {
     path: '*',
