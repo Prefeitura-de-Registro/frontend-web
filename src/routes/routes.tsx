@@ -59,6 +59,8 @@ export const router = createBrowserRouter([
   {
     path: '/detalhes',
     element: <DetalhesChamado />,
+  },
+  {
     path: '/conclusao',
     element: <Conclusao />,
   },
