@@ -1,4 +1,4 @@
-// src/components/layouts/FormLayout.tsx
+// src/components/layouts/FormLayout.tsx[cite: 5]
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Footer } from '../ui/Footer';
 import { ChevronLeft } from 'lucide-react';
@@ -12,7 +12,7 @@ export function FormLayout() {
 
   const isRevisao = location.pathname.includes('revisao');
 
-  // deriva a etapa ativa a partir da rota, mesmo padrão do isRevisao
+  // deriva a etapa ativa a partir da rota, mesmo padrão do isRevisao[cite: 5]
   const etapaAtual: TipoIconeFormulario | null = location.pathname.includes(
     'endereco',
   )
@@ -37,15 +37,16 @@ export function FormLayout() {
           </button>
           <div className="flex flex-col w-full items-center py-2">
             {isRevisao ? (
-              <h1 className="text-sky-900 font-extrabold text-2xl leading-tight">
+              <h1 className="text-sky-900 font-extrabold text-4xl leading-tight">
                 Revisão
               </h1>
             ) : (
               <>
-                <span className="text-slate-700 text-base font-medium leading-tight">
+                <span className="text-slate-700 text-lg font-medium leading-tight">
                   Preencha o
                 </span>
-                <h1 className="text-sky-900 font-extrabold text-2xl leading-tight">
+                {/* Fonte aumentada para text-4xl para dar destaque idêntico ao Figma */}
+                <h1 className="text-sky-900 font-extrabold text-4xl leading-tight">
                   Formulário
                 </h1>
               </>
@@ -53,7 +54,7 @@ export function FormLayout() {
           </div>
         </div>
 
-        {/* Stepper só aparece nas 3 etapas de preenchimento, some na Revisão */}
+        {/* Stepper só aparece nas 3 etapas de preenchimento, some na Revisão[cite: 5] */}
         {etapaAtual && <StepperFormulario etapaAtual={etapaAtual} />}
       </header>
 
@@ -65,3 +66,5 @@ export function FormLayout() {
     </div>
   );
 }
+
+export default FormLayout;

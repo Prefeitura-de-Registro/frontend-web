@@ -42,7 +42,7 @@ function HomeSecundaria() {
       <button
         type="button"
         onClick={() => navigate('/formulario/ocorrencia')}
-        className="fixed bottom-[111px] right-[22px] w-[92px] h-[92px] rounded-full bg-primary text-white shadow-lg flex items-center justify-center"
+        className="fixed bottom-[111px] right-[22px] w-[70px] h-[70px] rounded-full bg-primary text-white shadow-lg flex items-center justify-center"
       >
         <Plus size={75} strokeWidth={2.0} />
       </button>
