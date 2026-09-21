@@ -42,7 +42,7 @@ function LoginMunicipe() {
 
           <Button
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/signin')}
             className="w-full"
           >
             Logar
