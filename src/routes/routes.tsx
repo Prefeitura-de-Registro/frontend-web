@@ -15,11 +15,16 @@ import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 import Splash from '../pages/Splash';
+import SignIn from '../pages/SignIn';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginMunicipe />,
+  },
+  {
+    path: '/signin',
+    element: <SignIn />,
   },
   {
     path: '/',
