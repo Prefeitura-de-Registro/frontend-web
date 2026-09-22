@@ -14,11 +14,16 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+import SignIn from '../pages/SignIn';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginMunicipe />,
+  },
+  {
+    path: '/signin',
+    element: <SignIn />,
   },
   {
     path: '/',
