@@ -2,7 +2,7 @@ import type { Ocorrencias } from '../types/ocorrencia';
 
 export const ocorrenciasMock: Ocorrencias[] = [
   {
-    id: '1',
+    id: '2026-00001',
     tipo: 'buraco',
     sla: '48h',
     estado: 'urgente',
@@ -15,7 +15,7 @@ export const ocorrenciasMock: Ocorrencias[] = [
     riscoAcidente: true,
   },
   {
-    id: '2',
+    id: '2026-00002',
     tipo: 'poda',
     sla: '72h',
     estado: 'médio',
@@ -28,7 +28,7 @@ export const ocorrenciasMock: Ocorrencias[] = [
     proximaFiacao: true,
   },
   {
-    id: '3',
+    id: '2026-00003',
     tipo: 'vazamento',
     sla: '24h',
     estado: 'urgente',
@@ -41,7 +41,7 @@ export const ocorrenciasMock: Ocorrencias[] = [
     volumeEstimado: 'moderado',
   },
   {
-    id: '4',
+    id: '2026-00004',
     tipo: 'luz',
     sla: '96h',
     estado: 'normal',
