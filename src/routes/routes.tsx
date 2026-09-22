@@ -14,6 +14,7 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+import { Notificacoes } from '../pages/Notificacoes';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
         element: <HomeSecundaria />,
       },
     ],
+  },
+  {
+    path: '/notificacoes',
+    element: <Notificacoes />,
   },
   {
     path: 'anonimo',
