@@ -14,6 +14,7 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+import Splash from '../pages/Splash';
 
 export const router = createBrowserRouter([
   {
@@ -22,14 +23,24 @@ export const router = createBrowserRouter([
   },
   {
     path: '/',
+    element: <Splash />,
+  },
+  {
+    path: '/home',
     element: <HomeLayout />,
     children: [
       {
         path: '',
         element: <Home />,
       },
+    ],
+  },
+  {
+    path: '/chamados-id',
+    element: <HomeLayout />,
+    children: [
       {
-        path: 'chamados-id',
+        path: '',
         element: <HomeSecundaria />,
       },
     ],
