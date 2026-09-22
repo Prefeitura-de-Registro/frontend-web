@@ -12,22 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write # <-- Permissão essencial para o robô criar PR
     steps:
       - name: Checkout do repositorio
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Atualizar branch Develop
+      - name: Criar Pull Request Automático para Develop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Entra na develop local da maquina virtual
-          git checkout develop
-          
-          # Puxa o codigo atualizado da main recem-aprovada
-          git merge origin/main --no-edit
-          
-          # Empurra as alteracoes de volta para a develop no servidor
-          git push origin develop
+          # Verifica se a develop já tem tudo da main. Se não tiver, abre o PR.
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "chore: backmerge automático da main para a develop" \
+            --body "Sincronização gerada automaticamente pelo GitHub Actions para manter a \`develop\` atualizada após a última entrega na \`main\`." || echo "PR já existe ou não há mudanças."
