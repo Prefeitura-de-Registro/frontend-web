@@ -166,13 +166,13 @@ function Cadastro() {
           <img
             src={brasao}
             alt="Brasão da Prefeitura de Registro"
-            className="h-[30px] w-[30px] object-contain"
+            className="h-[40px] w-[40px] object-contain"
           />
 
           <img
             src={logoFatec}
             alt="Fatec Registro"
-            className="w-[80px] object-contain"
+            className="w-[70px] object-contain"
           />
         </div>
       </main>
