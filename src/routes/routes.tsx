@@ -4,7 +4,7 @@ import LoginMunicipe from '../pages/LoginMunicipe';
 import TesteComponentes from '../pages/TesteComponentes';
 import { FormularioLocalizacao } from '../pages/FormularioLocalizacao';
 import { DetalhesChamado } from '../pages/Detalhes';
-import { FormularioOcorrencia } from '../pages/FormularioOcorrencia';
+import FormularioOcorrencia from '../pages/FormularioOcorrencia';
 import { FormularioFotos } from '../pages/FormularioFotos';
 import { FormLayout } from '../components/layouts/FormLayout';
 import Conclusao from '../pages/Conclusao';
@@ -14,6 +14,7 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+// import { Notificacoes } from '../pages/Notificacoes';
 
 export const router = createBrowserRouter([
   {
@@ -34,12 +35,16 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  // {
+  //   path: '/notificacoes',
+  //   element: <Notificacoes />,
+  // },
   {
-    path: 'anonimo',
+    path: '/anonimo',
     element: <HomeAnonimo />,
   },
   {
-    path: 'chamados',
+    path: '/chamados',
     element: <ListaChamadosAnonimo />,
   },
   {
