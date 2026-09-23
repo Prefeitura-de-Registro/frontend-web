@@ -1,4 +1,4 @@
-import iconeNotificacoes from '../../assets/icone-notificacoes.svg';
+import iconeNotificacoes from '../../assets/icone-notificacoes.png';
 
 interface EmptyStateProps {
   title?: string;
