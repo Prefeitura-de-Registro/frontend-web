@@ -1,5 +1,5 @@
 interface Credencial {
-  matricula: string;
+  email: string;
   senha: string;
 }
 
