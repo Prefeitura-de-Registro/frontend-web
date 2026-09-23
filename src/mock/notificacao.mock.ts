@@ -5,7 +5,7 @@ export const notificacoesMock: Notificacoes[] = [
     id: '1',
     tipo: 'Nova solicitação recebida',
     descricao:
-      'A secretaria de Meio Ambiente enviou uma solicitação referente ao chamado #2026-00030',
+      'A secretaria de Meio Ambiente enviou uma solicitação referente ao chamado 2026-00030',
     tempoAtras: '30 minutos atrás',
   },
   {
