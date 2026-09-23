@@ -1,67 +1,74 @@
-// import { useState } from 'react';
-//import { Mail, LockKeyhole, User, FileText, X } from 'lucide-react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+
+import { Mail, LockKeyhole, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import ButtonBack from '../../components/ui/ButtonBack';
-// import Button from '../../components/ui/Button';
-
+import brasao from '../../assets/brasao.svg';
 import degradeRegistro from '../../assets/degrade.svg';
-// import logoFatec from '../../assets/logo_fatec_de_registro.png';
+import logoFatec from '../../assets/logo_fatec_de_registro.png';
 
-// interface CampoCadastroProps {
-//   placeholder: string;
-//   valor: string;
-//   onChange: (valor: string) => void;
-//   tipo?: 'text' | 'email' | 'password';
-//   icon: React.ReactNode;
-// }
+interface CampoCadastroProps {
+  label: string;
+  placeholder: string;
+  valor: string;
+  onChange: (valor: string) => void;
+  tipo?: 'text' | 'email' | 'password';
+  icon: ReactNode;
+}
 
-// function CampoCadastro({
-//   placeholder,
-//   valor,
-//   onChange,
-//   tipo = 'text',
-//   icon,
-// }: CampoCadastroProps) {
-//   return (
-//     <div className="relative w-full">
-//       <div className="absolute left-5 top-1/2 -translate-y-1/2 text-primary">
-//         {icon}
-//       </div>
+function CampoCadastro({
+  label,
+  placeholder,
+  valor,
+  onChange,
+  tipo = 'text',
+  icon,
+}: CampoCadastroProps) {
+  return (
+    <div className="w-full">
+      <label className="mb-1 block text-[17px] font-medium text-primary">
+        {label}
+      </label>
 
-//       <input
-//         type={tipo}
-//         value={valor}
-//         onChange={(event) => onChange(event.target.value)}
-//         placeholder={placeholder}
-//         className="h-[52px] w-full rounded-full border border-primary bg-tertiary pl-14 pr-12 text-base text-black outline-none placeholder:text-primary"
-//       />
+      <div className="relative flex h-[45px] w-full items-center border-b-[1.5px] border-[#E5E7EB] bg-[#F9FAFB]">
+        <div className="ml-2 text-primary">{icon}</div>
 
-//       {valor && (
-//         <button
-//           type="button"
-//           onClick={() => onChange('')}
-//           aria-label={`Limpar campo ${placeholder}`}
-//           className="absolute right-5 top-1/2 -translate-y-1/2 text-primary"
-//         >
-//           <X className="h-5 w-5" strokeWidth={2.5} />
-//         </button>
-//       )}
-//     </div>
-//   );
-// }
+        <input
+          type={tipo}
+          value={valor}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          className="h-full flex-1 bg-transparent px-3 text-[15px] text-black outline-none placeholder:text-[#AAB1BC]"
+        />
+
+        {valor && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            aria-label={`Limpar campo ${label}`}
+            className="mr-2 text-[#4A5565]"
+          >
+            <X className="h-5 w-5" strokeWidth={1.8} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Cadastro() {
   const navigate = useNavigate();
 
-  //   const [nome, setNome] = useState('');
-  //   const [cpf, setCpf] = useState('');
-  //   const [email, setEmail] = useState('');
-  //   const [senha, setSenha] = useState('');
-  //   const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
+    <div className="relative min-h-screen bg-white">
       <img
         src={degradeRegistro}
         alt=""
@@ -73,11 +80,11 @@ function Cadastro() {
           type="button"
           onClick={() => navigate('/login')}
           aria-label="Voltar para a tela de login"
-          className="mt-16"
+          className="mt-12"
         />
 
         <div className="flex flex-col items-center text-center">
-          <h1 className="text-[32px] font-normal leading-[1.05] text-black">
+          <h1 className="text-[33px] font-normal leading-[1.05] text-black">
             Crie a
             <br />
             <span className="text-[40px] font-bold text-primary">
@@ -85,7 +92,88 @@ function Cadastro() {
             </span>
           </h1>
 
-          <div className="mt-1 h-[0.8px] w-[200px] rounded-full bg-primary" />
+          <div className="mt-1 h-[1px] w-[300px] rounded-full bg-primary" />
+
+          <p className="mt-3 text-center text-[16px] text-black">
+            Cadastre-se para <b>acompanhar</b> <br />
+            seus <b>chamados</b>
+          </p>
+        </div>
+        <div className="mt-8 flex w-full flex-col gap-4">
+          <CampoCadastro
+            label="Nome Completo"
+            placeholder="Insira aqui seu nome"
+            valor={nome}
+            onChange={setNome}
+            icon={<Mail className="h-4 w-4" />}
+          />
+
+          <CampoCadastro
+            label="CPF"
+            placeholder="xxx.xxx.xxx-xx"
+            valor={cpf}
+            onChange={setCpf}
+            icon={<Mail className="h-4 w-4" />}
+          />
+
+          <CampoCadastro
+            label="E-mail"
+            placeholder="Insira aqui seu email"
+            valor={email}
+            onChange={setEmail}
+            tipo="email"
+            icon={<Mail className="h-4 w-4" />}
+          />
+
+          <CampoCadastro
+            label="Senha"
+            placeholder="Insira aqui sua senha"
+            valor={senha}
+            onChange={setSenha}
+            tipo="password"
+            icon={<Mail className="h-4 w-4" />}
+          />
+
+          <CampoCadastro
+            label="Confirmar senha"
+            placeholder="Confirme aqui sua senha"
+            valor={confirmacaoSenha}
+            onChange={setConfirmacaoSenha}
+            tipo="password"
+            icon={<LockKeyhole className="h-4 w-4" />}
+          />
+        </div>
+
+        <button
+          type="button"
+          className="mx-auto mt-7 h-16 w-[350px] max-w-full rounded-3xl bg-primary text-[20px] font-medium text-white"
+          onClick={() => navigate('/home')}
+        >
+          Cadastrar
+        </button>
+
+        <p className="mt-5 text-center text-[15px] text-black">
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="font-bold text-primary underline"
+          >
+            Já está cadastrado? <b>Entrar</b>
+          </button>
+        </p>
+
+        <div className="flex items-center justify-center gap-4 pb-4 pt-8">
+          <img
+            src={brasao}
+            alt="Brasão da Prefeitura de Registro"
+            className="h-[30px] w-[30px] object-contain"
+          />
+
+          <img
+            src={logoFatec}
+            alt="Fatec Registro"
+            className="w-[80px] object-contain"
+          />
         </div>
       </main>
     </div>
