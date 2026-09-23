@@ -14,7 +14,6 @@ import CardAcaoHome from '../../components/layouts/CardAcaoHome';
 import FiltroTextoTabs from '../../components/ui/FiltroTextoTabs';
 import StepperFormulario from '../../components/ui/StepperFormulario';
 import ButtonBack from '../../components/ui/ButtonBack';
-import EmptyState from '../../components/ui/EmptyState';
 import SelectCustomizado from '../../components/ui/SelectCustomizado';
 
 /**
@@ -79,17 +78,6 @@ function TesteComponentes() {
           <StatusDot status="aberto" />
           <StatusDot status="andamento" />
           <StatusDot status="urgente" />
-          <EmptyState
-            ilustracao={
-              <img
-                src={''}
-                alt="Nenhuma notificação"
-                className="w-full h-full object-contain"
-              />
-            }
-            titulo="Nenhuma notificação por aqui"
-            subtitulo="Assim que houver novidade sobre seus chamados, você verá aqui."
-          />
         </div>
       </section>
 
