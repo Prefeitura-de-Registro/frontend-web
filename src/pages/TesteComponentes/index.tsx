@@ -14,6 +14,8 @@ import CardAcaoHome from '../../components/layouts/CardAcaoHome';
 import FiltroTextoTabs from '../../components/ui/FiltroTextoTabs';
 import StepperFormulario from '../../components/ui/StepperFormulario';
 import ButtonBack from '../../components/ui/ButtonBack';
+import EmptyState from '../../components/ui/EmptyState';
+import SelectCustomizado from '../../components/ui/SelectCustomizado';
 
 /**
  * Página temporária só para visualizar todos os componentes do Design System
@@ -24,6 +26,7 @@ import ButtonBack from '../../components/ui/ButtonBack';
 function TesteComponentes() {
   const [filtroAtivo, setFiltroAtivo] = useState('todos');
   const navigate = useNavigate();
+  const [categoria, setCategoria] = useState('');
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-10">
@@ -36,18 +39,26 @@ function TesteComponentes() {
         <h2 className="text-lg font-bold text-primary border-b pb-2">
           Clicáveis
         </h2>
-
+        <SelectCustomizado
+          placeholder="Selecione uma ocorrência"
+          opcoes={[
+            { value: 'buraco', label: 'Buraco' },
+            { value: 'poda', label: 'Poda' },
+            { value: 'luz', label: 'Luz' },
+            { value: 'vazamento', label: 'Vazamento' },
+          ]}
+          value={categoria}
+          onChange={setCategoria}
+        />
         <div className="flex flex-wrap items-center gap-3">
           <Button>Enviar chamado</Button>
           <Button variant="outline">Cancelar</Button>
           <ButtonBack onClick={() => navigate(-1)} />
         </div>
-
         <div className="flex flex-wrap items-center gap-3">
           <ButtonLarger>Enviar chamado</ButtonLarger>
           <ButtonLarger variant="outline">Cancelar</ButtonLarger>
         </div>
-
         <div className="max-w-xs">
           <Select
             placeholder="Selecione uma ocorrência"
@@ -68,6 +79,17 @@ function TesteComponentes() {
           <StatusDot status="aberto" />
           <StatusDot status="andamento" />
           <StatusDot status="urgente" />
+          <EmptyState
+            ilustracao={
+              <img
+                src={''}
+                alt="Nenhuma notificação"
+                className="w-full h-full object-contain"
+              />
+            }
+            titulo="Nenhuma notificação por aqui"
+            subtitulo="Assim que houver novidade sobre seus chamados, você verá aqui."
+          />
         </div>
       </section>
 
