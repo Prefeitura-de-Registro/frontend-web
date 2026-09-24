@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import RadioButton from '../components/ui/RadioButton';
-import SelectCustomizado from '../components/ui/SelectCustomizado';
+import RadioButton from '../../components/ui/RadioButton';
+import SelectCustomizado from '../../components/ui/SelectCustomizado';
 
 export function FormularioOcorrencia() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ export function FormularioOcorrencia() {
   const nomeOcorrenciaBaixa = tipoOcorrencia.toLowerCase();
   const isLuz = tipoOcorrencia === 'Luz';
 
-  // Ajuste do artigo gramatical ("da" para Poda, "do" para os restantes)
   const artigo = tipoOcorrencia === 'Poda' ? 'da' : 'do';
 
   const perguntasOcorrencia = [
@@ -42,14 +41,14 @@ export function FormularioOcorrencia() {
 
   const isUltimaPergunta = paginaPergunta === perguntasOcorrencia.length - 1;
 
-  const handleNext = (e: React.FormEvent) => {
+  const handleNext = (e: React.SubmitEvent) => {
     e.preventDefault();
     navigate('/formulario/endereco');
   };
 
   return (
     <div className="w-full max-w-sm mx-auto px-4 py-1 flex-1 flex flex-col justify-center font-sans h-full max-h-screen overflow-hidden">
-      <div className="bg-[var(--color-tertiary)] rounded-[28px] p-4 shadow-md flex flex-col gap-3 w-full my-auto">
+      <div className="bg-tertiary rounded-[28px] p-4 shadow-md flex flex-col gap-3 w-full my-auto">
         <form onSubmit={handleNext} className="flex flex-col gap-3 w-full">
           {/* Seletor Customizado */}
           <SelectCustomizado
@@ -64,7 +63,7 @@ export function FormularioOcorrencia() {
 
           {/* Campo Descrição */}
           <div className="flex flex-col gap-1 w-full">
-            <label className="block text-sm font-bold text-[var(--color-primary)]">
+            <label className="block text-sm font-bold text-primary">
               Descrição:
             </label>
             <textarea
@@ -78,9 +77,9 @@ export function FormularioOcorrencia() {
 
           {/* Card de Perguntas */}
           {!isLuz && (
-            <div className="relative bg-[var(--color-secondary)] rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between">
+            <div className="relative bg-secondary rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between">
               <div className="pr-6">
-                <label className="block text-sm font-bold text-[var(--color-primary)] mb-2 leading-snug">
+                <label className="block text-sm font-bold text-primary mb-2 leading-snug">
                   {perguntasOcorrencia[paginaPergunta].titulo}
                 </label>
                 <div className="flex flex-col gap-1.5">
@@ -113,7 +112,7 @@ export function FormularioOcorrencia() {
                     prev === perguntasOcorrencia.length - 1 ? 0 : prev + 1,
                   )
                 }
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-primary)] hover:opacity-75 transition-opacity cursor-pointer p-1"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:opacity-75 transition-opacity cursor-pointer p-1"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -124,9 +123,7 @@ export function FormularioOcorrencia() {
                   <span
                     key={idx}
                     className={`h-2 w-2 rounded-full transition-all ${
-                      paginaPergunta === idx
-                        ? 'bg-[var(--color-primary)]'
-                        : 'bg-gray-300'
+                      paginaPergunta === idx ? 'bg-primary' : 'bg-gray-300'
                     }`}
                   />
                 ))}
@@ -139,7 +136,7 @@ export function FormularioOcorrencia() {
             <div className="flex justify-end pt-1">
               <button
                 type="submit"
-                className="bg-[var(--color-primary)] hover:opacity-90 text-white font-bold text-sm px-7 py-2 rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
+                className="bg-primary hover:opacity-90 text-white font-bold text-sm px-7 py-2 rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
               >
                 Próximo
               </button>
