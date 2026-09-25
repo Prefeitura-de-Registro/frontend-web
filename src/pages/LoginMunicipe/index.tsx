@@ -36,13 +36,13 @@ function LoginMunicipe() {
         </p>
 
         <div className="w-full space-y-3.5">
-          <Button onClick={() => navigate('/')} className="w-full">
+          <Button onClick={() => navigate('/cadastro')} className="w-full">
             Criar uma conta
           </Button>
 
           <Button
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/signin')}
             className="w-full"
           >
             Logar
