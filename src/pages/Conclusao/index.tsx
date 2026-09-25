@@ -80,7 +80,7 @@ export function Conclusao() {
 
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/chamados-id')}
             className="w-full bg-slate-100 border border-primary text-sky-700 font-bold py-3.5 px-6 shadow-sm hover:bg-slate-200 transition"
           >
             Voltar ao início

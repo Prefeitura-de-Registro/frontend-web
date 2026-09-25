@@ -5,8 +5,25 @@ import { useNavigate } from 'react-router-dom';
 import brasao from '../../assets/brasao.svg';
 import degradeRegistro from '../../assets/degrade.svg';
 
+import { usuarioMock } from '../../mock/usuario.mock';
+import { credencialMock } from '../../mock/credencial.mock';
+
+// Mock
+async function autenticar(email: string, senha: string) {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  const credencial = credencialMock.find((c) => c.email === email);
+
+  if (!credencial || credencial.senha !== senha) {
+    return { ok: false as const };
+  }
+
+  const usuarioEncontrado = usuarioMock.find((u) => u.email === email);
+  return { ok: true as const, usuario: usuarioEncontrado! };
+} // fim do mock
+
 interface CampoLoginProps {
-  tipo: 'matricula' | 'senha';
+  tipo: 'email' | 'senha';
   valor: string;
   onChange: (valor: string) => void;
 }
@@ -28,7 +45,7 @@ function CampoLogin({ tipo, valor, onChange }: CampoLoginProps) {
         type={isSenha ? 'password' : 'text'}
         value={valor}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={isSenha ? 'Senha' : 'Matrícula'}
+        placeholder={isSenha ? 'Senha' : 'Email'}
         className="h-[52px] w-full rounded-full border border-primary bg-tertiary pl-16 pr-5 text-base text-black outline-none placeholder:text-primary focus:ring-2 focus:ring-primary/20"
       />
     </div>
@@ -38,13 +55,36 @@ function CampoLogin({ tipo, valor, onChange }: CampoLoginProps) {
 function SignIn() {
   const navigate = useNavigate();
 
-  const [matricula, setMatricula] = useState('');
+  const [email, setEmail] = useState(''); //Troca de 'matricula' para 'email'
   const [senha, setSenha] = useState('');
 
-  function handleEntrar() {
-    // A autenticação ainda não faz parte desta tela.
-    // Por enquanto, apenas mantemos os valores dos campos.
-    console.log({ matricula, senha });
+  const [erro, setErro] = useState(''); // useState para demonstrar mensagem errro
+  const [carregando, setCarregando] = useState(false); // useState para alterar o estado do botão após o clique
+
+  //função do botão entrar
+  async function handleEntrar() {
+    setErro('');
+
+    if (!email.trim() || !senha.trim()) {
+      setErro('Preencha email e senha.');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      const resultado = await autenticar(email, senha);
+
+      if (!resultado.ok) {
+        setErro('Email ou senha inválidas.');
+        return;
+      }
+
+      navigate('/');
+    } catch {
+      setErro('Erro ao entrar. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
@@ -92,13 +132,13 @@ function SignIn() {
           }}
           className="mt-4 flex flex-col gap-4"
         >
-          <CampoLogin
-            tipo="matricula"
-            valor={matricula}
-            onChange={setMatricula}
-          />
+          <CampoLogin tipo="email" valor={email} onChange={setEmail} />
 
           <CampoLogin tipo="senha" valor={senha} onChange={setSenha} />
+
+          {erro && (
+            <p className="text-red-500 text-sm text-center -mt-2">{erro}</p>
+          )}
 
           <button
             type="button"
@@ -109,9 +149,10 @@ function SignIn() {
 
           <button
             type="submit"
-            className="mt-5 h-16 w-full rounded-full bg-primary text-[24px] font-medium text-white transition-colors hover:bg-primary/90"
+            disabled={carregando}
+            className="mt-5 h-16 w-full rounded-full bg-primary text-[24px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            Entrar
+            {carregando ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
       </main>

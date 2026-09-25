@@ -16,6 +16,7 @@ import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
+import Cadastro from '../pages/Cadastro';
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
   {
     path: '/signin',
     element: <SignIn />,
+  },
+  {
+    path: '/cadastro',
+    element: <Cadastro />,
   },
   {
     path: '/',
