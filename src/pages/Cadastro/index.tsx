@@ -12,15 +12,6 @@ import degradeRegistro from '../../assets/degrade.svg';
 import logoFatec from '../../assets/logo_fatec_de_registro.png';
 import { cadastrar } from './cadastrarUsuario';
 
-interface CampoCadastroProps {
-  label: string;
-  placeholder: string;
-  valor: string;
-  onChange: (valor: string) => void;
-  tipo?: 'text' | 'email' | 'password';
-  icon: ReactNode;
-}
-
 function CampoCadastro({
   label,
   placeholder,
