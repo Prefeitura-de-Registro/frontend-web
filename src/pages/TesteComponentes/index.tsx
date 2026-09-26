@@ -1,157 +1,160 @@
 import { useState } from 'react';
-import Button from '../../components/ui/Button';
-import Select from '../../components/ui/Select';
-import Checkbox from '../../components/ui/Checkbox';
-import RadioButton from '../../components/ui/RadioButton';
-import SearchInput from '../../components/ui/SearchInput';
-import StatusDot from '../../components/ui/StatusDot';
-import CampoTexto from '../../components/ui/CampoTexto';
-import CardChamadoMunicipe from '../../components/layouts/CardChamadoMunicipe';
-import ButtonLarger from '../../components/ui/ButtonLarger';
-import CampoTextoArea from '../../components/ui/CampoTextoArea';
-import { useNavigate } from 'react-router-dom';
-import CardAcaoHome from '../../components/layouts/CardAcaoHome';
-import FiltroTextoTabs from '../../components/ui/FiltroTextoTabs';
-import StepperFormulario from '../../components/ui/StepperFormulario';
-import ButtonBack from '../../components/ui/ButtonBack';
-import SelectCustomizado from '../../components/ui/SelectCustomizado';
+import {
+  ChevronLeft,
+  Bell,
+  Edit3,
+  SlidersHorizontal,
+  EyeOff,
+} from 'lucide-react';
 
-/**
- * Página temporária só para visualizar todos os componentes do Design System
- * juntos, com suas variações de estado. Não faz parte do fluxo real do app —
- * pode ser removida (ou deixada como rota /teste-componentes) depois que o
- * time validar visualmente cada peça.
- */
-function TesteComponentes() {
-  const [filtroAtivo, setFiltroAtivo] = useState('todos');
-  const navigate = useNavigate();
-  const [categoria, setCategoria] = useState('');
+import { Button } from '../../components/ui/Button';
+import { BottomNav } from '../../components/ui/BottomNav';
+import { Stepper } from '../../components/ui/Stepper';
+import StepperFormulario, {
+  type TipoIconeFormulario,
+} from '../../components/ui/StepperFormulario';
+import { TabsListagem } from '../../components/ui/TabsListagem';
+import { SimNaoButton } from '../../components/ui/SimNaoButton';
+import { StatusPill } from '../../components/ui/StatusPill';
+import { CategoriaCard } from '../../components/ui/CategoriaCard';
+
+export default function TesteComponentes() {
+  const [abaAtiva, setAbaAtiva] = useState<'enviadas' | 'recebidas'>(
+    'enviadas',
+  );
+  const [categoriaAtiva, setCategoriaAtiva] = useState<string>('buraco');
+  const [navAtiva, setNavAtiva] = useState<string>('inicio');
+  const [etapaFormulario] = useState<TipoIconeFormulario>('endereco');
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-10">
-      <h1 className="text-2xl font-bold text-slate-800">
-        Design System — Página de Teste
-      </h1>
+    <div className="min-h-screen bg-slate-50 p-6 pb-24 font-sans">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <header className="border-b border-slate-200 pb-4">
+          <h1 className="text-2xl font-bold text-[#0073a9]">
+            Componentes UX - Fala Registro!
+          </h1>
+        </header>
 
-      {/* CLICÁVEIS */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-primary border-b pb-2">
-          Clicáveis
-        </h2>
-        <SelectCustomizado
-          placeholder="Selecione uma ocorrência"
-          opcoes={[
-            { value: 'buraco', label: 'Buraco' },
-            { value: 'poda', label: 'Poda' },
-            { value: 'luz', label: 'Luz' },
-            { value: 'vazamento', label: 'Vazamento' },
-          ]}
-          value={categoria}
-          onChange={setCategoria}
-        />
-        <div className="flex flex-wrap items-center gap-3">
-          <Button>Enviar chamado</Button>
-          <Button variant="outline">Cancelar</Button>
-          <ButtonBack onClick={() => navigate(-1)} />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <ButtonLarger>Enviar chamado</ButtonLarger>
-          <ButtonLarger variant="outline">Cancelar</ButtonLarger>
-        </div>
-        <div className="max-w-xs">
-          <Select
-            placeholder="Selecione uma ocorrência"
-            options={[
-              { label: 'Buraco na rua', value: 'buraco' },
-              { label: 'Iluminação pública', value: 'iluminacao' },
-              { label: 'Esgoto a céu aberto', value: 'esgoto' },
-            ]}
-          />
-        </div>
-      </section>
+        {/* BOTÕES */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm space-y-6">
+          <h2 className="text-sm font-bold text-slate-400 uppercase">Botões</h2>
 
-      {/* ÍCONES */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-primary border-b pb-2">Ícones</h2>
+          <div className="flex flex-wrap gap-4 items-center">
+            <Button variant="icon" icon={ChevronLeft} aria-label="Voltar" />
+            <Button
+              variant="icon"
+              icon={Bell}
+              hasNotification
+              aria-label="Notificações"
+            />
+          </div>
 
-        <div className="flex flex-wrap items-center gap-6">
-          <StatusDot status="aberto" />
-          <StatusDot status="andamento" />
-          <StatusDot status="urgente" />
-        </div>
-      </section>
+          <div className="flex flex-wrap gap-4 items-center">
+            <Button variant="solid" icon={Edit3}>
+              Editar
+            </Button>
+            <Button variant="solid">Atender chamado</Button>
+            <Button variant="dark" icon={EyeOff}>
+              Entrar Anônimo
+            </Button>
+          </div>
 
-      {/* INPUTS */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-primary border-b pb-2">Inputs</h2>
-
-        <SearchInput />
-
-        <div className="flex flex-wrap gap-4">
-          <Checkbox label="Aceito os termos" defaultChecked />
-          <Checkbox label="Não marcado" />
+          <div className="flex flex-wrap gap-4 items-center">
+            <Button variant="outline">Próximo</Button>
+            <Button variant="outline" icon={SlidersHorizontal}>
+              Filtrar
+            </Button>
+            <Button variant="outline">Logar</Button>
+            <Button variant="outline">Solicitar</Button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          <RadioButton name="exemplo-radio" label="Opção A" defaultChecked />
-          <RadioButton name="exemplo-radio" label="Opção B" />
+        {/* STEPPER */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-400 uppercase">
+            Stepper
+          </h2>
+          <Stepper currentStep={2} />
         </div>
 
-        <FiltroTextoTabs
-          ativo={filtroAtivo}
-          onChange={setFiltroAtivo}
-          opcoes={[
-            { label: 'Todos', value: 'todos' },
-            { label: 'Abertos', value: 'abertos' },
-            { label: 'Em andamento', value: 'andamento' },
-            { label: 'Concluídos', value: 'concluidos' },
-          ]}
-        />
-
-        <div className="w-50">
-          <CampoTexto label="Rua" placeholder="Insira o bairro aqui..." />
+        {/* STEPPER FORMULÁRIO */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-400 uppercase">
+            Stepper Formulário
+          </h2>
+          <StepperFormulario etapaAtual={etapaFormulario} />
         </div>
-        <div>
-          <CampoTextoArea
-            label="Descrição"
-            placeholder="Descreva o problema encontrado..."
-            rows={5}
-          />
+
+        {/* CATEGORIAS */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-400 uppercase">
+            Categorias
+          </h2>
+          <div className="flex gap-4 overflow-x-auto py-2">
+            <CategoriaCard
+              tipo="buraco"
+              isActive={categoriaAtiva === 'buraco'}
+              onClick={() => setCategoriaAtiva('buraco')}
+            />
+            <CategoriaCard
+              tipo="poda"
+              isActive={categoriaAtiva === 'poda'}
+              onClick={() => setCategoriaAtiva('poda')}
+            />
+            <CategoriaCard
+              tipo="luz"
+              isActive={categoriaAtiva === 'luz'}
+              onClick={() => setCategoriaAtiva('luz')}
+            />
+            <CategoriaCard
+              tipo="vazamento"
+              isActive={categoriaAtiva === 'vazamento'}
+              onClick={() => setCategoriaAtiva('vazamento')}
+            />
+          </div>
         </div>
-      </section>
 
-      {/* CARDS */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-primary border-b pb-2">Cards</h2>
+        {/* ABAS E SIM/NÃO */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+            <h2 className="text-sm font-bold text-slate-400 uppercase">
+              Filtros (Abas)
+            </h2>
+            <TabsListagem activeTab={abaAtiva} onChange={setAbaAtiva} />
+          </div>
 
-        <CardChamadoMunicipe
-          categoria="Buraco"
-          numero="2026-00001"
-          status="em atendimento"
-          endereco="Jardim das Flores, 220"
-          data="28/08/2026"
-        />
+          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+            <h2 className="text-sm font-bold text-slate-400 uppercase">
+              Ações Sim/Não
+            </h2>
+            <div className="flex gap-4">
+              <div className="flex flex-col gap-3 w-full">
+                <SimNaoButton tipo="sim" variante="solid" />
+                <SimNaoButton tipo="sim" variante="outline" />
+              </div>
+              <div className="flex flex-col gap-3 w-full">
+                <SimNaoButton tipo="nao" variante="solid" />
+                <SimNaoButton tipo="nao" variante="outline" />
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <CardAcaoHome
-          variante="escuro"
-          titulo="Abrir chamado"
-          subtitulo="Registre uma nova ocorrência"
-          textoBotao="Abrir"
-          onAction={() => navigate('/formulario/ocorrencia')}
-        />
+        {/* STATUS PILLS */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-400 uppercase">Status</h2>
+          <div className="flex flex-wrap gap-3">
+            <StatusPill status="nova_solicitacao" />
+            <StatusPill status="atendimento" />
+            <StatusPill status="aberto" />
+            <StatusPill status="concluido" />
+            <StatusPill status="aprovada" />
+            <StatusPill status="recusada" />
+          </div>
+        </div>
+      </div>
 
-        <CardAcaoHome
-          variante="claro"
-          titulo="Pesquisar chamado"
-          subtitulo="Pesquise uma ocorrência"
-          textoBotao="Pesquisar"
-          onAction={() => navigate('/chamados')}
-        />
-
-        <StepperFormulario etapaAtual="ocorrencia" />
-      </section>
+      <BottomNav activeTab={navAtiva} onTabChange={setNavAtiva} />
     </div>
   );
 }
-
-export default TesteComponentes;
