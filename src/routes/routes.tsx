@@ -15,8 +15,11 @@ import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
 // import { Notificacoes } from '../pages/Notificacoes';
+import { Notificacoes } from '../pages/Notificacoes';
+import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
+import Cadastro from '../pages/Cadastro';
 
 export const router = createBrowserRouter([
   {
@@ -32,15 +35,29 @@ export const router = createBrowserRouter([
     element: <SignIn />,
   },
   {
+    path: '/cadastro',
+    element: <Cadastro />,
+  },
+  {
     path: '/',
+    element: <Splash />,
+  },
+  {
+    path: '/home',
     element: <HomeLayout />,
     children: [
       {
         path: '',
         element: <Home />,
       },
+    ],
+  },
+  {
+    path: '/chamados-id',
+    element: <HomeLayout />,
+    children: [
       {
-        path: 'chamados-id',
+        path: '',
         element: <HomeSecundaria />,
       },
     ],
@@ -50,7 +67,11 @@ export const router = createBrowserRouter([
   //   element: <Notificacoes />,
   // },
   {
-    path: '/anonimo',
+    path: '/notificacoes',
+    element: <Notificacoes />,
+  },
+  {
+    path: 'anonimo',
     element: <HomeAnonimo />,
   },
   {

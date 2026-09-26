@@ -1,22 +1,16 @@
 import { useState } from 'react';
+
+import ButtonBack from '../../components/ui/ButtonBack';
+import CampoCadastro from '../../components/ui/CampoCadastro';
 import type { ReactNode } from 'react';
 
 import { Mail, LockKeyhole, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import ButtonBack from '../../components/ui/ButtonBack';
 import brasao from '../../assets/brasao.svg';
 import degradeRegistro from '../../assets/degrade.svg';
 import logoFatec from '../../assets/logo_fatec_de_registro.png';
-
-interface CampoCadastroProps {
-  label: string;
-  placeholder: string;
-  valor: string;
-  onChange: (valor: string) => void;
-  tipo?: 'text' | 'email' | 'password';
-  icon: ReactNode;
-}
+import { cadastrar } from './cadastrarUsuario';
 
 function CampoCadastro({
   label,
@@ -66,6 +60,39 @@ function Cadastro() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
+
+  async function handleCadastrar() {
+    setErro('');
+
+    if (!nome.trim() || !cpf.trim() || !email.trim() || !senha.trim()) {
+      setErro('Preencha todos os campos.');
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      const resultado = await cadastrar({
+        nomeCompleto: nome,
+        CPF: cpf,
+        email,
+        senha,
+        confirmarSenha: confirmacaoSenha,
+      });
+
+      if (!resultado.ok) {
+        setErro(resultado.erro);
+        return;
+      }
+
+      navigate('/');
+    } catch {
+      setErro('Erro ao cadastrar. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <div className="relative min-h-screen bg-white">
@@ -144,12 +171,17 @@ function Cadastro() {
           />
         </div>
 
+        {erro && (
+          <p className="mt-3 text-center text-sm text-red-500">{erro}</p>
+        )}
+
         <button
           type="button"
-          className="mx-auto mt-7 h-16 w-[350px] max-w-full rounded-3xl bg-primary text-[20px] font-medium text-white"
-          onClick={() => navigate('/home')}
+          disabled={carregando}
+          className="mx-auto mt-7 h-16 w-[350px] max-w-full rounded-3xl bg-primary text-[20px] font-medium text-white disabled:opacity-50"
+          onClick={handleCadastrar}
         >
-          Cadastrar
+          {carregando ? 'Cadastrando...' : 'Cadastrar'}
         </button>
 
         <p className="mt-5 text-center text-[15px] text-black">
