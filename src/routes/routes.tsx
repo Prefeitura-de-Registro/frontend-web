@@ -14,6 +14,7 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+// import { Notificacoes } from '../pages/Notificacoes';
 import { Notificacoes } from '../pages/Notificacoes';
 import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  // {
+  //   path: '/notificacoes',
+  //   element: <Notificacoes />,
+  // },
   {
     path: '/notificacoes',
     element: <Notificacoes />,
@@ -70,7 +75,7 @@ export const router = createBrowserRouter([
     element: <HomeAnonimo />,
   },
   {
-    path: 'chamados',
+    path: '/chamados',
     element: <ListaChamadosAnonimo />,
   },
   {
