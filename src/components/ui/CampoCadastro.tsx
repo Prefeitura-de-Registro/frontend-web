@@ -1,4 +1,3 @@
-// components/ui/CampoCadastro.tsx (ou onde fizer sentido no seu projeto)
 import type { ReactNode } from 'react';
 import { X } from 'lucide-react';
 
