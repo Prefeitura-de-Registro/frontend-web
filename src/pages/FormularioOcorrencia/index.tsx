@@ -7,17 +7,22 @@ import SelectCustomizado from '../../components/ui/SelectCustomizado';
 export function FormularioOcorrencia() {
   const navigate = useNavigate();
 
-  const [tipoOcorrencia, setTipoOcorrencia] = useState('Vazamento');
+  const [tipoOcorrencia, setTipoOcorrencia] = useState('vazamento');
   const [descricao, setDescricao] = useState('');
   const [respostas, setRespostas] = useState<Record<string, string>>({});
   const [paginaPergunta, setPaginaPergunta] = useState(0);
 
-  const opcoesOcorrencia = ['Buraco', 'Poda', 'Luz', 'Vazamento'];
+  const opcoesOcorrencia = [
+    { label: 'Buraco', value: 'buraco' },
+    { label: 'Poda', value: 'poda' },
+    { label: 'Luz', value: 'luz' },
+    { label: 'Vazamento', value: 'vazamento' },
+  ];
 
   const nomeOcorrenciaBaixa = tipoOcorrencia.toLowerCase();
-  const isLuz = tipoOcorrencia === 'Luz';
+  const isLuz = tipoOcorrencia === 'luz';
 
-  const artigo = tipoOcorrencia === 'Poda' ? 'da' : 'do';
+  const artigo = tipoOcorrencia === 'poda' ? 'da' : 'do';
 
   const perguntasOcorrencia = [
     {
@@ -41,20 +46,21 @@ export function FormularioOcorrencia() {
 
   const isUltimaPergunta = paginaPergunta === perguntasOcorrencia.length - 1;
 
-  const handleNext = (e: React.SubmitEvent) => {
+  const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     navigate('/formulario/endereco');
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto px-4 py-1 flex-1 flex flex-col justify-center font-sans h-full max-h-screen overflow-hidden">
-      <div className="bg-tertiary rounded-[28px] p-4 shadow-md flex flex-col gap-3 w-full my-auto">
+    <div className="w-full max-w-sm mx-auto px-4 py-2 flex flex-col items-center font-sans">
+      {/* Card Principal do Formulário */}
+      <div className="bg-tertiary rounded-[28px] p-4 shadow-md flex flex-col gap-3 w-full mt-2">
         <form onSubmit={handleNext} className="flex flex-col gap-3 w-full">
           {/* Seletor Customizado */}
           <SelectCustomizado
             label="Selecione uma ocorrência:"
             value={tipoOcorrencia}
-            options={opcoesOcorrencia}
+            opcoes={opcoesOcorrencia}
             onChange={(novaOpcao) => {
               setTipoOcorrencia(novaOpcao);
               setPaginaPergunta(0);
