@@ -1,41 +1,53 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import React, { type ButtonHTMLAttributes } from 'react';
+import { type LucideIcon } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon?: ReactNode;
-  variant?: 'solid' | 'outline' | 'dark';
-  children: ReactNode;
+  variant?: 'solid' | 'outline' | 'dark' | 'icon';
+  icon?: LucideIcon;
+  fullWidth?: boolean;
+  hasNotification?: boolean;
 }
 
-/**
- * Botão padrão do projeto.
- * Specs do diagrama: paddingH 16 / paddingV 10, border-radius 12,
- * gap 6 (entre ícone e texto), ícone 16x16, font-size 14 bold, cor #0073A9.
- */
-function Button({
-  icon,
-  variant = 'solid',
+export const Button: React.FC<ButtonProps> = ({
   children,
+  variant = 'solid',
+  icon: Icon,
+  fullWidth = false,
+  hasNotification = false,
   className = '',
   ...props
-}: ButtonProps) {
-  const base =
-    'flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+}) => {
+  // Estilos base comuns
+  const baseStyles =
+    'flex items-center justify-center font-bold transition-all rounded-full';
 
   const variants = {
-    solid: 'bg-primary text-white hover:bg-primary/90',
-    outline: 'border border-primary text-primary hover:bg-primary/10',
-    dark: 'bg-[#2B2B2B] text-white border-2 border-white hover:bg-[#2B2B2B]/90',
+    solid:
+      'gap-2 bg-[#0073a9] text-white hover:bg-[#005a86] px-8 py-3 shadow-sm',
+    outline:
+      'gap-2 bg-[#f4f9fd] text-[#0073a9] border-[1.5px] border-[#0073a9] hover:bg-blue-100 px-8 py-3',
+    dark: 'gap-2 bg-[#2f2f2f] text-white hover:bg-black px-8 py-3 shadow-sm',
+    // Corrigido: w-12 h-12 fixos, sem espremer, mantendo o círculo perfeito e relative pro badge
+    icon: 'bg-[#0073a9] text-white w-12 h-12 min-w-[3rem] min-h-[3rem] p-0 flex items-center justify-center hover:bg-[#005a86] relative shadow-sm shrink-0',
   };
 
+  // Se for variante icon, ignoramos o fullWidth para ele nunca esticar na tela
+  const widthStyle =
+    variant === 'icon' ? 'w-12 h-12' : fullWidth ? 'w-full' : 'w-auto';
+
   return (
-    <button className={twMerge(base, variants[variant], className)} {...props}>
-      {icon && (
-        <span className="w-4 h-4 flex items-center justify-center">{icon}</span>
+    <button
+      className={twMerge(baseStyles, variants[variant], widthStyle, className)}
+      {...props}
+    >
+      {Icon && <Icon size={20} strokeWidth={2.5} />}
+      {variant !== 'icon' && children}
+      {hasNotification && variant === 'icon' && (
+        <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#e11d48] border-2 border-white rounded-full z-10" />
       )}
-      {children}
     </button>
   );
-}
+};
 
 export default Button;
