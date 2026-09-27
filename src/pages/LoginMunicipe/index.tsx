@@ -56,7 +56,7 @@ function LoginMunicipe() {
 
           <Button
             variant="dark"
-            icon={<EyeOff className="w-4 h-4" />}
+            icon={EyeOff}
             onClick={() => navigate('/anonimo')}
             className="w-full"
           >
