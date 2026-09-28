@@ -129,7 +129,7 @@ export function FormLayout() {
             variant={isRevisao ? 'solid' : 'outline'}
             fullWidth
             onClick={handleBotaoPrincipal}
-            className={`py-3.5 text-lg shadow-md ${
+            className={`py-3.25 text-lg shadow-md mb-2 ${
               isRevisao
                 ? 'bg-[#22c55e] hover:bg-[#16a34a] text-white border-none'
                 : 'bg-slate-100 hover:bg-white text-[#0073a9] border-none'

@@ -1,103 +1,105 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { twMerge } from 'tailwind-merge';
 
-import ButtonBack from '../../components/ui/ButtonBack';
+// import ButtonBack from '../../components/ui/ButtonBack';
+import { CategoriaCard } from '../../components/ui/CategoriaCard';
+// import { StepperFormulario } from '../../components/ui/StepperFormulario';
+import { CarrosselPerguntas } from '../../components/ui/CarrosselPerguntas';
 
-import iconeBuraco from '../../assets/img/buraco.png';
-import iconePoda from '../../assets/img/poda.png';
-import iconeLuz from '../../assets/img/luz.png';
-import iconeVazamento from '../../assets/img/vazamento.png';
+// Tipo definido direto aqui para não precisar alterar o CategoriaCard.tsx
+type TipoCategoria = 'buraco' | 'luz' | 'poda' | 'vazamento';
 
-const CATEGORIAS = [
-  { value: 'buraco', label: 'Buraco', icone: iconeBuraco },
-  { value: 'poda', label: 'Poda', icone: iconePoda },
-  { value: 'luz', label: 'Luz', icone: iconeLuz },
-  { value: 'vazamento', label: 'Vazamento', icone: iconeVazamento },
-];
-
-function FormularioOcorrenciaEtapa1() {
+export default function OqueTaRolando() {
   const navigate = useNavigate();
-  const [categoria, setCategoria] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [erro, setErro] = useState('');
 
-  function handleProximo() {
-    if (!categoria) {
-      setErro('Selecione o tipo de ocorrência.');
-      return;
-    }
-    if (!descricao.trim()) {
-      setErro('Descreva o problema.');
-      return;
-    }
-    console.log({ categoria, descricao }); // por enquanto só isso
-  }
+  const [categoriaAtiva, setCategoriaAtiva] = useState<TipoCategoria | null>(
+    null,
+  );
+  const [detalhes, setDetalhes] = useState('');
+  const [respostasCarrossel, setRespostasCarrossel] = useState<
+    Record<string, 'sim' | 'nao'>
+  >({});
+
+  const handleProximo = () => {
+    if (!categoriaAtiva) return;
+
+    navigate('/formulario/endereco', {
+      state: {
+        categoria: categoriaAtiva,
+        detalhes: detalhes.trim(),
+        respostasCarrossel, // <--- Aqui o estado é utilizado!
+      },
+    });
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1 flex flex-col px-6 pt-10 pb-10">
-        <ButtonBack onClick={() => navigate(-1)} />
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between relative overflow-hidden">
+      {/* Conteúdo Principal */}
+      <main className="px-4 pt-8 pb-32 flex-1 max-w-md mx-auto w-full">
+        {/* Seção 1: Qual é o problema? */}
+        <div className="mb-6">
+          <h2 className="text-[#0085C1] font-bold text-lg mb-3">
+            Qual é o problema?
+          </h2>
 
-        <h1 className="mt-4 text-center text-2xl">
-          <span className="font-bold text-black">O que tá</span>
-          <br />
-          <span className="font-bold text-primary text-3xl">Rolando?</span>
-        </h1>
-
-        <h2 className="mt-8 text-lg font-bold text-primary">
-          Qual é o problema?
-        </h2>
-
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {CATEGORIAS.map((cat) => {
-            const selecionada = categoria === cat.value;
-            return (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => setCategoria(cat.value)}
-                className={twMerge(
-                  'flex flex-col items-start gap-2 rounded-2xl bg-white p-4 shadow-sm',
-                  selecionada && 'ring-2 ring-primary',
-                )}
-              >
-                <img
-                  src={cat.icone}
-                  alt={cat.label}
-                  className="w-12 h-12 object-contain"
-                />
-                <span className="font-bold text-primary">{cat.label}</span>
-              </button>
-            );
-          })}
+          <div className="grid grid-cols-2 gap-3">
+            <CategoriaCard
+              tipo="buraco"
+              isActive={categoriaAtiva === 'buraco'}
+              onClick={() => setCategoriaAtiva('buraco')}
+            />
+            <CategoriaCard
+              tipo="poda"
+              isActive={categoriaAtiva === 'poda'}
+              onClick={() => setCategoriaAtiva('poda')}
+            />
+            <CategoriaCard
+              tipo="luz"
+              isActive={categoriaAtiva === 'luz'}
+              onClick={() => setCategoriaAtiva('luz')}
+            />
+            <CategoriaCard
+              tipo="vazamento"
+              isActive={categoriaAtiva === 'vazamento'}
+              onClick={() => setCategoriaAtiva('vazamento')}
+            />
+          </div>
         </div>
 
-        <h2 className="mt-6 text-lg font-bold text-primary">
-          Conta os detalhes:
-        </h2>
-        <textarea
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          rows={4}
-          placeholder="Descreva o problema aqui..."
-          className="mt-2 w-full rounded-2xl bg-gray-100 p-4 outline-none resize-none"
-        />
+        {/* Seção 2: Conta os detalhes */}
+        <div>
+          <h2 className="text-[#0085C1] font-bold text-lg mb-3">
+            Conta os detalhes:
+          </h2>
 
-        {erro && (
-          <p className="mt-2 text-red-500 text-sm text-center">{erro}</p>
-        )}
+          <textarea
+            value={detalhes}
+            onChange={(e) => setDetalhes(e.target.value)}
+            placeholder="Descreva o problema aqui..."
+            rows={4}
+            className="w-full bg-[#f1f5f9] rounded-2xl p-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0085C1] resize-none border-none"
+          />
+        </div>
+
+        <CarrosselPerguntas
+          categoria={categoriaAtiva}
+          onRespostaChange={(respostas) => setRespostasCarrossel(respostas)}
+        />
+      </main>
+
+      {/* Container Fixo Inferior (Stepper + Botão Próximo) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0085C1] rounded-t-3xl pt-2 pb-6 px-6 z-20 max-w-md mx-auto shadow-lg">
+        {/* <StepperFormulario etapaAtual="ocorrencia" /> */}
 
         <button
           type="button"
           onClick={handleProximo}
-          className="mt-6 h-14 w-full rounded-full bg-primary text-white font-bold"
+          disabled={!categoriaAtiva}
+          className="w-full py-3.5 mt-2 bg-white text-[#0085C1] font-bold text-base rounded-2xl shadow-md transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Próximo
         </button>
-      </main>
+      </div>
     </div>
   );
 }
-
-export default FormularioOcorrenciaEtapa1;
