@@ -1,97 +1,111 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, Copy, CheckCheck } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { Footer } from '../../components/ui/Footer';
-import { GradientHeader } from '../../components/ui/GradientHeader';
-import ButtonLarger from '../../components/ui/ButtonLarger';
+import bola from '../../assets/bola.png';
+import onda from '../../assets/onda.png';
 
-export function Conclusao() {
+function ChamadoAberto() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [copiado, setCopiado] = useState(false);
-  const protocolo = '#2026-00001';
 
-  const handleCopiarProtocolo = () => {
-    navigator.clipboard.writeText(protocolo);
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 2500);
-  };
+  // Se vier protocolo pela navegação, usa ele; senão usa um mock
+  const protocolo: string = location.state?.protocolo ?? '#2026-00001';
+
+  async function handleCopiar() {
+    try {
+      await navigator.clipboard.writeText(protocolo);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    } catch {
+      setCopiado(false);
+    }
+  }
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-slate-50/80 px-6 pt-8 pb-4 overflow-x-hidden">
-      {/* Topo */}
-      <GradientHeader />
+    <div className="relative min-h-screen overflow-hidden bg-white flex flex-col">
+      {/* Bola espelhada pro canto superior esquerdo */}
+      <img
+        src={bola}
+        alt=""
+        className="absolute -top-8 -left-6 w-52 h-52 object-contain -scale-x-100 z-0 pointer-events-none"
+      />
 
-      {/* Corpo */}
-      <main className="relative z-10 flex-1 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center my-auto py-6">
-        <div className="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg mb-6 animate-bounce-short">
-          <Check size={60} strokeWidth={3} strokeLinecap="square" />
+      <main className="relative z-10 flex-1 flex flex-col items-center px-6 pt-30">
+        <div className="w-28 h-28 rounded-full bg-success flex items-center justify-center shadow-lg">
+          <Check className="w-16 h-16 text-white" strokeWidth={3} />
         </div>
 
-        <div className="mb-6 w-full">
-          <h1 className="text-slate-800 text-2xl font-normal leading-tight">
-            Chamado
-          </h1>
-          <h2 className="text-primary text-4xl font-extrabold tracking-tight leading-tight">
-            Aberto!
-          </h2>
-          <div className="w-60 h-[1px] bg-primary mx-auto mt-2 opacity-50" />
-        </div>
+        <h1 className="mt-6 text-center text-2xl">
+          <span className="text-black">Chamado</span>
+          <br />
+          <span className="font-bold text-primary text-6xl">Aberto!</span>
+        </h1>
 
-        <p className="text-slate-700 text-sm mb-6 max-w-xs leading-relaxed">
-          Copie o{' '}
-          <strong className="font-bold text-slate-900">
-            Código do protocolo
-          </strong>{' '}
-          abaixo para pesquisar o chamado
+        <div className="h-0.5 w-full bg-gradient-to-r from-primary/0 via-primary to-primary/0 my-4" />
+
+        <p className="text-center text-sm text-gray-800 max-w-xs">
+          Copie o <b>Código do protocolo</b> abaixo para pesquisar o chamado
         </p>
 
-        <div className="w-full max-w-xs bg-slate-100/90 border border-slate-200 rounded-2xl p-3 flex items-center justify-between shadow-sm mb-2">
-          <span className="font-mono font-bold text-slate-800 text-lg tracking-wider pl-2">
+        <div className="mt-8 flex w-full max-w-xs overflow-hidden rounded-lg">
+          <span className="flex-1 bg-tertiary py-2 text-center text-2xl text-black">
             {protocolo}
           </span>
           <button
             type="button"
-            onClick={handleCopiarProtocolo}
-            className="bg-sky-700 text-white p-2.5 rounded-xl shadow hover:bg-sky-800 transition flex items-center justify-center"
-            title="Copiar protocolo"
+            onClick={handleCopiar}
+            aria-label="Copiar protocolo"
+            className="flex w-12 items-center justify-center bg-primary text-white transition-colors hover:bg-primary/90"
           >
-            {copiado ? <CheckCheck size={20} /> : <Copy size={20} />}
+            {copiado ? (
+              <Check className="h-5 w-5" />
+            ) : (
+              <Copy className="h-5 w-5" />
+            )}
           </button>
         </div>
 
-        <span
-          className={`text-xs text-emerald-600 font-semibold mb-6 transition-opacity duration-200 ${copiado ? 'opacity-100' : 'opacity-0'}`}
-        >
-          Protocolo copiado com sucesso!
-        </span>
+        {copiado && (
+          <p className="mt-1 text-xs text-primary">Protocolo copiado!</p>
+        )}
 
-        <p className="text-slate-600 text-xs mb-8 max-w-xs">
-          Solicitação encaminhada para o{' '}
-          <strong className="font-semibold text-slate-900">
-            setor de infraestrutura
-          </strong>
-          .
+        <p className="mt-3 text-center text-sm text-gray-800">
+          Solicitação encaminhada para o
+          <br />
+          <b>setor de infraestrutura</b>.
         </p>
 
-        <div className="w-full max-w-xs flex flex-col gap-3">
-          <ButtonLarger onClick={() => navigate('/detalhes')}>
-            Acompanhar chamado
-          </ButtonLarger>
+        <button
+          type="button"
+          onClick={() => navigate('/chamados')}
+          className="mt-8 h-14 w-full max-w-sm rounded-2xl bg-primary text-lg text-white transition-colors hover:bg-primary/90"
+        >
+          Acompanhar chamado
+        </button>
 
-          <button
-            type="button"
-            onClick={() => navigate('/chamados-id')}
-            className="w-full bg-slate-100 border border-primary text-sky-700 font-bold py-3.5 px-6 shadow-sm hover:bg-slate-200 transition"
-          >
-            Voltar ao início
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="mt-3 h-12 w-full max-w-sm rounded-lg border border-primary bg-tertiary text-lg text-primary transition-colors hover:bg-tertiary/70"
+        >
+          Voltar ao início
+        </button>
       </main>
 
-      {/* Rodapé */}
-      <Footer />
+      <img
+        src={onda}
+        alt=""
+        className="absolute -bottom-6 -right-8 w-48 h-48 object-contain z-0 pointer-events-none"
+      />
+
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }
 
-export default Conclusao;
+export default ChamadoAberto;
