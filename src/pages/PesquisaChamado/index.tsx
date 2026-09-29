@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ButtonBack from '../../components/ui/ButtonBack';
@@ -9,6 +10,7 @@ import { buscarChamado } from './buscarChamado';
 import lupa from '../../assets/lupa.png';
 import bola from '../../assets/bola.png';
 import onda from '../../assets/onda.png';
+import { Lock } from 'lucide-react';
 
 function PesquisarChamado() {
   const navigate = useNavigate();
@@ -18,7 +20,7 @@ function PesquisarChamado() {
   const [carregando, setCarregando] = useState(false);
 
   async function handleBuscar(e?: FormEvent) {
-    if (e) e.preventDefault(); // Previne o reload padrão da página ao enviar o form
+    if (e) e.preventDefault();
     setErro('');
 
     const protocoloFormatado = protocolo.trim();
@@ -37,7 +39,6 @@ function PesquisarChamado() {
         return;
       }
 
-      // Redireciona para os detalhes do protocolo e envia o objeto do chamado no state
       navigate(`/chamado/${resultado.chamado.id}`, {
         state: { chamado: resultado.chamado },
       });
@@ -93,6 +94,7 @@ function PesquisarChamado() {
               value={protocolo}
               onChange={(e) => setProtocolo(e.target.value)}
               className="rounded-xl!"
+              icon={<Lock className="w-full h-full" />}
             />
 
             {erro && <p className="text-red-500 text-sm text-center">{erro}</p>}
