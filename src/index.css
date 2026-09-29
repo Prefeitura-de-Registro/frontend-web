@@ -3,14 +3,14 @@
 @theme {
   --font-sans: 'Montserrat', sans-serif;
 
-  --color-primary: #0073A9;
-  --color-secondary: #F2F2F2;
-  --color-tertiary: #DFE8F1;
-  --color-danger: #D92117;
-  --color-success: #20C997;
-  --color-warning: #FFC107;
-  --color-info: #0CB7DA;
-  --color-timer: #FD7E14;
+  --color-primary: #0073a9;
+  --color-secondary: #f2f2f2;
+  --color-tertiary: #dfe8f1;
+  --color-danger: #d92117;
+  --color-success: #20c997;
+  --color-warning: #ffc107;
+  --color-info: #0cb7da;
+  --color-timer: #fd7e14;
 }
 
 @layer base {
