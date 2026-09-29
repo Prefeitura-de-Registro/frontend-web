@@ -7,7 +7,6 @@ function ChamadoAberto() {
   const location = useLocation();
   const [copiado, setCopiado] = useState(false);
 
-  // Se vier protocolo pela navegação, usa ele; senão usa um mock
   const protocolo: string = location.state?.protocolo ?? '#2026-00001';
 
   async function handleCopiar() {
@@ -21,7 +20,7 @@ function ChamadoAberto() {
   }
 
   return (
-    <div className="relative h-screen overflow-hidden flex flex-col">
+    <div className="relative h-160 overflow-hidden flex flex-col">
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
         <div className="w-28 h-28 rounded-full bg-success flex items-center justify-center shadow-lg">
           <Check className="w-16 h-16 text-white" strokeWidth={3} />
@@ -77,7 +76,7 @@ function ChamadoAberto() {
 
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="mt-3 h-12 w-full max-w-sm rounded-lg border border-primary bg-tertiary text-lg text-primary transition-colors hover:bg-tertiary/70"
         >
           Voltar ao início
