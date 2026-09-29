@@ -2,10 +2,6 @@ import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { Footer } from '../../components/ui/Footer';
-import bola from '../../assets/bola.png';
-import onda from '../../assets/onda.png';
-
 function ChamadoAberto() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,15 +21,8 @@ function ChamadoAberto() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white flex flex-col">
-      {/* Bola espelhada pro canto superior esquerdo */}
-      <img
-        src={bola}
-        alt=""
-        className="absolute -top-8 -left-6 w-52 h-52 object-contain -scale-x-100 z-0 pointer-events-none"
-      />
-
-      <main className="relative z-10 flex-1 flex flex-col items-center px-6 pt-30">
+    <div className="relative h-screen overflow-hidden flex flex-col">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
         <div className="w-28 h-28 rounded-full bg-success flex items-center justify-center shadow-lg">
           <Check className="w-16 h-16 text-white" strokeWidth={3} />
         </div>
@@ -94,16 +83,6 @@ function ChamadoAberto() {
           Voltar ao início
         </button>
       </main>
-
-      <img
-        src={onda}
-        alt=""
-        className="absolute -bottom-6 -right-8 w-48 h-48 object-contain z-0 pointer-events-none"
-      />
-
-      <div className="relative z-10">
-        <Footer />
-      </div>
     </div>
   );
 }

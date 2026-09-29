@@ -114,8 +114,13 @@ export const router = createBrowserRouter([
     element: <DetalhesChamado />,
   },
   {
-    path: '/conclusao',
-    element: <Conclusao />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/conclusao',
+        element: <Conclusao />,
+      },
+    ],
   },
   {
     path: '*',
