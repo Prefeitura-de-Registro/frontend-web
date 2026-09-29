@@ -18,11 +18,17 @@ import { Notificacoes } from '../pages/Notificacoes';
 import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
+import StandardLayout from '../components/layouts/StandardLayout';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginMunicipe />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginMunicipe />,
+      },
+    ],
   },
   {
     path: '/cadastro',
