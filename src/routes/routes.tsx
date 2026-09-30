@@ -19,6 +19,7 @@ import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
+import StandardLayout from '../components/layouts/StandardLayout';
 
 export const router = createBrowserRouter([
   {
@@ -30,9 +31,15 @@ export const router = createBrowserRouter([
     element: <Cadastro />,
   },
   {
-    path: '/signin',
-    element: <SignIn />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/signin',
+        element: <SignIn />,
+      },
+    ],
   },
+
   {
     path: '/cadastro',
     element: <Cadastro />,
