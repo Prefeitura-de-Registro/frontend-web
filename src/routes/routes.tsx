@@ -35,9 +35,15 @@ export const router = createBrowserRouter([
     element: <Cadastro />,
   },
   {
-    path: '/signin',
-    element: <SignIn />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/signin',
+        element: <SignIn />,
+      },
+    ],
   },
+
   {
     path: '/cadastro',
     element: <Cadastro />,
