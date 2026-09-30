@@ -8,10 +8,11 @@ interface SimNaoButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const SimNaoButton: React.FC<SimNaoButtonProps> = ({
   tipo,
   variante,
+  className = '',
   ...props
 }) => {
   const base =
-    'flex-1 py-3 px-6 rounded-xl font-bold text-center transition-all min-w-[100px]';
+    'py-2 px-4 rounded-xl font-bold text-center transition-all min-w-[80px] text-sm';
 
   const styles = {
     sim: {
@@ -27,7 +28,10 @@ export const SimNaoButton: React.FC<SimNaoButtonProps> = ({
   };
 
   return (
-    <button className={`${base} ${styles[tipo][variante]}`} {...props}>
+    <button
+      className={`${base} ${styles[tipo][variante]} ${className}`}
+      {...props}
+    >
       {tipo === 'sim' ? 'Sim' : 'Não'}
     </button>
   );
