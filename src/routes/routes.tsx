@@ -18,6 +18,7 @@ import { Notificacoes } from '../pages/Notificacoes';
 import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
+import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
 
 export const router = createBrowserRouter([
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
   {
     path: '/chamados',
     element: <ListaChamadosAnonimo />,
+  },
+  {
+    path: '/buscar-chamados',
+    element: <PesquisarChamado />,
   },
   {
     path: '/formulario',
