@@ -55,13 +55,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/home',
-    element: <HomeLayout />,
-    children: [
-      {
-        path: '',
-        element: <Home />,
-      },
-    ],
+    element: <Home />,
   },
   {
     path: '/chamados-id',
@@ -78,7 +72,7 @@ export const router = createBrowserRouter([
     element: <Notificacoes />,
   },
   {
-    path: 'anonimo',
+    path: '/anonimo',
     element: <HomeAnonimo />,
   },
   {
