@@ -1,12 +1,30 @@
 // src/components/layouts/FormLayout.tsx
+import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../ui/Button';
 import StepperFormulario from '../ui/StepperFormulario';
 
+export interface DadosFormulario {
+  categoria: 'buraco' | 'luz' | 'poda' | 'vazamento' | null;
+  detalhes: string;
+  respostasCarrossel: Record<string, 'sim' | 'nao'>;
+}
+
+export interface FormularioContext {
+  dados: DadosFormulario;
+  setDados: React.Dispatch<React.SetStateAction<DadosFormulario>>;
+}
+
 export function FormLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [dados, setDados] = useState<DadosFormulario>({
+    categoria: null,
+    detalhes: '',
+    respostasCarrossel: {},
+  });
 
   const isRevisao = location.pathname.includes('revisao');
   const isFotos = location.pathname.includes('fotos');
@@ -112,7 +130,7 @@ export function FormLayout() {
 
         {/* Conteúdo Dinâmico das Telas do Formulário */}
         <main className="relative z-10 w-full max-w-md mx-auto px-6 pb-6 flex flex-col">
-          <Outlet />
+          <Outlet context={{ dados, setDados } satisfies FormularioContext} />
         </main>
       </div>
 
@@ -129,7 +147,7 @@ export function FormLayout() {
             variant={isRevisao ? 'solid' : 'outline'}
             fullWidth
             onClick={handleBotaoPrincipal}
-            className={`py-3.5 text-lg shadow-md ${
+            className={`py-3.5 text-lg shadow-md mb-2 ${
               isRevisao
                 ? 'bg-[#22c55e] hover:bg-[#16a34a] text-white border-none'
                 : 'bg-slate-100 hover:bg-white text-[#0073a9] border-none'

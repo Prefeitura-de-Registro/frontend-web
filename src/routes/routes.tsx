@@ -22,8 +22,13 @@ import StandardLayout from '../components/layouts/StandardLayout';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginMunicipe />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginMunicipe />,
+      },
+    ],
   },
   {
     path: '/cadastro',
