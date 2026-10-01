@@ -3,24 +3,34 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import projectlogo from '../../assets/img/project-logo.png';
+import { isAxiosError } from 'axios';
+import { useAuth } from '../../contexts/useAuth';
 
 export const SignIn: React.FC = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErro(null);
     setLoading(true);
 
-    console.log('Dados de login capturados:', { email, senha });
+    try {
+      await signIn(email, senha);
 
-    setTimeout(() => {
-      setLoading(false);
-      alert('Login efetuado com sucesso (Mock)!');
       navigate('/home');
-    }, 1000);
+    } catch (error) {
+      const mensagem = isAxiosError<{ message?: string }>(error)
+        ? (error.response?.data?.message ?? 'E-mail ou senha inválidos.')
+        : 'E-mail ou senha inválidos.';
+      setErro(mensagem);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,6 +77,12 @@ export const SignIn: React.FC = () => {
             className="w-full pl-12 pr-4 py-3.5 bg-[#f4f9fd] border border-[#cbd5e1] rounded-full text-[#1e293b] placeholder-[#64748b] text-sm focus:outline-none focus:border-[#0073a9] focus:ring-1 focus:ring-[#0073a9] transition-all shadow-sm"
           />
         </div>
+
+        {erro && (
+          <p className="text-sm text-red-500 font-medium px-2 text-center">
+            {erro}
+          </p>
+        )}
 
         <div className="flex justify-end pr-2">
           <a
