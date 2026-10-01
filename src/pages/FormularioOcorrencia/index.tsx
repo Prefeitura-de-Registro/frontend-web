@@ -1,16 +1,10 @@
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 import { CategoriaCard } from '../../components/ui/CategoriaCard';
 import { CarrosselPerguntas } from '../../components/ui/CarrosselPerguntas';
 import type { FormularioContext } from '../../components/layouts/FormLayout';
 
-export default function OqueTaRolando() {
-  const navigate = useNavigate();
+export default function FormularioOcorrencia() {
   const { dados, setDados } = useOutletContext<FormularioContext>();
-
-  const handleProximo = () => {
-    if (!dados.categoria) return;
-    navigate('/formulario/endereco');
-  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between relative overflow-hidden">
@@ -73,17 +67,6 @@ export default function OqueTaRolando() {
           }
         />
       </main>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0085C1] rounded-t-3xl pt-2 pb-6 px-6 z-20 max-w-md mx-auto shadow-lg">
-        <button
-          type="button"
-          onClick={handleProximo}
-          disabled={!dados.categoria}
-          className="w-full py-3.5 mt-2 bg-white text-[#0085C1] font-bold text-base rounded-2xl shadow-md transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Próximo
-        </button>
-      </div>
     </div>
   );
 }

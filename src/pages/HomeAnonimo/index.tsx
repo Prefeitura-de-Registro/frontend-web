@@ -26,7 +26,7 @@ function HomeAnonimo() {
   ];
 
   return (
-    <div className="w-full min-h-screen mx-auto flex flex-col justify-between bg-white px-5 pt-4 pb-6 font-sans">
+    <div className="w-full min-h-screen mx-auto flex flex-col justify-between bg-white px-5 pt-20 pb-6 font-sans">
       <div className="relative w-full pt-1">
         <div className="max-w-[60%] flex flex-col gap-1">
           <h1 className="text-[28px] font-bold text-primary leading-tight tracking-tight">
