@@ -14,6 +14,7 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+import Respostas from '../pages/Respostas';
 import { Notificacoes } from '../pages/Notificacoes';
 import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
@@ -109,6 +110,10 @@ export const router = createBrowserRouter([
   {
     path: '/conclusao',
     element: <Conclusao />,
+  },
+  {
+    path: '/respostas',
+    element: <Respostas />,
   },
   {
     path: '*',
