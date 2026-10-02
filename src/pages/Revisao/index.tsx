@@ -1,177 +1,144 @@
-import type { ReactNode } from 'react';
-import { ClipboardPenLine, MapPin, Camera, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 
-import mapaLocalizacao from '../../assets/mapa-localizacao.png';
+import buraco from '../../assets/img/buraco.png';
+import { SimNaoButton } from '../../components/ui/SimNaoButton';
+import { perguntasRevisao } from '../../data/perguntasRevisao';
 
 const ocorrencia = {
   tipo: 'Buraco',
-  descricao: 'Buraco grande, oferecendo riscos de quedas.',
-  condicoes: ['Mais de 1m', 'Calçada / Passeio público', 'Ciclovia'],
+  detalhes: 'Buraco grande, oferecendo riscos de quedas.',
 };
-
-const localizacao = {
-  bairro: 'Jardim das Flores',
-  rua: 'Rua Paulistano',
-  numero: '132',
-};
-
-interface RevisionSectionProps {
-  titulo: string;
-  icon: ReactNode;
-  children: ReactNode;
-  onEditar: () => void;
-  contentClassName?: string;
-}
-
-function RevisionSection({
-  titulo,
-  icon,
-  children,
-  onEditar,
-  contentClassName = '',
-}: RevisionSectionProps) {
-  return (
-    <section className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white">
-      {/* Cabeçalho da seção */}
-      <div className="flex h-11 items-center justify-center gap-2 bg-white border-b border-slate-100">
-        <div className="h-5 w-5 text-primary flex items-center justify-center">
-          {icon}
-        </div>
-        <h2 className="text-base font-bold text-primary">{titulo}</h2>
-      </div>
-
-      <div className={contentClassName}>{children}</div>
-
-      {/* Botão de Editar */}
-      <button
-        type="button"
-        onClick={onEditar}
-        className="h-11 w-full bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800 flex items-center justify-center gap-2"
-      >
-        <ClipboardPenLine size={16} />
-        Editar
-      </button>
-    </section>
-  );
-}
 
 function Revisao() {
-  const navigate = useNavigate();
+  const [paginaPergunta, setPaginaPergunta] = useState(0);
 
-  const handleConfirmar = () => {
-    // Lógica para enviar os dados do formulário para o backend
-    navigate('/conclusao');
+  const [, setRespostas] = useState<Record<number, 'sim' | 'nao'>>({});
+
+  const perguntaAtual = perguntasRevisao[paginaPergunta];
+
+  const irParaAnterior = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === 0 ? perguntasRevisao.length - 1 : paginaAtual - 1,
+    );
+  };
+
+  const irParaProxima = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === perguntasRevisao.length - 1 ? 0 : paginaAtual + 1,
+    );
+  };
+
+  const responder = (resposta: 'sim' | 'nao') => {
+    setRespostas((respostasAtuais) => ({
+      ...respostasAtuais,
+      [paginaPergunta]: resposta,
+    }));
+
+    irParaProxima();
   };
 
   return (
-    <div className="w-full space-y-6 pb-6">
-      {/* 1. Seção de Ocorrência */}
-      <RevisionSection
-        titulo="Ocorrência"
-        icon={<ClipboardPenLine className="h-5 w-5" />}
-        onEditar={() => navigate('/formulario/ocorrencia')}
-        contentClassName="bg-slate-50/70 px-6 py-5"
-      >
-        <div className="space-y-4 text-sm text-slate-800">
-          <p>
-            <strong className="text-sky-900 font-semibold">Tipo:</strong>{' '}
-            {ocorrencia.tipo}
-          </p>
-
-          <div>
-            <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Descrição:</strong>
-            </p>
-            <div className="min-h-24 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-slate-700 shadow-sm">
-              {ocorrencia.descricao}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Condições:</strong>
-            </p>
-            <ul className="list-disc space-y-1 pl-5 text-slate-700">
-              {ocorrencia.condicoes.map((condicao) => (
-                <li key={condicao}>{condicao}</li>
-              ))}
-            </ul>
-          </div>
+    <div className="relative left-1/2 w-screen -translate-x-1/2 flex flex-col gap-4 px-6">
+      {/* Resumo da ocorrência */}
+      <section className="w-full overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="flex h-7 items-center justify-center bg-[#20C997]">
+          <h2 className="text-sm font-bold text-white">Ocorrência</h2>
         </div>
-      </RevisionSection>
 
-      {/* 2. Seção de Localização */}
-      <RevisionSection
-        titulo="Localização"
-        icon={<MapPin className="h-5 w-5" />}
-        onEditar={() => navigate('/formulario/endereco')}
-        contentClassName="bg-white"
-      >
-        <div>
-          <div className="px-6 py-3.5 text-sm font-medium text-slate-800 border-b border-slate-100">
-            {localizacao.rua}, {localizacao.numero} — {localizacao.bairro}
+        <div className="px-5 py-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-base font-bold text-[#0073A9]">Tipo:</p>
+              <p className="text-base text-slate-600">{ocorrencia.tipo}</p>
+            </div>
+
+            <img
+              src={buraco}
+              alt="Imagem da ocorrência"
+              className="h-16 w-36 object-contain"
+            />
           </div>
 
-          <div className="relative h-48 w-full overflow-hidden">
-            <img
-              src={mapaLocalizacao}
-              alt="Mapa da localização da ocorrência"
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
-                <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
-              </div>
+          <div className="mt-4">
+            <p className="mb-2 text-base font-bold text-[#0073A9]">Detalhes:</p>
+
+            <div className="min-h-24 rounded-lg border border-slate-200 bg-[#F2F2F2] px-4 py-3 text-sm leading-snug text-slate-500">
+              {ocorrencia.detalhes}
             </div>
           </div>
         </div>
-      </RevisionSection>
+      </section>
 
-      {/* 3. Seção de Fotos / Vídeos (Que estava faltando) */}
-      <RevisionSection
-        titulo="Fotos / Vídeos"
-        icon={<Camera className="h-5 w-5" />}
-        onEditar={() => navigate('/formulario/fotos')}
-        contentClassName="bg-slate-50/70 p-5"
-      >
-        <div className="flex items-center gap-3">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-slate-300 shadow-sm bg-white">
-            <img
-              src={mapaLocalizacao}
-              alt="Foto da ocorrência"
-              className="w-full h-full object-cover"
+      {/* Pergunta */}
+      <section className="relative w-full overflow-hidden rounded-2xl bg-[#F2F2F2]">
+        {/* Seta esquerda */}
+        <div className="absolute left-0 top-0 flex h-full w-6 items-center justify-center bg-[#0073A9]">
+          <button
+            type="button"
+            onClick={irParaAnterior}
+            aria-label="Pergunta anterior"
+            className="text-white"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Seta direita */}
+        <div className="absolute right-0 top-0 flex h-full w-6 items-center justify-center bg-[#0073A9]">
+          <button
+            type="button"
+            onClick={irParaProxima}
+            aria-label="Próxima pergunta"
+            className="text-white"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="px-10 py-5">
+          <h2 className="flex min-h-10 items-center justify-center text-center text-base font-bold leading-snug text-[#0073A9]">
+            {perguntaAtual}
+          </h2>
+
+          <div className="mt-4 flex gap-3">
+            <SimNaoButton
+              tipo="sim"
+              variante="outline"
+              onClick={() => responder('sim')}
             />
-            {/* Botão de excluir foto (X vermelho) */}
-            <button
-              type="button"
-              className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center shadow hover:bg-red-700 transition"
-              title="Remover foto"
-            >
-              <X size={12} strokeWidth={3} />
-            </button>
+
+            <SimNaoButton
+              tipo="nao"
+              variante="solid"
+              onClick={() => responder('nao')}
+            />
+          </div>
+
+          {/* Indicadores */}
+          <div className="mt-4 flex justify-center gap-1.5">
+            {perguntasRevisao.map((_, indice) => (
+              <span
+                key={indice}
+                className={`h-2 w-2 rounded-full ${
+                  paginaPergunta === indice ? 'bg-[#0073A9]' : 'bg-slate-300'
+                }`}
+              />
+            ))}
           </div>
         </div>
-      </RevisionSection>
+      </section>
 
-      {/* Botões Finais de Confirmação e Cancelamento */}
-      <div className="flex flex-col gap-3 pt-2">
-        <button
-          type="button"
-          onClick={handleConfirmar}
-          className="w-full bg-sky-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:bg-sky-800 transition text-center"
-        >
-          Confirmar
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate('/')}
-          className="w-full bg-slate-100 border border-slate-300 text-sky-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-slate-200 transition text-center"
-        >
-          Cancelar
-        </button>
-      </div>
+      {/* Ver todas as respostas */}
+      <button
+        type="button"
+        className="mx-auto flex items-center gap-2 rounded-lg bg-[#0073A9] px-4 py-2 text-sm font-bold text-white"
+      >
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
+          <Plus className="h-3.5 w-3.5 text-[#0073A9]" />
+        </span>
+        Ver todas as respostas
+      </button>
     </div>
   );
 }
