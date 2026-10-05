@@ -1,154 +1,253 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronDown, CheckCircle2 } from 'lucide-react';
-import { Footer } from '../../components/ui/Footer';
-import { GradientHeader } from '../../components/ui/GradientHeader';
+import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
+import { useState } from 'react';
+
+import buraco from '../../assets/img/buraco.png';
+import emAndamento from '../../assets/img/emAndamento.png';
+import anexo1 from '../../assets/img/anexo-1.png';
+import anexo2 from '../../assets/img/anexo-2.png';
+import anexo3 from '../../assets/img/anexo-3.png';
+
 import StatusDot from '../../components/ui/StatusDot';
+
+const chamado = {
+  tipo: 'Buraco',
+  protocolo: '#2026-00001',
+  criadoEm: '28/08/2026',
+  detalhes: 'Buraco grande, oferecendo riscos de quedas.',
+};
+
+const anexos = [anexo1, anexo2, anexo3];
+
+const perguntasRespostas = [
+  {
+    pergunta: 'O buraco é grande?',
+    resposta: 'Sim',
+  },
+  {
+    pergunta: 'Cabe uma roda inteira dentro?',
+    resposta: 'Sim',
+  },
+  {
+    pergunta: 'Dá para ver bem à noite ou o local é escuro?',
+    resposta: 'Não',
+  },
+  {
+    pergunta: 'Tá aumentando de tamanho com a chuva?',
+    resposta: 'Sim',
+  },
+  {
+    pergunta: 'Tá muito perigoso para quem passa?',
+    resposta: 'Sim',
+  },
+];
 
 export function DetalhesChamado() {
   const navigate = useNavigate();
-  const [mostrarMais, setMostrarMais] = useState(false);
+  const [perguntaAtual, setPerguntaAtual] = useState(0);
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-slate-50/80 px-6 pt-8 pb-4 overflow-x-hidden">
-      {/* Topo decorativo com degradê */}
-      <GradientHeader />
-
-      {/* Header Centralizado com Botão Voltar */}
-      <header className="relative z-10 flex items-center justify-center mb-2 w-full max-w-md mx-auto">
+    <main className="min-h-screen bg-[#F2F2F2] py-10">
+      <header className="relative flex items-start justify-center">
         <button
+          type="button"
           onClick={() => navigate(-1)}
-          className="absolute left-0 bg-sky-700 text-white p-2 rounded-full shadow-md hover:bg-sky-800 transition z-10"
+          aria-label="Voltar"
+          className="absolute left-6 flex h-11 w-11 items-center justify-center rounded-full bg-[#0073A9] text-white shadow-md"
         >
-          <ChevronLeft size={26} strokeWidth={3} />
+          <ChevronLeft className="h-8 w-8" />
         </button>
-        <div className="flex flex-col items-center text-center mt-4">
-          <span className="text-xl font-medium leading-tight">Detalhes do</span>
-          <h1 className="text-sky-900 font-bold text-4xl leading-tight">
-            Chamado
-          </h1>
-        </div>
+
+        <h1 className="text-center text-3xl leading-tight font-extrabold text-slate-900">
+          Detalhes <span className="font-normal">do</span>
+          <br />
+          <span className="text-4xl text-[#0073A9]">Chamado</span>
+        </h1>
       </header>
 
-      {/* Linha com degradê simétrico nas pontas */}
-      <div className="relative z-10 w-83 max-w-xs mx-auto h-[2px] bg-gradient-to-r from-transparent via-[#0073A9] to-transparent mb-4 opacity-40" />
+      <section className="mt-8 overflow-hidden rounded-t-none bg-[#0073A9] px-7 py-4 text-white">
+        <h2 className="text-3xl font-bold">Andamento</h2>
 
-      {/* Card Principal de Detalhes */}
-      <main className="relative z-10 flex-1 w-full max-w-md mx-auto flex flex-col">
-        <div className="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-3xl p-6 shadow-md flex flex-col gap-4">
-          {/* Título e Protocolo */}
-          <div className="text-center">
-            <h2 className="text-sky-800 font-semibold text-2xl">Buraco</h2>
-            <div className="relative z-10 w-full max-w-xs mx-auto h-[2px] bg-gradient-to-r from-transparent via-[#0073A9] to-transparent opacity-40" />
-            <p className="text-slate-600 text-sm font-medium">#2026-00001</p>
-            <div className="w-full h-[1px] bg-slate-200/80 mt-3" />
-          </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative flex flex-col gap-5">
+            <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-white/50" />
 
-          {/* Informações do Chamado */}
-          <div className="text-sm text-slate-700 flex flex-col gap-2.5">
-            <p>
-              <strong className="text-slate-900 font-semibold">
-                Criado em:
-              </strong>{' '}
-              28/08/2026
-            </p>
-
-            <p className="flex items-center gap-2">
-              <strong className="text-slate-900 font-semibold">Status:</strong>
-              <StatusDot status="aberto" />
-            </p>
-
-            <p className="leading-relaxed">
-              <strong className="text-slate-900 font-semibold">
-                Descrição:
-              </strong>{' '}
-              Buraco grande, oferecendo riscos de quedas.
-            </p>
-
-            <p>
-              <strong className="text-slate-900 font-semibold">Fotos:</strong>{' '}
-              <span className="text-sky-700 underline cursor-pointer hover:text-sky-800">
-                imagem1.jpg, imagem2.jpg
+            <div className="relative flex items-center gap-3">
+              <span className="relative z-10 flex h-4 w-4 items-center justify-center rounded-full bg-white">
+                <Check className="h-3 w-3 text-[#0073A9]" />
               </span>
-            </p>
-          </div>
+              <span>Solicitação recebida</span>
+            </div>
 
-          {/* Botão "Mais detalhes" (Accordion interativo) */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setMostrarMais(!mostrarMais)}
-              className="flex items-center gap-2 border border-sky-700 text-sky-700 px-3.5 py-1.5 rounded-xl text-sm font-semibold hover:bg-sky-50 transition"
-            >
-              Mais detalhes
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${mostrarMais ? 'rotate-180' : ''}`}
-              />
-            </button>
-          </div>
+            <div className="relative flex items-center gap-3">
+              <span className="relative z-10 flex h-4 w-4 items-center justify-center rounded-full bg-white">
+                <Check className="h-3 w-3 text-[#0073A9]" />
+              </span>
+              <span>Solicitação aberta</span>
+            </div>
 
-          {/* Seção de Status / Timeline */}
-          <div className="mt-2 border-t border-slate-200/80">
-            <h3 className="text-sky-900 font-extrabold text-xl mb-3">
-              Status:
-            </h3>
+            <div className="relative flex items-center gap-3">
+              <span className="relative z-10 h-4 w-4 rounded-full border-2 border-white bg-[#0073A9]" />
+              <span>Em andamento</span>
+            </div>
 
-            <div className="flex flex-col gap-3 text-sm">
-              {/* Etapa 1: Concluída */}
-              <div className="flex items-center gap-3 text-slate-800 font-medium">
-                <CheckCircle2
-                  size={18}
-                  className="text-sky-700 fill-sky-100 flex-shrink-0"
-                />
-                <span>Solicitação recebida</span>
-              </div>
-
-              {/* Etapa 2: Concluída */}
-              <div className="flex items-center gap-3 text-slate-800 font-medium">
-                <CheckCircle2
-                  size={18}
-                  className="text-sky-700 fill-sky-100 flex-shrink-0"
-                />
-                <span>Solicitação aberta</span>
-              </div>
-
-              {/* Etapa 3: Pendente (Em atendimento) */}
-              <div className="flex items-center gap-3 text-slate-400 font-normal">
-                <div className="w-[18px] flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                </div>
-                <span>Em atendimento</span>
-              </div>
-
-              {/* Etapa 4: Pendente (Concluído) */}
-              <div className="flex items-center gap-3 text-slate-400 font-normal">
-                <div className="w-[18px] flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                </div>
-                <span>Concluído</span>
-              </div>
+            <div className="relative flex items-center gap-3">
+              <span className="relative z-10 h-4 w-4 rounded-full border-2 border-white bg-[#0073A9]" />
+              <span>Concluído</span>
             </div>
           </div>
 
-          {/* Botão de Cancelar Chamado */}
-          <div className="mt-4 pt-2">
+          <img
+            src={emAndamento}
+            alt="Ilustração do andamento do chamado"
+            className="w-46 shrink-0 object-contain"
+          />
+        </div>
+      </section>
+      <section className="mt-3 px-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-extrabold text-[#0073A9]">
+              {chamado.tipo}
+            </h2>
+
+            <div className="relative mt-1 flex h-6 w-40 rounded-md bg-[#DFE8F1] items-center justify-between pl-3 pr-0">
+              <span className="text-sm m-2 font-medium">
+                {chamado.protocolo}
+              </span>
+
+              <button
+                type="button"
+                aria-label="Copiar protocolo"
+                onClick={() => navigator.clipboard.writeText(chamado.protocolo)}
+                className="absolute right-0 top-0 bottom-0 flex w-10 items-center justify-center bg-[#0073A9] text-white rounded-r-md"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <img
+            src={buraco}
+            alt="Ilustração de buraco"
+            className="w-48 object-contain"
+          />
+        </div>
+
+        <div className="mt-2 space-y-3 text-sm">
+          <p className="text-slate-700">
+            <strong className="text-[#0073A9]">Criado em:</strong>{' '}
+            {chamado.criadoEm}
+          </p>
+
+          <p className="flex items-center gap-2 text-slate-700">
+            <strong className="text-[#0073A9]">Status:</strong>
+            <StatusDot status="aberto" />
+          </p>
+        </div>
+
+        <div className="mt-3">
+          <h3 className="mb-2 font-bold text-[#0073A9]">Detalhes:</h3>
+
+          <div className="rounded-xl border-1 border-[#E5E7EB] bg-[#F9FAFB] px-4 py-20 text-base leading-relaxed items-start pt-2 text-slate-600 ">
+            {chamado.detalhes}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 mt-7">
+        <h2 className="text-xl font-bold text-[#0073A9]">
+          Arquivos anexados ({anexos.length})
+        </h2>
+
+        <div className="mt-3 rounded-2xl bg-white px-5 py-4 shadow-xl">
+          <div className="mt-1 grid grid-cols-3 gap-3">
+            {anexos.map((anexo, indice) => (
+              <img
+                key={anexo}
+                src={anexo}
+                alt={`Arquivo anexado ${indice + 1}`}
+                className="aspect-square w-full rounded-xl object-cover"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 px-5">
+        <h2 className="text-xl font-bold text-[#0073A9]">
+          Perguntas e respostas
+        </h2>
+
+        <div className="mt-3 overflow-hidden rounded-2xl bg-white shadow-xl">
+          <div className="flex h-40">
             <button
               type="button"
+              aria-label="Pergunta anterior"
               onClick={() =>
-                alert('Tem certeza que deseja cancelar o chamado?')
+                setPerguntaAtual((prev) =>
+                  prev === 0 ? perguntasRespostas.length - 1 : prev - 1,
+                )
               }
-              className="w-full h-10 bg-danger text-white font-medium py-3.5 px-4 shadow-md hover:bg-red-700 transition justify-center items-center flex"
+              className="flex w-9 shrink-0 items-center justify-center bg-[#0073A9] text-white"
             >
-              Cancelar chamado
+              <ChevronLeft className="h-7 w-7" />
+            </button>
+
+            <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
+              <p className="text-xl font-semibold text-[#0073A9]">
+                {perguntasRespostas[perguntaAtual].pergunta}
+              </p>
+
+              <span
+                className={`mt-4 rounded-xl px-12 py-2 text-base font-medium text-white ${
+                  perguntasRespostas[perguntaAtual].resposta === 'Sim'
+                    ? 'bg-[#20C997]'
+                    : 'bg-[#D92117]'
+                }`}
+              >
+                {perguntasRespostas[perguntaAtual].resposta}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Próxima pergunta"
+              onClick={() =>
+                setPerguntaAtual((prev) =>
+                  prev === perguntasRespostas.length - 1 ? 0 : prev + 1,
+                )
+              }
+              className="flex w-9 shrink-0 items-center justify-center bg-[#0073A9] text-white"
+            >
+              <ChevronRight className="h-7 w-7" />
             </button>
           </div>
         </div>
-      </main>
 
-      {/* Rodapé fixo */}
-      <Footer />
-    </div>
+        <div className="mt-3 flex justify-center gap-2">
+          {perguntasRespostas.map((_, indice) => (
+            <span
+              key={indice}
+              className={`h-2.5 w-2.5 rounded-full ${
+                indice === perguntaAtual ? 'bg-[#0073A9]' : 'bg-white'
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/respostas')}
+          className="mx-auto mt-4 flex h-12 w-85 items-center justify-center gap-2 rounded-xl bg-[#0073A9] text-lg font-medium text-white"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-2xl leading-none text-[#0073A9]">
+            +
+          </span>
+          Ver todas as respostas
+        </button>
+      </section>
+    </main>
   );
 }
 
