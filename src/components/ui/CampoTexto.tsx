@@ -29,7 +29,7 @@ function CampoTexto({
       {/* Alterado de w-fit mx-auto para w-full para ocupar todo o espaço do grid e do card */}
       <div className="relative w-full">
         {icon && (
-          <span className="absolute left-3 top-3/5 -translate-y-1/2 w-4 h-4 text-primary flex items-center justify-center">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary flex items-center justify-center">
             {icon}
           </span>
         )}

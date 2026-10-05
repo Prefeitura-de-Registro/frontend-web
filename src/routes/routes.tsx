@@ -19,20 +19,33 @@ import { Notificacoes } from '../pages/Notificacoes';
 import Splash from '../pages/Splash';
 import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
+import PesquisarChamado from '../pages/PesquisaChamado';
+import StandardLayout from '../components/layouts/StandardLayout';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginMunicipe />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginMunicipe />,
+      },
+    ],
   },
   {
     path: '/cadastro',
     element: <Cadastro />,
   },
   {
-    path: '/signin',
-    element: <SignIn />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/signin',
+        element: <SignIn />,
+      },
+    ],
   },
+
   {
     path: '/cadastro',
     element: <Cadastro />,
@@ -43,13 +56,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/home',
-    element: <HomeLayout />,
-    children: [
-      {
-        path: '',
-        element: <Home />,
-      },
-    ],
+    element: <Home />,
   },
   {
     path: '/chamados-id',
@@ -66,12 +73,16 @@ export const router = createBrowserRouter([
     element: <Notificacoes />,
   },
   {
-    path: 'anonimo',
+    path: '/anonimo',
     element: <HomeAnonimo />,
   },
   {
     path: '/chamados',
     element: <ListaChamadosAnonimo />,
+  },
+  {
+    path: '/buscar-chamados',
+    element: <PesquisarChamado />,
   },
   {
     path: '/formulario',
@@ -108,8 +119,13 @@ export const router = createBrowserRouter([
     element: <DetalhesChamado />,
   },
   {
-    path: '/conclusao',
-    element: <Conclusao />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/conclusao',
+        element: <Conclusao />,
+      },
+    ],
   },
   {
     path: '/respostas',
