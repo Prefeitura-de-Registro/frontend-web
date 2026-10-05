@@ -1,163 +1,116 @@
-import { useState } from 'react';
-import { ChevronLeft, LockKeyhole, Mail } from 'lucide-react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, Lock } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
+import projectlogo from '../../assets/img/project-logo.png';
+import { isAxiosError } from 'axios';
+import { useAuth } from '../../contexts/useAuth';
 
-import brasao from '../../assets/brasao.svg';
-import degradeRegistro from '../../assets/degrade.svg';
+export const SignIn: React.FC = () => {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-import { usuarioMock } from '../../mock/usuario.mock';
-import { credencialMock } from '../../mock/credencial.mock';
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro(null);
+    setLoading(true);
 
-// Mock
-async function autenticar(email: string, senha: string) {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      await signIn(email, senha);
 
-  const credencial = credencialMock.find((c) => c.email === email);
-
-  if (!credencial || credencial.senha !== senha) {
-    return { ok: false as const };
-  }
-
-  const usuarioEncontrado = usuarioMock.find((u) => u.email === email);
-  return { ok: true as const, usuario: usuarioEncontrado! };
-} // fim do mock
-
-interface CampoLoginProps {
-  tipo: 'email' | 'senha';
-  valor: string;
-  onChange: (valor: string) => void;
-}
-
-function CampoLogin({ tipo, valor, onChange }: CampoLoginProps) {
-  const isSenha = tipo === 'senha';
+      navigate('/home');
+    } catch (error) {
+      const mensagem = isAxiosError<{ message?: string }>(error)
+        ? (error.response?.data?.message ?? 'E-mail ou senha inválidos.')
+        : 'E-mail ou senha inválidos.';
+      setErro(mensagem);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="relative w-full">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary">
-        {isSenha ? (
-          <LockKeyhole className="h-6 w-6" strokeWidth={2} />
-        ) : (
-          <Mail className="h-6 w-6" strokeWidth={2} />
-        )}
+    <div className="w-full flex flex-col items-center mt-2">
+      <div className="mb-6 text-center">
+        <img
+          src={projectlogo}
+          alt="Fala Registro!"
+          className="w-60 h-auto object-contain mx-auto drop-shadow-sm"
+        />
       </div>
 
-      <input
-        type={isSenha ? 'password' : 'text'}
-        value={valor}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={isSenha ? 'Senha' : 'Email'}
-        className="h-[52px] w-full rounded-full border border-primary bg-tertiary pl-16 pr-5 text-base text-black outline-none placeholder:text-primary focus:ring-2 focus:ring-primary/20"
-      />
-    </div>
-  );
-}
+      <div className="w-full mb-6 text-left">
+        <h2 className="text-2xl font-bold text-[#1e293b]">
+          Bem-vindo <span className="text-[#0073a9]">de volta!</span>
+        </h2>
+      </div>
 
-function SignIn() {
-  const navigate = useNavigate();
-
-  const [email, setEmail] = useState(''); //Troca de 'matricula' para 'email'
-  const [senha, setSenha] = useState('');
-
-  const [erro, setErro] = useState(''); // useState para demonstrar mensagem errro
-  const [carregando, setCarregando] = useState(false); // useState para alterar o estado do botão após o clique
-
-  //função do botão entrar
-  async function handleEntrar() {
-    setErro('');
-
-    if (!email.trim() || !senha.trim()) {
-      setErro('Preencha email e senha.');
-      return;
-    }
-
-    setCarregando(true);
-    try {
-      const resultado = await autenticar(email, senha);
-
-      if (!resultado.ok) {
-        setErro('Email ou senha inválidas.');
-        return;
-      }
-
-      navigate('/');
-    } catch {
-      setErro('Erro ao entrar. Tente novamente.');
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
-      <img
-        src={degradeRegistro}
-        alt=""
-        className="absolute left-0 top-0 z-0 h-[470px] w-full object-cover [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"
-      />
-
-      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-6">
-        <button
-          type="button"
-          onClick={() => navigate('/login')}
-          aria-label="Voltar para a tela inicial"
-          className="mt-16 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-md transition-colors hover:bg-primary/90"
-        >
-          <ChevronLeft className="h-8 w-8" strokeWidth={3} />
-        </button>
-
-        <div className="mt-[-2px] flex flex-col items-center text-center">
-          <img
-            src={brasao}
-            alt="Brasão da Prefeitura de Registro"
-            className="h-[246px] w-[258px] object-contain"
+      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+        <div className="relative flex items-center w-full">
+          <span className="absolute left-4 text-[#0073a9]">
+            <Mail size={20} strokeWidth={2} />
+          </span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-mail"
+            required
+            className="w-full pl-12 pr-4 py-3.5 bg-[#f4f9fd] border border-[#cbd5e1] rounded-full text-[#1e293b] placeholder-[#64748b] text-sm focus:outline-none focus:border-[#0073a9] focus:ring-1 focus:ring-[#0073a9] transition-all shadow-sm"
           />
-
-          <h1 className="mt-2 text-[32px] font-medium leading-[1.05] text-black">
-            Ajude a cuidar
-            <br />
-            da <span className="font-bold text-primary">sua Cidade!</span>
-          </h1>
-
-          <p className="mt-5 max-w-[330px] text-[16px] leading-[1.45] text-black">
-            Registre ocorrências e acompanhe suas
-            <br />
-            solicitações de forma <strong>simples e rápida.</strong>
-          </p>
         </div>
 
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleEntrar();
-          }}
-          className="mt-4 flex flex-col gap-4"
-        >
-          <CampoLogin tipo="email" valor={email} onChange={setEmail} />
+        <div className="relative flex items-center w-full">
+          <span className="absolute left-4 text-[#0073a9]">
+            <Lock size={20} strokeWidth={2} />
+          </span>
+          <input
+            type="password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            placeholder="Senha"
+            required
+            className="w-full pl-12 pr-4 py-3.5 bg-[#f4f9fd] border border-[#cbd5e1] rounded-full text-[#1e293b] placeholder-[#64748b] text-sm focus:outline-none focus:border-[#0073a9] focus:ring-1 focus:ring-[#0073a9] transition-all shadow-sm"
+          />
+        </div>
 
-          <CampoLogin tipo="senha" valor={senha} onChange={setSenha} />
+        {erro && (
+          <p className="text-sm text-red-500 font-medium px-2 text-center">
+            {erro}
+          </p>
+        )}
 
-          {erro && (
-            <p className="text-red-500 text-sm text-center -mt-2">{erro}</p>
-          )}
-
-          <button
-            type="button"
-            className="self-end text-[15px] font-bold text-primary underline underline-offset-2"
+        <div className="flex justify-end pr-2">
+          <a
+            href="#recuperar-senha"
+            onClick={(e) => {
+              e.preventDefault();
+              alert('Fluxo de recuperação de senha será acionado aqui.');
+            }}
+            className="text-xs font-semibold text-[#0073a9] hover:underline"
           >
             Esqueceu a senha?
-          </button>
+          </a>
+        </div>
 
-          <button
+        <div className="mt-2">
+          <Button
             type="submit"
-            disabled={carregando}
-            className="mt-5 h-16 w-full rounded-full bg-primary text-[24px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+            variant="solid"
+            fullWidth={true}
+            disabled={loading}
+            className="shadow-md py-3.5 text-base"
           >
-            {carregando ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
-      </main>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
-}
+};
 
 export default SignIn;
