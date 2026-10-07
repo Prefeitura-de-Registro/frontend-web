@@ -1,18 +1,36 @@
 interface CardChamadoMunicipeProps {
   categoria: string;
   numero: string;
-  status: string;
+  status: 'aberto' | 'em andamento' | 'concluído';
   endereco: string;
   data: string;
   onClick?: () => void;
 }
 
-/**
- * Card de chamado exibido para o munícipe (Home com chamados listados).
- * Layout: título da categoria + número do chamado à esquerda, status com
- * bolinha à direita; embaixo, endereço (com ícone de pin) à esquerda e
- * data à direita. Borda esquerda em destaque na cor primária.
- */
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; cor: string; bordaCor: string; iconeCor: string }
+> = {
+  concluído: {
+    label: 'Fechado',
+    cor: 'bg-success/15 text-success',
+    bordaCor: 'border-l-success',
+    iconeCor: 'text-success',
+  },
+  'em andamento': {
+    label: 'Em andamento',
+    cor: 'bg-info/15 text-info',
+    bordaCor: 'border-l-info',
+    iconeCor: 'text-info',
+  },
+  aberto: {
+    label: 'Aberto',
+    cor: 'bg-danger/15 text-danger',
+    bordaCor: 'border-l-danger',
+    iconeCor: 'text-danger',
+  },
+};
+
 function CardChamadoMunicipe({
   categoria,
   numero,
@@ -21,31 +39,32 @@ function CardChamadoMunicipe({
   data,
   onClick,
 }: CardChamadoMunicipeProps) {
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG['aberto'];
+
   return (
     <button
       onClick={onClick}
-      className="w-full max-w-md flex flex-col gap-3 p-4 bg-secondary rounded-xl border-l-4 border-primary text-left"
+      className={`w-full max-w-md flex flex-col gap-3 p-4 bg-secondary rounded-xl border-l-8 ${config.bordaCor} text-left`}
     >
-      {/* Linha 1: categoria + status */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-lg font-bold text-primary leading-tight">
+          <p className={`text-lg font-bold leading-tight ${config.iconeCor}`}>
             {categoria}
           </p>
           <p className="text-sm text-slate-800">#{numero}</p>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-sm text-slate-600">{status}</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-        </div>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${config.cor}`}
+        >
+          {config.label}
+        </span>
       </div>
 
-      {/* Linha 2: endereço + data */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-sm text-slate-700">
           <svg
-            className="w-4 h-4 text-primary shrink-0"
+            className={`w-4 h-4 shrink-0 ${config.iconeCor}`}
             viewBox="0 0 24 24"
             fill="currentColor"
           >
