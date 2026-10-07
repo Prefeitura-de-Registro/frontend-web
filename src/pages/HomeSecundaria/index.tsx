@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 
 import SearchInput from '../../components/ui/SearchInput';
 import FiltroTextoTabs from '../../components/ui/FiltroTextoTabs';
-import CardChamadoMunicipe from '../../components/layouts/CardChamadoMunicipe';
+import CardChamadoMunicipe from '../../components/layouts/ChamadoCard';
 
 import { ocorrenciasMock } from '../../mock/ocorrencia.mock';
 import type { Ocorrencias } from '../../types/ocorrencia';

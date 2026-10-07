@@ -1,9 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Plus, SlidersHorizontal } from 'lucide-react';
+import { Search, Plus, SlidersHorizontal } from 'lucide-react';
 
-import CardChamadoMunicipe from '../../components/layouts/CardChamadoMunicipe';
+import CardChamadoMunicipe from '../../components/layouts/ChamadoCard';
+import AvatarUsuario from '../../components/ui/AvatarUsuario';
+import FiltroChamadosModal, {
+  type FiltrosChamado,
+} from '../../components/layouts/FiltroChamadosModal';
+
 import { ocorrenciasMock } from '../../mock/ocorrencia.mock';
+
 import pinLocalizao from '../../assets/img/pinLocalizacao.png';
 
 function formatarData(iso: string) {
@@ -13,69 +19,65 @@ function formatarData(iso: string) {
 function SeusChamados() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
+  const [filtroAberto, setFiltroAberto] = useState(false);
+  const [filtros, setFiltros] = useState<FiltrosChamado>({
+    prioridade: null,
+    tipos: [],
+  });
 
   const nomeUsuario = 'Sabrina';
 
   const chamadosFiltrados = useMemo(() => {
-    if (!busca.trim()) return ocorrenciasMock;
-    const termo = busca.toLowerCase();
-    return ocorrenciasMock.filter(
-      (c) =>
+    return ocorrenciasMock.filter((c) => {
+      const termo = busca.trim().toLowerCase();
+      const bateBusca =
+        !termo ||
         c.tipo.toLowerCase().includes(termo) ||
         c.id.toLowerCase().includes(termo) ||
-        c.endereco.toLowerCase().includes(termo),
-    );
-  }, [busca]);
+        c.endereco.toLowerCase().includes(termo);
+
+      const batePrioridade =
+        !filtros.prioridade || c.status === filtros.prioridade;
+
+      const bateTipo =
+        filtros.tipos.length === 0 || filtros.tipos.includes(c.tipo);
+
+      return bateBusca && batePrioridade && bateTipo;
+    });
+  }, [busca, filtros]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white px-6 pt-6 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src={pinLocalizao}
-              alt={nomeUsuario}
-              className="w-11 h-11 rounded-full object-cover"
-            />
-            <div>
-              <p className="font-bold text-primary">Olá, {nomeUsuario}!</p>
-              <p className="text-sm font-bold text-black">
-                Como podemos ajudar hoje?
-              </p>
-            </div>
-          </div>
+      <header className="bg-white px-6 pt-10 pb-4">
+        <AvatarUsuario
+          nomeUsuario={nomeUsuario}
+          avatarSrc={pinLocalizao}
+          temNotificacaoNova
+          onClickNotificacao={() => navigate('/notificacoes')}
+        />
 
-          <button
-            type="button"
-            aria-label="Notificações"
-            className="relative w-11 h-11 rounded-full bg-primary flex items-center justify-center"
-          >
-            <Bell className="w-5 h-5 text-white" />
-            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-danger" />
-          </button>
-        </div>
-
-        <h1 className="mt-6 text-center text-2xl">
-          <span className="font-bold text-black">Seus</span>
+        <h1 className="mt-6 text-center text-4xl">
+          <span className="font-semibold text-black">Seus</span>
           <br />
-          <span className="font-bold text-primary text-4xl">Chamados</span>
+          <span className="font-bold text-primary text-5xl">Chamados</span>
         </h1>
       </header>
 
       <div className="bg-primary px-6 py-4 flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
           <input
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Pesquisar"
-            className="w-full h-11 rounded-full bg-white pl-10 pr-4 text-sm text-gray-800 placeholder:text-gray-400 outline-none"
+            className="w-full h-9 rounded-full bg-white pl-5 pr-4 text-sm text-gray-800 placeholder:text-gray-400 outline-none"
           />
         </div>
 
         <button
           type="button"
+          onClick={() => setFiltroAberto(true)}
           aria-label="Filtros"
           className="w-11 h-11 rounded-full bg-white flex items-center justify-center shrink-0"
         >
@@ -111,10 +113,17 @@ function SeusChamados() {
         type="button"
         onClick={() => navigate('/formulario/ocorrencia')}
         aria-label="Abrir novo chamado"
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-[0_5px_10px_rgba(0,0,0,0.25)] flex items-center justify-center hover:bg-primary/90 transition-colors"
       >
         <Plus className="w-7 h-7" strokeWidth={2.5} />
       </button>
+
+      <FiltroChamadosModal
+        aberto={filtroAberto}
+        onFechar={() => setFiltroAberto(false)}
+        filtrosAtuais={filtros}
+        onAplicar={setFiltros}
+      />
     </div>
   );
 }
