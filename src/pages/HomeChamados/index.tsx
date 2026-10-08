@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, SlidersHorizontal } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
+import { Button } from '../../components/ui/Button';
 import CardChamado from '../../components/layouts/CardChamado';
 import AvatarUsuario from '../../components/ui/AvatarUsuario';
 import FiltroChamadosModal, {
@@ -11,6 +12,7 @@ import FiltroChamadosModal, {
 import { ocorrenciasMock } from '../../mock/ocorrencia.mock';
 
 import user from '../../assets/img/user.png';
+import filtro from '../../assets/filtro.png';
 
 function formatarData(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR');
@@ -81,7 +83,7 @@ function SeusChamados() {
           aria-label="Filtros"
           className="w-11 h-11 rounded-full bg-white flex items-center justify-center shrink-0"
         >
-          <SlidersHorizontal className="w-5 h-5 text-primary" />
+          <img src={filtro} alt="" className="w-5 h-5 object-contain" />
         </button>
       </div>
 
@@ -110,14 +112,14 @@ function SeusChamados() {
         ))}
       </main>
 
-      <button
-        type="button"
-        onClick={() => navigate('/formulario/ocorrencia')}
+      <Button
+        variant="icon"
+        icon={Plus}
+        iconSize={40}
         aria-label="Abrir novo chamado"
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-[0_5px_10px_rgba(0,0,0,0.25)] flex items-center justify-center hover:bg-primary/90 transition-colors"
-      >
-        <Plus className="w-7 h-7" strokeWidth={2.5} />
-      </button>
+        onClick={() => navigate('/formulario/ocorrencia')}
+        className="fixed bottom-6 right-6 w-14 h-14 shadow-[0_5px_10px_rgba(0,0,0,0.25)]"
+      />
 
       <FiltroChamadosModal
         aberto={filtroAberto}

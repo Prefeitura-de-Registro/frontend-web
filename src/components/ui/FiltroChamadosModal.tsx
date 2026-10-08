@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, SlidersHorizontal } from 'lucide-react';
+import { X } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import filtro from '../../assets/filtro.png';
 
 export interface FiltrosChamado {
   prioridade: 'aberto' | 'em andamento' | 'concluído' | null;
@@ -85,7 +86,7 @@ function FiltroChamadosModal({
       <div className="relative z-10 w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <h2 className="flex items-center gap-2 text-xl font-bold text-primary">
-            <SlidersHorizontal className="w-5 h-5" />
+            <img src={filtro} alt="" className="w-5 h-5 object-contain" />
             Filtro
           </h2>
           <button
