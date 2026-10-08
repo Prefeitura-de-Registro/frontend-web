@@ -31,7 +31,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function CardChamadoMunicipe({
+function CardChamado({
   categoria,
   numero,
   status,
@@ -79,4 +79,4 @@ function CardChamadoMunicipe({
   );
 }
 
-export default CardChamadoMunicipe;
+export default CardChamado;

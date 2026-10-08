@@ -2,15 +2,15 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, SlidersHorizontal } from 'lucide-react';
 
-import CardChamadoMunicipe from '../../components/layouts/ChamadoCard';
+import CardChamado from '../../components/layouts/CardChamado';
 import AvatarUsuario from '../../components/ui/AvatarUsuario';
 import FiltroChamadosModal, {
   type FiltrosChamado,
-} from '../../components/layouts/FiltroChamadosModal';
+} from '../../components/ui/FiltroChamadosModal';
 
 import { ocorrenciasMock } from '../../mock/ocorrencia.mock';
 
-import pinLocalizao from '../../assets/img/pinLocalizacao.png';
+import user from '../../assets/img/user.png';
 
 function formatarData(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR');
@@ -51,8 +51,8 @@ function SeusChamados() {
       <header className="bg-white px-6 pt-10 pb-4">
         <AvatarUsuario
           nomeUsuario={nomeUsuario}
-          avatarSrc={pinLocalizao}
-          temNotificacaoNova
+          avatarSrc={user}
+          temNotificacaoNova //Se não houver notificação, não utilizar essa prop no elemento
           onClickNotificacao={() => navigate('/notificacoes')}
         />
 
@@ -85,6 +85,7 @@ function SeusChamados() {
         </button>
       </div>
 
+      {/* Se não houver nenhum chamado, somente um texto centralizado vai aparecer, nada muito detalhado */}
       <main className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3 pb-24">
         {chamadosFiltrados.length === 0 && (
           <p className="text-center text-gray-500 mt-8">
@@ -93,7 +94,7 @@ function SeusChamados() {
         )}
 
         {chamadosFiltrados.map((chamado) => (
-          <CardChamadoMunicipe
+          <CardChamado
             key={chamado.id}
             categoria={
               chamado.tipo.charAt(0).toUpperCase() + chamado.tipo.slice(1)
