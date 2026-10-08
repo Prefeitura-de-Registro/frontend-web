@@ -1,4 +1,4 @@
-interface CardChamadoMunicipeProps {
+interface CardChamadoProps {
   categoria: string;
   numero: string;
   status: 'aberto' | 'em andamento' | 'concluído';
@@ -38,7 +38,7 @@ function CardChamado({
   endereco,
   data,
   onClick,
-}: CardChamadoMunicipeProps) {
+}: CardChamadoProps) {
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG['aberto'];
 
   return (
