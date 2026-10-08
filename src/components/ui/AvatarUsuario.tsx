@@ -1,4 +1,4 @@
-import { Bell } from 'lucide-react';
+import BotaoNotificacao from './BotaoNotificacao';
 
 interface AvatarUsuarioProps {
   nomeUsuario: string;
@@ -29,17 +29,10 @@ function AvatarUsuario({
         </div>
       </div>
 
-      <button
-        type="button"
-        aria-label="Notificações"
+      <BotaoNotificacao
+        temNotificacaoNova={temNotificacaoNova}
         onClick={onClickNotificacao}
-        className="relative w-11 h-11 rounded-full bg-primary shadow-[0_5px_10px_rgba(0,0,0,0.25)] flex items-center justify-center"
-      >
-        <Bell className="w-5 h-5 text-white" />
-        {temNotificacaoNova && (
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-danger" />
-        )}
-      </button>
+      />
     </div>
   );
 }
