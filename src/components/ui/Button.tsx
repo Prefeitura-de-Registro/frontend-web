@@ -7,6 +7,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: LucideIcon;
   fullWidth?: boolean;
   hasNotification?: boolean;
+  iconSize?: number;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -16,6 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   hasNotification = false,
   className = '',
+  iconSize = 20,
   ...props
 }) => {
   // Estilos base comuns
@@ -41,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={twMerge(baseStyles, variants[variant], widthStyle, className)}
       {...props}
     >
-      {Icon && <Icon size={20} strokeWidth={2.5} />}
+      {Icon && <Icon size={iconSize} strokeWidth={2.5} />}
       {variant !== 'icon' && children}
       {hasNotification && variant === 'icon' && (
         <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#e11d48] border-2 border-white rounded-full z-10" />
