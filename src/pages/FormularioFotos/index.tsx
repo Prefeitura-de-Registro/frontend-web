@@ -1,44 +1,80 @@
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
 
 import cameraIcon from '../../assets/camera.svg';
 import galeriaIcon from '../../assets/galeria.svg';
 import arquivosIcon from '../../assets/arquivos.svg';
+import type { FormularioContext } from '../../components/layouts/FormLayout';
 
 interface MidiaItem {
   id: string;
-  url: string;
-  file: File;
+  arquivo: File;
+}
+
+function MidiaPreview({ arquivo }: { arquivo: File }) {
+  const [url, setUrl] = useState('');
+
+  useEffect(() => {
+    const urlTemporaria = URL.createObjectURL(arquivo);
+
+    const frameId = requestAnimationFrame(() => {
+      setUrl(urlTemporaria);
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      URL.revokeObjectURL(urlTemporaria);
+    };
+  }, [arquivo]);
+
+  if (!url) return null;
+
+  if (arquivo.type.startsWith('video/')) {
+    return (
+      <video
+        src={url}
+        aria-label="Vídeo anexado"
+        className="w-full h-full object-cover"
+        muted
+      />
+    );
+  }
+
+  return <img src={url} alt="Anexo" className="w-full h-full object-cover" />;
 }
 
 export function FormularioFotos() {
-  const [midias, setMidias] = useState<MidiaItem[]>([]);
+  const { dados, setDados } = useOutletContext<FormularioContext>();
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galeriaInputRef = useRef<HTMLInputElement>(null);
 
+  const midias: MidiaItem[] = dados.fotos;
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+
     if (!files || files.length === 0) return;
 
-    const novosItens: MidiaItem[] = Array.from(files).map((file) => ({
-      id: `${file.name}-${Date.now()}-${Math.random()}`,
-      url: URL.createObjectURL(file),
-      file,
+    const novosItens = Array.from(files).map((arquivo) => ({
+      id: `${arquivo.name}-${Date.now()}-${Math.random()}`,
+      arquivo,
     }));
 
-    setMidias((prev) => [...prev, ...novosItens]);
+    setDados((prev) => ({
+      ...prev,
+      fotos: [...prev.fotos, ...novosItens],
+    }));
+
     e.target.value = '';
   };
 
   const handleRemove = (id: string) => {
-    setMidias((prev) => {
-      const itemParaRemover = prev.find((m) => m.id === id);
-      if (itemParaRemover) {
-        URL.revokeObjectURL(itemParaRemover.url);
-      }
-      return prev.filter((m) => m.id !== id);
-    });
+    setDados((prev) => ({
+      ...prev,
+      fotos: prev.fotos.filter((foto) => foto.id !== id),
+    }));
   };
 
   return (
@@ -51,6 +87,7 @@ export function FormularioFotos() {
         capture="environment"
         className="hidden"
       />
+
       <input
         type="file"
         ref={galeriaInputRef}
@@ -75,9 +112,11 @@ export function FormularioFotos() {
             alt="Tirar foto"
             className="w-24 h-16 object-contain mb-1"
           />
+
           <span className="font-bold text-primary text-[13px] leading-tight">
             Tirar foto
           </span>
+
           <span className="text-[10px] text-gray-400 leading-tight mt-0.5">
             Use a câmera do celular
           </span>
@@ -93,9 +132,11 @@ export function FormularioFotos() {
             alt="Galeria"
             className="w-24 h-16 object-contain mb-1"
           />
+
           <span className="font-bold text-primary text-[13px] leading-tight">
             Galeria
           </span>
+
           <span className="text-[10px] text-gray-400 leading-tight mt-0.5">
             Escolha da sua galeria
           </span>
@@ -125,9 +166,9 @@ export function FormularioFotos() {
                 onClick={() => galeriaInputRef.current?.click()}
                 className="w-full bg-primary text-white py-3 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 hover:opacity-95 transition-opacity shadow-sm"
               >
-                <div className="bg-white rounded-full p-0.5 text-primary">
+                <span className="bg-white rounded-full p-0.5 text-primary">
                   <Plus size={14} strokeWidth={3} />
-                </div>
+                </span>
                 Adicionar mais
               </button>
             </div>
@@ -139,14 +180,12 @@ export function FormularioFotos() {
                     key={item.id}
                     className="relative aspect-square rounded-xl overflow-hidden group"
                   >
-                    <img
-                      src={item.url}
-                      alt="Anexo"
-                      className="w-full h-full object-cover"
-                    />
+                    <MidiaPreview arquivo={item.arquivo} />
+
                     <button
                       type="button"
                       onClick={() => handleRemove(item.id)}
+                      aria-label="Remover anexo"
                       className="absolute top-1 right-1 bg-danger text-white rounded-full p-0.5 shadow-md hover:opacity-90 transition-opacity"
                     >
                       <X size={12} strokeWidth={3} />
@@ -160,9 +199,9 @@ export function FormularioFotos() {
                 onClick={() => galeriaInputRef.current?.click()}
                 className="w-full bg-primary text-white py-3 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 hover:opacity-95 transition-opacity shadow-sm"
               >
-                <div className="bg-white rounded-full p-0.5 text-primary">
+                <span className="bg-white rounded-full p-0.5 text-primary">
                   <Plus size={14} strokeWidth={3} />
-                </div>
+                </span>
                 Adicionar mais
               </button>
             </div>

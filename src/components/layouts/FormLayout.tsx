@@ -1,14 +1,32 @@
 // src/components/layouts/FormLayout.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../ui/Button';
 import StepperFormulario from '../ui/StepperFormulario';
 
+import {
+  recuperarFormulario,
+  salvarFormulario,
+} from '../../services/formulario-storage';
+
+export interface CoordenadasFormulário {
+  latitude: number;
+  longitude: number;
+}
+
+export interface FotoFormulario {
+  id: string;
+  arquivo: File;
+}
+
 export interface DadosFormulario {
   categoria: 'buraco' | 'luz' | 'poda' | 'vazamento' | null;
   detalhes: string;
   respostasCarrossel: Record<string, 'sim' | 'nao'>;
+  endereco: string;
+  coordenadas: CoordenadasFormulário | null;
+  fotos: FotoFormulario[];
 }
 
 export interface FormularioContext {
@@ -24,7 +42,46 @@ export function FormLayout() {
     categoria: null,
     detalhes: '',
     respostasCarrossel: {},
+    endereco: '',
+    coordenadas: null,
+    fotos: [],
   });
+
+  const [carregandoRascunho, setCarregandoRascunho] = useState(true);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarRascunho() {
+      try {
+        const dadosSalvos = await recuperarFormulario<DadosFormulario>();
+
+        if (ativo && dadosSalvos) {
+          setDados(dadosSalvos);
+        }
+      } catch (erro) {
+        console.error('Erro ao recuperar o rascunho do formulário:', erro);
+      } finally {
+        if (ativo) {
+          setCarregandoRascunho(false);
+        }
+      }
+    }
+
+    void carregarRascunho();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (carregandoRascunho) return;
+
+    void salvarFormulario(dados).catch((erro: unknown) => {
+      console.error('Erro ao salvar o rascunho do formulário:', erro);
+    });
+  }, [dados, carregandoRascunho]);
 
   const isRevisao = location.pathname.includes('revisao');
   const isFotos = location.pathname.includes('fotos');
@@ -130,7 +187,13 @@ export function FormLayout() {
 
         {/* Conteúdo Dinâmico das Telas do Formulário */}
         <main className="relative z-10 w-full max-w-md mx-auto px-6 pb-6 flex flex-col">
-          <Outlet context={{ dados, setDados } satisfies FormularioContext} />
+          {carregandoRascunho ? (
+            <p className="py-8 text-center text-slate-600">
+              Carregando formulário...
+            </p>
+          ) : (
+            <Outlet context={{ dados, setDados } satisfies FormularioContext} />
+          )}
         </main>
       </div>
 

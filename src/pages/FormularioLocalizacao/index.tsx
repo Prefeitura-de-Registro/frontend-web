@@ -1,50 +1,70 @@
 import { useState, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { MapaMock } from '../../components/ui/MapaMock';
+import type { FormularioContext } from '../../components/layouts/FormLayout';
 
 export function FormularioLocalizacao() {
-  const [endereco, setEndereco] = useState(
-    'Bairro Centro, R. Pres; Getúlio Vargas, Número 2...',
-  );
+  const { dados, setDados } = useOutletContext<FormularioContext>();
   const [carregando, setCarregando] = useState(false);
 
-  const buscarEndereco = useCallback(async (lat: number, lng: number) => {
-    setCarregando(true);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-        {
-          headers: {
-            'Accept-Language': 'pt-BR',
-          },
+  const buscarEndereco = useCallback(
+    async (lat: number, lng: number) => {
+      setDados((prev) => ({
+        ...prev,
+        coordenadas: {
+          latitude: lat,
+          longitude: lng,
         },
-      );
-      const data = await res.json();
+      }));
 
-      if (data && data.address) {
-        const rua =
-          data.address.road ||
-          data.address.pedestrian ||
-          data.address.suburb ||
-          'Rua não identificada';
-        const bairro =
-          data.address.suburb ||
-          data.address.neighbourhood ||
-          data.address.city_district ||
-          'Centro';
-        const numero = data.address.house_number
-          ? `, Número ${data.address.house_number}`
-          : '';
+      setCarregando(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+          {
+            headers: {
+              'Accept-Language': 'pt-BR',
+            },
+          },
+        );
+        const data = await res.json();
 
-        setEndereco(`Bairro ${bairro}, R. ${rua}${numero}`);
-      } else {
-        setEndereco('Localização selecionada');
+        if (data && data.address) {
+          const rua =
+            data.address.road ||
+            data.address.pedestrian ||
+            data.address.suburb ||
+            'Rua não identificada';
+          const bairro =
+            data.address.suburb ||
+            data.address.neighbourhood ||
+            data.address.city_district ||
+            'Centro';
+          const numero = data.address.house_number
+            ? `, Número ${data.address.house_number}`
+            : '';
+
+          setDados((prev) => ({
+            ...prev,
+            endereco: `Bairro ${bairro}, R. ${rua}${numero}`,
+          }));
+        } else {
+          setDados((prev) => ({
+            ...prev,
+            endereco: 'Localização selecionada',
+          }));
+        }
+      } catch {
+        setDados((prev) => ({
+          ...prev,
+          endereco: 'Não foi possível obter o endereço',
+        }));
+      } finally {
+        setCarregando(false);
       }
-    } catch {
-      setEndereco('Não foi possível obter o endereço');
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
+    },
+    [setDados],
+  );
 
   return (
     <div className="relative w-[calc(100%+2rem)] -mx-4 h-[calc(100vh-320px)] min-h-70 flex flex-col justify-end -mb-4">
@@ -67,7 +87,9 @@ export function FormularioLocalizacao() {
         </p>
 
         <div className="text-corpo w-full bg-white text-gray-300! px-3.5 py-2 rounded-xl text-[11px] font-normal text-left truncate shadow-inner">
-          {carregando ? 'Atualizando endereço...' : endereco}
+          {carregando
+            ? 'Atualizando endereço...'
+            : dados.endereco || 'Selecione uma localização no mapa'}
         </div>
       </div>
     </div>
