@@ -1,20 +1,41 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ClipboardPenLine, MapPin, Camera, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
+import type { FormularioContext } from '../../components/layouts/FormLayout';
 import mapaLocalizacao from '../../assets/mapa-localizacao.png';
 
-const ocorrencia = {
-  tipo: 'Buraco',
-  descricao: 'Buraco grande, oferecendo riscos de quedas.',
-  condicoes: ['Mais de 1m', 'Calçada / Passeio público', 'Ciclovia'],
-};
+function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
+  const [url, setUrl] = useState('');
 
-const localizacao = {
-  bairro: 'Jardim das Flores',
-  rua: 'Rua Paulistano',
-  numero: '132',
-};
+  useEffect(() => {
+    const urlTemporaria = URL.createObjectURL(arquivo);
+
+    const frameId = requestAnimationFrame(() => {
+      setUrl(urlTemporaria);
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      URL.revokeObjectURL(urlTemporaria);
+    };
+  }, [arquivo]);
+
+  if (!url) return null;
+
+  if (arquivo.type.startsWith('video/')) {
+    return (
+      <video
+        src={url}
+        aria-label={alt}
+        className="h-full w-full object-cover"
+        muted
+      />
+    );
+  }
+
+  return <img src={url} alt={alt} className="h-full w-full object-cover" />;
+}
 
 interface RevisionSectionProps {
   titulo: string;
@@ -32,10 +53,10 @@ function RevisionSection({
   contentClassName = '',
 }: RevisionSectionProps) {
   return (
-    <section className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       {/* Cabeçalho da seção */}
-      <div className="flex h-11 items-center justify-center gap-2 bg-white border-b border-slate-100">
-        <div className="h-5 w-5 text-primary flex items-center justify-center">
+      <div className="flex h-11 items-center justify-center gap-2 border-b border-slate-100 bg-white">
+        <div className="flex h-5 w-5 items-center justify-center text-primary">
           {icon}
         </div>
         <h2 className="text-base font-bold text-primary">{titulo}</h2>
@@ -43,11 +64,11 @@ function RevisionSection({
 
       <div className={contentClassName}>{children}</div>
 
-      {/* Botão de Editar */}
+      {/* Botão de editar */}
       <button
         type="button"
         onClick={onEditar}
-        className="h-11 w-full bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800 flex items-center justify-center gap-2"
+        className="flex h-11 w-full items-center justify-center gap-2 bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800"
       >
         <ClipboardPenLine size={16} />
         Editar
@@ -58,9 +79,17 @@ function RevisionSection({
 
 function Revisao() {
   const navigate = useNavigate();
+  const { dados, setDados } = useOutletContext<FormularioContext>();
+
+  const nomesCategorias = {
+    buraco: 'Buraco',
+    luz: 'Iluminação pública',
+    poda: 'Poda de árvore',
+    vazamento: 'Vazamento',
+  };
 
   const handleConfirmar = () => {
-    // Lógica para enviar os dados do formulário para o backend
+    // O envio ao backend será implementado posteriormente.
     navigate('/conclusao');
   };
 
@@ -75,28 +104,40 @@ function Revisao() {
       >
         <div className="space-y-4 text-sm text-slate-800">
           <p>
-            <strong className="text-sky-900 font-semibold">Tipo:</strong>{' '}
-            {ocorrencia.tipo}
+            <strong className="font-semibold text-sky-900">Tipo:</strong>{' '}
+            {dados.categoria
+              ? nomesCategorias[dados.categoria]
+              : 'Não informado'}
           </p>
 
           <div>
             <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Descrição:</strong>
+              <strong className="font-semibold text-sky-900">Descrição:</strong>
             </p>
-            <div className="min-h-24 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-slate-700 shadow-sm">
-              {ocorrencia.descricao}
+
+            <div className="min-h-24 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm">
+              {dados.detalhes.trim() || 'Não informado'}
             </div>
           </div>
 
           <div>
             <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Condições:</strong>
+              <strong className="font-semibold text-sky-900">Condições:</strong>
             </p>
-            <ul className="list-disc space-y-1 pl-5 text-slate-700">
-              {ocorrencia.condicoes.map((condicao) => (
-                <li key={condicao}>{condicao}</li>
-              ))}
-            </ul>
+
+            {Object.entries(dados.respostasCarrossel).length > 0 ? (
+              <ul className="list-disc space-y-1 pl-5 text-slate-700">
+                {Object.entries(dados.respostasCarrossel).map(
+                  ([pergunta, resposta]) => (
+                    <li key={pergunta}>
+                      {pergunta}: {resposta === 'sim' ? 'Sim' : 'Não'}
+                    </li>
+                  ),
+                )}
+              </ul>
+            ) : (
+              <p className="text-slate-500">Nenhuma condição informada.</p>
+            )}
           </div>
         </div>
       </RevisionSection>
@@ -109,57 +150,82 @@ function Revisao() {
         contentClassName="bg-white"
       >
         <div>
-          <div className="px-6 py-3.5 text-sm font-medium text-slate-800 border-b border-slate-100">
-            {localizacao.rua}, {localizacao.numero} — {localizacao.bairro}
+          <div className="border-b border-slate-100 px-6 py-3.5 text-sm font-medium text-slate-800">
+            {dados.endereco.trim() || 'Endereço não informado'}
           </div>
 
           <div className="relative h-48 w-full overflow-hidden">
             <img
               src={mapaLocalizacao}
-              alt="Mapa da localização da ocorrência"
+              alt="Mapa ilustrativo da localização da ocorrência"
               className="h-full w-full object-cover"
             />
+
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
+              <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-500/20">
                 <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
               </div>
             </div>
           </div>
+
+          {dados.coordenadas && (
+            <p className="px-6 py-2 text-xs text-slate-500">
+              Latitude: {dados.coordenadas.latitude.toFixed(6)} | Longitude:{' '}
+              {dados.coordenadas.longitude.toFixed(6)}
+            </p>
+          )}
         </div>
       </RevisionSection>
 
-      {/* 3. Seção de Fotos / Vídeos (Que estava faltando) */}
+      {/* 3. Seção de Fotos / Vídeos */}
       <RevisionSection
         titulo="Fotos / Vídeos"
         icon={<Camera className="h-5 w-5" />}
         onEditar={() => navigate('/formulario/fotos')}
         contentClassName="bg-slate-50/70 p-5"
       >
-        <div className="flex items-center gap-3">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-slate-300 shadow-sm bg-white">
-            <img
-              src={mapaLocalizacao}
-              alt="Foto da ocorrência"
-              className="w-full h-full object-cover"
-            />
-            {/* Botão de excluir foto (X vermelho) */}
-            <button
-              type="button"
-              className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center shadow hover:bg-red-700 transition"
-              title="Remover foto"
-            >
-              <X size={12} strokeWidth={3} />
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {dados.fotos.length > 0 ? (
+            dados.fotos.map((foto) => (
+              <div
+                key={foto.id}
+                className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm"
+              >
+                <AnexoPreview
+                  arquivo={foto.arquivo}
+                  alt="Anexo da ocorrência"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDados((prev) => ({
+                      ...prev,
+                      fotos: prev.fotos.filter((item) => item.id !== foto.id),
+                    }))
+                  }
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow transition hover:bg-red-700"
+                  title="Remover anexo"
+                  aria-label="Remover anexo"
+                >
+                  <X size={12} strokeWidth={3} />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">
+              Nenhuma foto ou vídeo anexado.
+            </p>
+          )}
         </div>
       </RevisionSection>
 
-      {/* Botões Finais de Confirmação e Cancelamento */}
+      {/* Botões finais de confirmação e cancelamento */}
       <div className="flex flex-col gap-3 pt-2">
         <button
           type="button"
           onClick={handleConfirmar}
-          className="w-full bg-sky-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:bg-sky-800 transition text-center"
+          className="w-full rounded-2xl bg-sky-700 px-6 py-3.5 text-center font-bold text-white shadow-md transition hover:bg-sky-800"
         >
           Confirmar
         </button>
@@ -167,7 +233,7 @@ function Revisao() {
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="w-full bg-slate-100 border border-slate-300 text-sky-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-slate-200 transition text-center"
+          className="w-full rounded-2xl border border-slate-300 bg-slate-100 px-6 py-3.5 text-center font-bold text-sky-700 shadow-sm transition hover:bg-slate-200"
         >
           Cancelar
         </button>
