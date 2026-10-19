@@ -1,10 +1,27 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { ClipboardPenLine, MapPin, Camera, X } from 'lucide-react';
+import {
+  ClipboardPenLine,
+  MapPin,
+  Camera,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 
 import type { FormularioContext } from '../../components/layouts/FormLayout';
 import mapaLocalizacao from '../../assets/mapa-localizacao.png';
 
+// --- Interface de Tipos ---
+interface RevisionSectionProps {
+  titulo: string;
+  icon: ReactNode;
+  children: ReactNode;
+  onEditar: () => void;
+  contentClassName?: string;
+}
+
+// --- Componentes Auxiliares ---
 function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
   const [url, setUrl] = useState('');
 
@@ -37,8 +54,6 @@ function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
   return <img src={url} alt={alt} className="h-full w-full object-cover" />;
 }
 
-  const [paginaPergunta, setPaginaPergunta] = useState(0);
-
 function RevisionSection({
   titulo,
   icon,
@@ -50,13 +65,14 @@ function RevisionSection({
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       {/* Cabeçalho da seção */}
       <div className="flex h-11 items-center justify-center gap-2 border-b border-slate-100 bg-white">
-        <div className="flex h-5 w-5 items-center justify-center text-primary">
+        <div className="flex h-5 w-5 items-center justify-center text-sky-700">
           {icon}
         </div>
-        <h2 className="text-base font-bold text-primary">{titulo}</h2>
+        <h2 className="text-base font-bold text-sky-900">{titulo}</h2>
       </div>
 
-  const perguntaAtual = perguntasRevisao[paginaPergunta];
+      {/* Conteúdo dinâmico da seção */}
+      <div className={contentClassName}>{children}</div>
 
       {/* Botão de editar */}
       <button
@@ -71,20 +87,55 @@ function RevisionSection({
   );
 }
 
+// Pergunta pré-definidas para a revisão em carrossel
+const perguntasRevisao = [
+  'Há risco iminente no local?',
+  'O local possui iluminação pública adequada?',
+  'A via está parcialmente ou totalmente bloqueada?',
+];
+
+// --- Componente Principal ---
 function Revisao() {
   const navigate = useNavigate();
   const { dados, setDados } = useOutletContext<FormularioContext>();
 
-  const nomesCategorias = {
+  // Estados locais da página
+  const [paginaPergunta, setPaginaPergunta] = useState(0);
+  const [respostas, setRespostas] = useState<Record<number, 'sim' | 'nao'>>({});
+
+  const nomesCategorias: Record<string, string> = {
     buraco: 'Buraco',
     luz: 'Iluminação pública',
     poda: 'Poda de árvore',
     vazamento: 'Vazamento',
   };
 
+  const perguntaAtual = perguntasRevisao[paginaPergunta];
+
   const handleConfirmar = () => {
     // O envio ao backend será implementado posteriormente.
     navigate('/conclusao');
+  };
+
+  const irParaAnterior = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === 0 ? perguntasRevisao.length - 1 : paginaAtual - 1,
+    );
+  };
+
+  const irParaProxima = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === perguntasRevisao.length - 1 ? 0 : paginaAtual + 1,
+    );
+  };
+
+  const responder = (resposta: 'sim' | 'nao') => {
+    setRespostas((respostasAtuais) => ({
+      ...respostasAtuais,
+      [paginaPergunta]: resposta,
+    }));
+
+    irParaProxima();
   };
 
   return (
@@ -100,7 +151,7 @@ function Revisao() {
           <p>
             <strong className="font-semibold text-sky-900">Tipo:</strong>{' '}
             {dados.categoria
-              ? nomesCategorias[dados.categoria]
+              ? nomesCategorias[dados.categoria] || dados.categoria
               : 'Não informado'}
           </p>
 
@@ -110,7 +161,7 @@ function Revisao() {
             </p>
 
             <div className="min-h-24 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm">
-              {dados.detalhes.trim() || 'Não informado'}
+              {dados.detalhes?.trim() || 'Não informado'}
             </div>
           </div>
 
@@ -119,7 +170,8 @@ function Revisao() {
               <strong className="font-semibold text-sky-900">Condições:</strong>
             </p>
 
-            {Object.entries(dados.respostasCarrossel).length > 0 ? (
+            {dados.respostasCarrossel &&
+            Object.entries(dados.respostasCarrossel).length > 0 ? (
               <ul className="list-disc space-y-1 pl-5 text-slate-700">
                 {Object.entries(dados.respostasCarrossel).map(
                   ([pergunta, resposta]) => (
@@ -145,49 +197,15 @@ function Revisao() {
       >
         <div>
           <div className="border-b border-slate-100 px-6 py-3.5 text-sm font-medium text-slate-800">
-            {dados.endereco.trim() || 'Endereço não informado'}
+            {dados.endereco?.trim() || 'Endereço não informado'}
           </div>
-  const irParaAnterior = () => {
-    setPaginaPergunta((paginaAtual) =>
-      paginaAtual === 0 ? perguntasRevisao.length - 1 : paginaAtual - 1,
-    );
-  };
 
-  const irParaProxima = () => {
-    setPaginaPergunta((paginaAtual) =>
-      paginaAtual === perguntasRevisao.length - 1 ? 0 : paginaAtual + 1,
-    );
-  };
-
-  const responder = (resposta: 'sim' | 'nao') => {
-    setRespostas((respostasAtuais) => ({
-      ...respostasAtuais,
-      [paginaPergunta]: resposta,
-    }));
-
-    irParaProxima();
-  };
-
-  return (
-    <div className="relative left-1/2 w-screen -translate-x-1/2 flex flex-col gap-7 px-6">
-      <section className="w-full overflow-hidden rounded-2xl bg-white shadow-sm">
-        <div className="flex h-7 items-center justify-center bg-[#20C997]">
-          <h2 className="text-xl font-bold text-white">Ocorrência</h2>
-        </div>
-
-        <div className="px-5 py-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xl font-bold text-[#0073A9]">Tipo:</p>
-              <p className="text-lg text-slate-600">{ocorrencia.tipo}</p>
-            </div>
-
+          <div className="relative h-48 w-full overflow-hidden">
             <img
               src={mapaLocalizacao}
               alt="Mapa ilustrativo da localização da ocorrência"
               className="h-full w-full object-cover"
             />
-
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-500/20">
                 <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
@@ -212,7 +230,7 @@ function Revisao() {
         contentClassName="bg-slate-50/70 p-5"
       >
         <div className="flex flex-wrap items-center gap-3">
-          {dados.fotos.length > 0 ? (
+          {dados.fotos && dados.fotos.length > 0 ? (
             dados.fotos.map((foto) => (
               <div
                 key={foto.id}
@@ -247,7 +265,77 @@ function Revisao() {
         </div>
       </RevisionSection>
 
-      {/* Botões finais de confirmação e cancelamento */}
+      {/* 4. Carrossel de Perguntas Adicionais */}
+      {perguntasRevisao.length > 0 && (
+        <section className="relative w-full overflow-hidden rounded-2xl bg-[#F2F2F2]">
+          <div className="absolute left-0 top-0 flex h-full w-7 items-center justify-center bg-[#0073A9]">
+            <button
+              type="button"
+              onClick={irParaAnterior}
+              aria-label="Pergunta anterior"
+              className="relative z-10 flex h-full w-full items-center justify-center text-white"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="absolute right-0 top-0 flex h-full w-7 items-center justify-center bg-[#0073A9]">
+            <button
+              type="button"
+              onClick={irParaProxima}
+              aria-label="Próxima pergunta"
+              className="relative z-10 flex h-full w-full items-center justify-center text-white"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="px-10 py-7">
+            <h2 className="flex min-h-10 items-center justify-center text-center text-xl font-bold leading-snug text-[#0073A9]">
+              {perguntaAtual}
+            </h2>
+
+            <div className="mt-4 flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => responder('sim')}
+                className={`rounded-xl px-6 py-2 font-bold transition ${
+                  respostas[paginaPergunta] === 'sim'
+                    ? 'bg-[#0073A9] text-white'
+                    : 'border border-[#0073A9] bg-white text-[#0073A9]'
+                }`}
+              >
+                Sim
+              </button>
+
+              <button
+                type="button"
+                onClick={() => responder('nao')}
+                className={`rounded-xl px-6 py-2 font-bold transition ${
+                  respostas[paginaPergunta] === 'nao'
+                    ? 'bg-[#0073A9] text-white'
+                    : 'border border-[#0073A9] bg-white text-[#0073A9]'
+                }`}
+              >
+                Não
+              </button>
+            </div>
+
+            <div className="mt-4 flex justify-center gap-1.5">
+              {perguntasRevisao.map((_, indice) => (
+                <span
+                  key={indice}
+                  className={`h-2 w-2 rounded-full transition-all ${
+                    paginaPergunta === indice ? 'bg-[#0073A9]' : 'bg-slate-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. Botões Finais */}
       <div className="flex flex-col gap-3 pt-2">
         <button
           type="button"
@@ -265,77 +353,6 @@ function Revisao() {
           Cancelar
         </button>
       </div>
-      </section>
-
-      <section className="relative w-full overflow-hidden rounded-2xl bg-[#F2F2F2]">
-        <div className="absolute left-0 top-0 flex h-full w-7 items-center justify-center bg-[#0073A9]">
-          <button
-            type="button"
-            onClick={irParaAnterior}
-            aria-label="Pergunta anterior"
-            className="relative z-10 flex h-full w-full items-center justify-center text-white"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="absolute right-0 top-0 flex h-full w-7 items-center justify-center  bg-[#0073A9]">
-          <button
-            type="button"
-            onClick={irParaProxima}
-            aria-label="Próxima pergunta"
-            className="relative z-10 flex h-full w-full items-center justify-center text-white"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="px-10 py-7">
-          <h2 className="flex min-h-10 items-center justify-center text-center text-xl font-bold leading-snug text-[#0073A9]">
-            {perguntaAtual}
-          </h2>
-
-          <div className="mt-4 flex gap-3">
-            <SimNaoButton
-              tipo="sim"
-              variante="outline"
-              onClick={() => responder('sim')}
-            />
-
-            <SimNaoButton
-              tipo="nao"
-              variante="solid"
-              onClick={() => responder('nao')}
-            />
-          </div>
-
-          <div className="mt-4 flex justify-center gap-1.5">
-            {perguntasRevisao.map((_, indice) => (
-              <span
-                key={indice}
-                className={`h-2 w-2 rounded-full ${
-                  paginaPergunta === indice ? 'bg-[#0073A9]' : 'bg-slate-300'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <button
-        type="button"
-        onClick={() =>
-          navigate('/respostas', {
-            state: { respostas },
-          })
-        }
-        className="mx-auto flex items-center gap-3 rounded-lg bg-[#0073A9] px-14 py-3 text-lg font-bold text-white"
-      >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
-          <Plus className="h-5 w-5 text-[#0073A9]" />
-        </span>
-        Ver todas as respostas
-      </button>
     </div>
   );
 }
