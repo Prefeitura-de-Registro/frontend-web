@@ -1,17 +1,14 @@
 import { useState } from 'react';
-
-import ButtonBack from '../../components/ui/ButtonBack';
-import CampoCadastro from '../../components/ui/CampoCadastro';
-
 import { Mail, LockKeyhole } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import ButtonBack from '../../components/ui/ButtonBack';
+import CampoCadastro from '../../components/ui/CampoCadastro';
 import brasao from '../../assets/brasao.svg';
-import degradeRegistro from '../../assets/degrade.svg';
 import logoFatec from '../../assets/logo_fatec_de_registro.png';
 import { cadastrar } from './cadastrarUsuario';
 
-function Cadastro() {
+export function Cadastro() {
   const navigate = useNavigate();
 
   const [nome, setNome] = useState('');
@@ -22,11 +19,36 @@ function Cadastro() {
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
+  const aplicarMascaraCPF = (valor: string) => {
+    return valor
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1')
+      .slice(0, 14);
+  };
+
+  const handleCpfChange = (valor: string) => {
+    setCpf(aplicarMascaraCPF(valor));
+  };
+
   async function handleCadastrar() {
     setErro('');
 
-    if (!nome.trim() || !cpf.trim() || !email.trim() || !senha.trim()) {
+    if (
+      !nome.trim() ||
+      !cpf.trim() ||
+      !email.trim() ||
+      !senha.trim() ||
+      !confirmacaoSenha.trim()
+    ) {
       setErro('Preencha todos os campos.');
+      return;
+    }
+
+    if (senha !== confirmacaoSenha) {
+      setErro('As senhas não coincidem.');
       return;
     }
 
@@ -54,52 +76,50 @@ function Cadastro() {
   }
 
   return (
-    <div className="relative min-h-screen bg-white">
-      <img
-        src={degradeRegistro}
-        alt=""
-        className="absolute left-0 top-0 z-0 h-[125px] w-full object-cover [mask-image:linear-gradient(to_bottom,black_35%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_35%,transparent_100%)]"
-      />
+    <div className="w-full bg-white flex flex-col items-center">
+      <main className="w-full max-w-md px-6 py-4 flex flex-col items-center">
+        {/* BOTÃO VOLTAR */}
+        <div className="w-full flex justify-start mb-2">
+          <ButtonBack
+            type="button"
+            onClick={() => navigate('/login')}
+            aria-label="Voltar para a tela de login"
+          />
+        </div>
 
-      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-6">
-        <ButtonBack
-          type="button"
-          onClick={() => navigate('/login')}
-          aria-label="Voltar para a tela de login"
-          className="mt-12"
-        />
-
+        {/* CABEÇALHO */}
         <div className="flex flex-col items-center text-center">
-          <h1 className="text-[33px] font-normal leading-[1.05] text-black">
-            Crie a
-            <br />
-            <span className="text-[40px] font-bold text-primary">
+          <h1 className="text-[32px] font-normal leading-tight text-black">
+            Crie a <br />
+            <span className="text-[38px] font-bold text-primary">
               sua conta!
             </span>
           </h1>
 
-          <div className="mt-1 h-[1px] w-[300px] rounded-full bg-primary" />
+          <div className="mt-2 h-px w-65 bg-primary/40" />
 
-          <p className="mt-3 text-center text-[16px] text-black">
+          <p className="mt-2 text-center text-[14px] text-black leading-tight">
             Cadastre-se para <b>acompanhar</b> <br />
             seus <b>chamados</b>
           </p>
         </div>
-        <div className="mt-8 flex w-full flex-col gap-4">
+
+        {/* CAMPOS DO FORMULÁRIO */}
+        <div className="mt-5 w-full flex flex-col gap-3">
           <CampoCadastro
             label="Nome Completo"
             placeholder="Insira aqui seu nome"
             valor={nome}
             onChange={setNome}
-            icon={<Mail className="h-4 w-4" />}
+            icon={<Mail className="h-4 w-4 text-primary" />}
           />
 
           <CampoCadastro
             label="CPF"
-            placeholder="xxx.xxx.xxx-xx"
+            placeholder="XXX.XXX.XXX-XX"
             valor={cpf}
-            onChange={setCpf}
-            icon={<Mail className="h-4 w-4" />}
+            onChange={handleCpfChange}
+            icon={<Mail className="h-4 w-4 text-primary" />}
           />
 
           <CampoCadastro
@@ -108,16 +128,16 @@ function Cadastro() {
             valor={email}
             onChange={setEmail}
             tipo="email"
-            icon={<Mail className="h-4 w-4" />}
+            icon={<Mail className="h-4 w-4 text-primary" />}
           />
 
           <CampoCadastro
             label="Senha"
-            placeholder="Insira aqui sua senha"
+            placeholder="insira aqui sua senha"
             valor={senha}
             onChange={setSenha}
             tipo="password"
-            icon={<Mail className="h-4 w-4" />}
+            icon={<Mail className="h-4 w-4 text-primary" />}
           />
 
           <CampoCadastro
@@ -126,44 +146,49 @@ function Cadastro() {
             valor={confirmacaoSenha}
             onChange={setConfirmacaoSenha}
             tipo="password"
-            icon={<LockKeyhole className="h-4 w-4" />}
+            icon={<LockKeyhole className="h-4 w-4 text-primary" />}
           />
         </div>
 
+        {/* MENSAGEM DE ERRO */}
         {erro && (
-          <p className="mt-3 text-center text-sm text-red-500">{erro}</p>
+          <p className="mt-2 text-center text-xs font-medium text-danger">
+            {erro}
+          </p>
         )}
 
+        {/* BOTÃO DE SUBMISSÃO */}
         <button
           type="button"
           disabled={carregando}
-          className="mx-auto mt-7 h-16 w-[350px] max-w-full rounded-3xl bg-primary text-[20px] font-medium text-white disabled:opacity-50"
+          className="mt-6 h-12 w-full max-w-[320px] rounded-full bg-primary text-[18px] font-bold text-white shadow-md hover:opacity-95 disabled:opacity-50 transition-opacity"
           onClick={handleCadastrar}
         >
           {carregando ? 'Cadastrando...' : 'Cadastrar'}
         </button>
 
-        <p className="mt-5 text-center text-[15px] text-black">
+        {/* LINK PARA LOGIN */}
+        <div className="mt-3 text-center text-[13px] text-black">
           <button
             type="button"
             onClick={() => navigate('/login')}
             className="font-bold text-primary underline"
           >
-            Já está cadastrado? <b>Entrar</b>
+            Já está cadastrado? Entrar
           </button>
-        </p>
+        </div>
 
-        <div className="flex items-center justify-center gap-4 pb-4 pt-8">
+        {/* RODAPÉ */}
+        <div className="flex items-center justify-center gap-3 pt-6 pb-2">
           <img
             src={brasao}
             alt="Brasão da Prefeitura de Registro"
-            className="h-[40px] w-[40px] object-contain"
+            className="h-8 w-8 object-contain"
           />
-
           <img
             src={logoFatec}
             alt="Fatec Registro"
-            className="w-[70px] object-contain"
+            className="h-6 object-contain"
           />
         </div>
       </main>

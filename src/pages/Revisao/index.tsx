@@ -6,6 +6,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 
@@ -23,6 +24,20 @@ interface RevisionSectionProps {
 
 // --- Componentes Auxiliares ---
 function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
+interface FotoAnexo {
+  id: string | number;
+  arquivo: File;
+}
+
+// --- Mock de Dados (Ajuste conforme as perguntas reais do seu projeto) ---
+const perguntasRevisao = [
+  'Há risco imediato de acidentes?',
+  'O problema está impedindo a passagem de pedestres?',
+  'Já ocorreu algum acidente no local devido a este problema?',
+];
+
+// --- Componentes Auxiliares ---
+export function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
   const [url, setUrl] = useState('');
 
   useEffect(() => {
@@ -54,7 +69,7 @@ function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
   return <img src={url} alt={alt} className="h-full w-full object-cover" />;
 }
 
-function RevisionSection({
+export function RevisionSection({
   titulo,
   icon,
   children,
@@ -63,7 +78,6 @@ function RevisionSection({
 }: RevisionSectionProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-      {/* Cabeçalho da seção */}
       <div className="flex h-11 items-center justify-center gap-2 border-b border-slate-100 bg-white">
         <div className="flex h-5 w-5 items-center justify-center text-sky-700">
           {icon}
@@ -74,7 +88,6 @@ function RevisionSection({
       {/* Conteúdo dinâmico da seção */}
       <div className={contentClassName}>{children}</div>
 
-      {/* Botão de editar */}
       <button
         type="button"
         onClick={onEditar}
@@ -111,6 +124,9 @@ function Revisao() {
   };
 
   const perguntaAtual = perguntasRevisao[paginaPergunta];
+  const categoriaNome = dados?.categoria
+    ? nomesCategorias[dados.categoria]
+    : 'Não informado';
 
   const handleConfirmar = () => {
     // O envio ao backend será implementado posteriormente.
@@ -134,7 +150,6 @@ function Revisao() {
       ...respostasAtuais,
       [paginaPergunta]: resposta,
     }));
-
     irParaProxima();
   };
 
@@ -210,8 +225,61 @@ function Revisao() {
               <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-500/20">
                 <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
               </div>
+
+              {dados?.coordenadas && (
+                <p className="mt-4 px-6 py-2 text-xs text-slate-500 bg-slate-50 rounded-lg">
+                  Latitude: {dados.coordenadas.latitude.toFixed(6)} | Longitude:{' '}
+                  {dados.coordenadas.longitude.toFixed(6)}
+                </p>
+              )}
             </div>
           </div>
+        </RevisionSection>
+
+        {/* === 3. Seção de Fotos / Vídeos === */}
+        <RevisionSection
+          titulo="Fotos / Vídeos"
+          icon={<Camera className="h-5 w-5" />}
+          onEditar={() => navigate('/formulario/fotos')}
+          contentClassName="bg-slate-50/70 p-5"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            {dados?.fotos && dados.fotos.length > 0 ? (
+              dados.fotos.map((foto: FotoAnexo) => (
+                <div
+                  key={foto.id}
+                  className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm"
+                >
+                  <AnexoPreview
+                    arquivo={foto.arquivo}
+                    alt="Anexo da ocorrência"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDados((prev) => ({
+                        ...prev,
+                        fotos: prev.fotos.filter(
+                          (item: FotoAnexo) => item.id !== foto.id,
+                        ),
+                      }))
+                    }
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow transition hover:bg-red-700"
+                    title="Remover anexo"
+                    aria-label="Remover anexo"
+                  >
+                    <X size={12} strokeWidth={3} />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">
+                Nenhuma foto ou vídeo anexado.
+              </p>
+            )}
+          </div>
+        </RevisionSection>
+      </div>
 
           {dados.coordenadas && (
             <p className="px-6 py-2 text-xs text-slate-500">
@@ -235,35 +303,77 @@ function Revisao() {
               <div
                 key={foto.id}
                 className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm"
-              >
-                <AnexoPreview
-                  arquivo={foto.arquivo}
-                  alt="Anexo da ocorrência"
-                />
+      {/* === 4. Carrossel de Perguntas === */}
+      <div className="space-y-4 pt-4 border-t border-slate-200">
+        <section className="relative w-full overflow-hidden rounded-2xl bg-[#F2F2F2]">
+          <div className="absolute left-0 top-0 flex h-full w-8 items-center justify-center bg-[#0073A9] transition-colors hover:bg-sky-800">
+            <button
+              type="button"
+              onClick={irParaAnterior}
+              aria-label="Pergunta anterior"
+              className="relative z-10 flex h-full w-full items-center justify-center text-white"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          </div>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDados((prev) => ({
-                      ...prev,
-                      fotos: prev.fotos.filter((item) => item.id !== foto.id),
-                    }))
-                  }
-                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow transition hover:bg-red-700"
-                  title="Remover anexo"
-                  aria-label="Remover anexo"
-                >
-                  <X size={12} strokeWidth={3} />
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-slate-500">
-              Nenhuma foto ou vídeo anexado.
-            </p>
-          )}
-        </div>
-      </RevisionSection>
+          <div className="absolute right-0 top-0 flex h-full w-8 items-center justify-center bg-[#0073A9] transition-colors hover:bg-sky-800">
+            <button
+              type="button"
+              onClick={irParaProxima}
+              aria-label="Próxima pergunta"
+              className="relative z-10 flex h-full w-full items-center justify-center text-white"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </div>
+
+          <div className="px-12 py-7">
+            <h2 className="flex min-h-[3rem] items-center justify-center text-center text-lg font-bold leading-snug text-[#0073A9]">
+              {perguntaAtual}
+            </h2>
+
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => responder('sim')}
+                className="rounded-lg border-2 border-[#0073A9] px-8 py-2 font-bold text-[#0073A9] hover:bg-[#0073A9] hover:text-white transition-colors"
+              >
+                Sim
+              </button>
+              <button
+                type="button"
+                onClick={() => responder('nao')}
+                className="rounded-lg bg-[#0073A9] px-8 py-2 font-bold text-white hover:bg-sky-800 transition-colors"
+              >
+                Não
+              </button>
+            </div>
+
+            <div className="mt-6 flex justify-center gap-1.5">
+              {perguntasRevisao.map((_, indice) => (
+                <span
+                  key={indice}
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    paginaPergunta === indice ? 'bg-[#0073A9]' : 'bg-slate-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <button
+          type="button"
+          onClick={() => navigate('/respostas', { state: { respostas } })}
+          className="mx-auto flex w-full max-w-sm items-center justify-center gap-3 rounded-xl bg-sky-100/50 border border-[#0073A9]/20 px-6 py-3 text-sm font-bold text-[#0073A9] hover:bg-sky-100 transition-colors"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0073A9] text-white">
+            <Plus className="h-4 w-4" />
+          </span>
+          Ver todas as respostas
+        </button>
+      </div>
 
       {/* 4. Carrossel de Perguntas Adicionais */}
       {perguntasRevisao.length > 0 && (
