@@ -22,7 +22,15 @@ import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
 
+// Imports da Área do Servidor
+import { ServidorLayout } from '../components/layouts/ServidorLayout';
+import { ServidorDashboard } from '../pages/ServidorDashboard';
+
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Splash />,
+  },
   {
     element: <StandardLayout />,
     children: [
@@ -30,29 +38,19 @@ export const router = createBrowserRouter([
         path: '/login',
         element: <LoginMunicipe />,
       },
-    ],
-  },
-  {
-    path: '/cadastro',
-    element: <Cadastro />,
-  },
-  {
-    element: <StandardLayout />,
-    children: [
       {
         path: '/signin',
         element: <SignIn />,
       },
+      {
+        path: '/conclusao',
+        element: <Conclusao />,
+      },
     ],
   },
-
   {
     path: '/cadastro',
     element: <Cadastro />,
-  },
-  {
-    path: '/',
-    element: <Splash />,
   },
   {
     path: '/home',
@@ -90,7 +88,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <EmConstrucao nome="" />,
+        element: <EmConstrucao nome="Formulário" />,
       },
       {
         path: 'ocorrencia',
@@ -119,24 +117,30 @@ export const router = createBrowserRouter([
     element: <DetalhesChamado />,
   },
   {
-    element: <StandardLayout />,
-    children: [
-      {
-        path: '/conclusao',
-        element: <Conclusao />,
-      },
-    ],
-  },
-  {
     path: '/respostas',
     element: <Respostas />,
   },
   {
-    path: '*',
-    element: <EmConstrucao nome="" />,
-  },
-  {
     path: '/teste-componentes',
     element: <TesteComponentes />,
+  },
+
+  /* =========================================================
+   * ROTAS SEPARADAS DA ÁREA DO SERVIDOR (PAINEL ADMINISTRATIVO)
+   * ========================================================= */
+  {
+    path: '/servidor',
+    element: <ServidorLayout />,
+    children: [
+      {
+        path: '',
+        element: <ServidorDashboard />,
+      },
+    ],
+  },
+
+  {
+    path: '*',
+    element: <EmConstrucao nome="Página Não Encontrada" />,
   },
 ]);
