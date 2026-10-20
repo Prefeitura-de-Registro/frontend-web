@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, Bell, Clock, Filter } from 'lucide-react';
 
 export function ServidorDashboard() {
