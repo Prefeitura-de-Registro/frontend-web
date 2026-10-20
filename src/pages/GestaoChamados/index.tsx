@@ -19,7 +19,7 @@ import {
 import { useAuth } from '../../contexts/useAuth';
 import { ocorrenciasMock } from '../../mock/ocorrencia.mock';
 import type { Ocorrencias } from '../../types/ocorrencia';
-import logoPrefeitura from '../../assets/logo-fala-registro.svg';
+import logoPrefeitura from '../../assets/logo-fala-registro-alt.svg';
 import samuelPerfil from '../../assets/img/samuel-perfil.png';
 
 function GestaoChamados() {
@@ -111,17 +111,17 @@ function GestaoChamados() {
   return (
     <div className="min-h-screen bg-white md:flex">
       <aside className="flex w-full shrink-0 flex-col bg-[#0073A9] text-white md:min-h-screen md:w-[220px]">
-        <div className="flex h-[112px] items-center justify-between border-b border-white/15 px-5">
+        <div className="flex h-[112px] items-center justify-between px-5">
           <img
             src={logoPrefeitura}
             alt="Fala Registro"
-            className="h-auto max-h-[72px] max-w-[155px] object-contain"
+            className="h-auto max-h-[72px] max-w-[155px] translate-x-3 translate-y-4 object-contain"
           />
 
           <button
             type="button"
             aria-label="Recolher menu"
-            className="hidden h-8 w-8 translate-x-9 items-center justify-center rounded-full border-2 border-[#0073A9] bg-white text-[#0073A9] md:flex"
+            className="hidden h-6 w-8 translate-x-8.5 items-center justify-center rounded-full border-2 border-[#0073A9] bg-white text-[#0073A9] md:flex"
           >
             <ChevronLeft size={18} />
           </button>
