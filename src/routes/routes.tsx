@@ -21,6 +21,8 @@ import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
+import Operadores from '../pages/Operadores';
+import NovoOperador from '../pages/Operadores/NovoOperador';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +38,8 @@ export const router = createBrowserRouter([
     path: '/cadastro',
     element: <Cadastro />,
   },
+  { path: '/operadores', element: <Operadores /> },
+  { path: '/operadores/novo', element: <NovoOperador /> },
   {
     element: <StandardLayout />,
     children: [

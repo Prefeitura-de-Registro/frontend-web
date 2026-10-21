@@ -6,7 +6,9 @@ type StatusType =
   | 'aberto'
   | 'concluido'
   | 'aprovada'
-  | 'recusada';
+  | 'recusada'
+  | 'ativo'
+  | 'inativo';
 
 const statusStyles: Record<
   StatusType,
@@ -47,6 +49,18 @@ const statusStyles: Record<
     dot: 'bg-teal-500',
     text: 'text-teal-500',
     label: 'concluído',
+  },
+  ativo: {
+    bg: 'bg-emerald-100',
+    dot: 'bg-emerald-500',
+    text: 'text-emerald-600',
+    label: 'Ativo',
+  },
+  inativo: {
+    bg: 'bg-gray-100',
+    dot: 'bg-gray-400',
+    text: 'text-gray-500',
+    label: 'Inativo',
   },
 };
 
