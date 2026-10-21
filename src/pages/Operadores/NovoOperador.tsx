@@ -166,7 +166,7 @@ function NovoOperador() {
         return;
       }
 
-      navigate('/operadores');
+      navigate('/servidor/operadores');
     } catch {
       setErroGeral('Erro ao cadastrar. Tente novamente.');
     } finally {
@@ -321,7 +321,7 @@ function NovoOperador() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/operadores')}
+            onClick={() => navigate('/servidor/operadores')}
             className="rounded-lg border-transparent bg-gray-100 px-6 py-2.5 text-sm text-slate-700 hover:bg-gray-200"
           >
             Cancelar

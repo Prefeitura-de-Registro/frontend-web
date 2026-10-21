@@ -112,7 +112,7 @@ function Operadores() {
           />
           <Button
             icon={Plus}
-            onClick={() => navigate('/operadores/novo')}
+            onClick={() => navigate('novo')}
             className="px-5 py-2 text-sm rounded-lg"
           >
             Novo
