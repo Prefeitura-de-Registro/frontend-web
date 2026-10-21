@@ -21,6 +21,7 @@ import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
+import GestaoChamados from '../pages/GestaoChamados';
 import HomeChamados from '../pages/HomeChamados';
 
 // Imports da Área do Servidor
@@ -144,6 +145,10 @@ export const router = createBrowserRouter([
     ],
   },
 
+  {
+    path: '/gestao-chamados',
+    element: <GestaoChamados />,
+  },
   {
     path: '*',
     element: <EmConstrucao nome="Página Não Encontrada" />,
