@@ -1,143 +1,285 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { Download, TrendingUp, TrendingDown, ChevronDown } from 'lucide-react';
+import { useRequisicao } from '../../hooks/useRequisicao';
 import {
-  Search,
-  Bell,
-  Download,
-  Home,
-  FileCheck,
-  MapPin,
-  Users,
-  BarChart2,
-  Settings,
-  TrendingUp,
-  TrendingDown,
-  ChevronDown,
-  LogOut,
-} from 'lucide-react';
+  consultarDesempenhoDepartamentos,
+  consultarIndicadores,
+  consultarTicketsPorCategoria,
+  consultarVolumeSemanal,
+} from '../../services/relatorios.service';
+import type {
+  DesempenhoDepartamento,
+  Indicadores,
+  StatusGeral,
+  TicketsPorCategoria,
+  VolumeSemana,
+} from '../../types/gestao';
+import {
+  periodoAnterior,
+  periodoDesdeInicioDoAno,
+  periodoUltimosDias,
+  type Periodo,
+} from '../../utils/datas';
+import { formatarHorasMinutos } from '../../utils/ticket';
 
-import logoFalaRegistro from '../../assets/logo-fala-registro.svg';
+type ChavePeriodo = 'semanal' | 'mensal' | 'anual';
+
+const ANO_ATUAL = new Date().getFullYear();
+
+const OPCOES_PERIODO: { valor: ChavePeriodo; rotulo: string }[] = [
+  { valor: 'semanal', rotulo: 'Últimas 7 Semanas' },
+  { valor: 'mensal', rotulo: 'Últimos 30 Dias' },
+  { valor: 'anual', rotulo: `Ano de ${ANO_ATUAL}` },
+];
+
+function periodoDe(chave: ChavePeriodo): Periodo {
+  if (chave === 'semanal') return periodoUltimosDias(49);
+  if (chave === 'mensal') return periodoUltimosDias(30);
+  return periodoDesdeInicioDoAno();
+}
+
+interface DadosRelatorio {
+  atual: Indicadores;
+  anterior: Indicadores;
+  volume: VolumeSemana[];
+  categorias: TicketsPorCategoria['categorias'];
+  departamentos: DesempenhoDepartamento[];
+}
+
+async function carregarRelatorio(chave: ChavePeriodo): Promise<DadosRelatorio> {
+  const periodo = periodoDe(chave);
+
+  const [atual, anterior, volume, categorias, departamentos] =
+    await Promise.all([
+      consultarIndicadores(periodo),
+      consultarIndicadores(periodoAnterior(periodo)),
+      consultarVolumeSemanal(periodo),
+      consultarTicketsPorCategoria(periodo),
+      consultarDesempenhoDepartamentos(periodo),
+    ]);
+
+  return {
+    atual,
+    anterior,
+    volume,
+    categorias: categorias.categorias,
+    departamentos,
+  };
+}
+
+// ---------- Variações em relação ao período anterior ----------
+
+interface Variacao {
+  texto: string;
+  tom: 'bom' | 'ruim' | 'neutro';
+  icone: 'sobe' | 'desce';
+}
+
+const CLASSE_TOM: Record<Variacao['tom'], string> = {
+  bom: 'text-success',
+  ruim: 'text-danger',
+  neutro: 'text-black/60',
+};
+
+function variacaoQuantidade(atual: number, anterior: number): Variacao {
+  if (anterior === 0) {
+    return {
+      texto: 'Sem dados no período anterior',
+      tom: 'neutro',
+      icone: 'sobe',
+    };
+  }
+  const percentual = ((atual - anterior) / anterior) * 100;
+  return {
+    texto: `${percentual >= 0 ? '+' : '-'}${Math.abs(percentual).toFixed(0)}% em relação ao período anterior`,
+    tom: 'neutro',
+    icone: percentual >= 0 ? 'sobe' : 'desce',
+  };
+}
+
+function taxaResolucao(indicadores: Indicadores): number | null {
+  if (indicadores.ticketsTotais === 0) return null;
+  return (indicadores.ticketsResolvidos / indicadores.ticketsTotais) * 100;
+}
+
+function variacaoTaxa(atual: number | null, anterior: number | null): Variacao {
+  if (atual === null || anterior === null) {
+    return {
+      texto: 'Sem dados no período anterior',
+      tom: 'neutro',
+      icone: 'sobe',
+    };
+  }
+  const diferenca = atual - anterior;
+  return {
+    texto: `${diferenca >= 0 ? '+' : '-'}${Math.abs(diferenca).toFixed(1)} p.p. em relação ao período anterior`,
+    tom: diferenca >= 0 ? 'bom' : 'ruim',
+    icone: diferenca >= 0 ? 'sobe' : 'desce',
+  };
+}
+
+// Para tempos, menor é melhor
+function variacaoTempo(
+  atual: number | null,
+  anterior: number | null,
+  rotuloMelhor: string,
+  rotuloPior: string,
+): Variacao {
+  if (atual === null || anterior === null) {
+    return {
+      texto: 'Sem dados no período anterior',
+      tom: 'neutro',
+      icone: 'desce',
+    };
+  }
+  const diferenca = atual - anterior;
+  return {
+    texto: `${diferenca <= 0 ? '-' : '+'}${formatarHorasMinutos(Math.abs(diferenca))} ${diferenca <= 0 ? rotuloMelhor : rotuloPior}`,
+    tom: diferenca <= 0 ? 'bom' : 'ruim',
+    icone: diferenca <= 0 ? 'desce' : 'sobe',
+  };
+}
+
+function LinhaVariacao({ variacao }: { variacao: Variacao }) {
+  const Icone = variacao.icone === 'sobe' ? TrendingUp : TrendingDown;
+
+  return (
+    <div
+      className={`flex items-center gap-1 text-[11px] font-medium mt-1 ${CLASSE_TOM[variacao.tom]}`}
+    >
+      <Icone size={12} />
+      <span>{variacao.texto}</span>
+    </div>
+  );
+}
+
+// ---------- Gráfico de linhas (volume semanal) ----------
+
+const GRAFICO_X_INICIO = 10;
+const GRAFICO_X_FIM = 490;
+const GRAFICO_Y_BASE = 120;
+const GRAFICO_ALTURA = 110;
+
+function caminhoDaSerie(valores: number[], maximo: number): string {
+  return valores
+    .map((valor, indice) => {
+      const x =
+        valores.length === 1
+          ? (GRAFICO_X_INICIO + GRAFICO_X_FIM) / 2
+          : GRAFICO_X_INICIO +
+            (indice * (GRAFICO_X_FIM - GRAFICO_X_INICIO)) /
+              (valores.length - 1);
+      const y = GRAFICO_Y_BASE - (valor / maximo) * GRAFICO_ALTURA;
+      const comando = indice === 0 ? 'M' : 'L';
+      return `${comando} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(' ')
+    .concat(valores.length === 1 ? ' l 0.01 0' : '');
+}
+
+function rotulosDasSemanas(volume: VolumeSemana[]): string[] {
+  const passo = Math.max(1, Math.ceil(volume.length / 8));
+
+  return volume
+    .filter((_, indice) => indice % passo === 0 || indice === volume.length - 1)
+    .map(
+      (semana) =>
+        `${semana.semanaInicio.slice(8, 10)}/${semana.semanaInicio.slice(5, 7)}`,
+    );
+}
+
+// ---------- Rosca (ocorrências por categoria) ----------
+
+const CORES_CATEGORIAS = [
+  { fundo: 'bg-primary', texto: 'text-primary' },
+  { fundo: 'bg-success', texto: 'text-success' },
+  { fundo: 'bg-timer', texto: 'text-timer' },
+  { fundo: 'bg-info', texto: 'text-info' },
+  { fundo: 'bg-warning', texto: 'text-warning' },
+];
+
+const TRACADO_ROSCA =
+  'M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831';
+
+interface FatiaCategoria {
+  nome: string;
+  quantidade: number;
+  percentual: number;
+  deslocamento: number;
+}
+
+// As 4 maiores categorias + "Outras"
+function montarFatias(
+  categorias: TicketsPorCategoria['categorias'],
+): FatiaCategoria[] {
+  const total = categorias.reduce((soma, item) => soma + item.quantidade, 0);
+  if (total === 0) return [];
+
+  const ordenadas = [...categorias].sort((a, b) => b.quantidade - a.quantidade);
+  const principais = ordenadas
+    .slice(0, CORES_CATEGORIAS.length - 1)
+    .map((item) => ({ nome: item.nome, quantidade: item.quantidade }));
+  const restante = ordenadas
+    .slice(CORES_CATEGORIAS.length - 1)
+    .reduce((soma, item) => soma + item.quantidade, 0);
+
+  const itens =
+    restante > 0
+      ? [...principais, { nome: 'Outras', quantidade: restante }]
+      : principais;
+
+  let acumulado = 0;
+  return itens.map((item) => {
+    const percentual = (item.quantidade / total) * 100;
+    const fatia = { ...item, percentual, deslocamento: acumulado };
+    acumulado += percentual;
+    return fatia;
+  });
+}
+
+// ---------- Tabela de desempenho ----------
+
+const CLASSE_STATUS_GERAL: Record<StatusGeral, string> = {
+  Excelente: 'bg-success/15 text-success',
+  Bom: 'bg-info/15 text-info',
+  Regular: 'bg-timer/15 text-timer',
+  Crítico: 'bg-danger/15 text-danger',
+  'Sem dados': 'bg-gray-100 text-gray-500',
+};
 
 export function Relatorios() {
-  const [periodo, setPeriodo] = useState('mensal');
+  const [periodo, setPeriodo] = useState<ChavePeriodo>('mensal');
+
+  const buscar = useCallback(() => carregarRelatorio(periodo), [periodo]);
+  const { dados, erro, carregando, recarregar } = useRequisicao(buscar);
 
   const handleExportarPDF = () => {
     window.print();
   };
 
+  const taxaAtual = dados ? taxaResolucao(dados.atual) : null;
+  const taxaAnterior = dados ? taxaResolucao(dados.anterior) : null;
+
+  const volume = dados?.volume ?? [];
+  const maximoVolume = Math.max(
+    1,
+    ...volume.flatMap((semana) => [semana.abertos, semana.concluidos]),
+  );
+
+  const fatias = montarFatias(dados?.categorias ?? []);
+  const totalCategorias = fatias.reduce(
+    (soma, item) => soma + item.quantidade,
+    0,
+  );
+
   return (
-    <div className="flex min-h-screen bg-secondary text-black font-sans print:bg-white">
-      {/* BARRA LATERAL (SIDEBAR FIXA) */}
-      <aside className="w-64 bg-primary text-white flex flex-col justify-between p-4 print:hidden shrink-0 sticky top-0 h-screen">
-        <div>
-          <div className="mb-8 pt-2 px-2 flex justify-start">
-            <img
-              src={logoFalaRegistro}
-              alt="Fala Registro!"
-              className="h-8 w-auto object-contain brightness-0 invert"
-            />
-          </div>
-
-          {/* Menu de Navegação */}
-          <nav className="space-y-1">
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-            >
-              <Home size={18} />
-              Home
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-            >
-              <FileCheck size={18} />
-              Chamados
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-            >
-              <MapPin size={18} />
-              Mapa de Ocorrência
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-            >
-              <Users size={18} />
-              Operadores
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white text-primary font-semibold text-sm shadow-sm"
-            >
-              <BarChart2 size={18} />
-              Relatórios
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-            >
-              <Settings size={18} />
-              Configurações
-            </a>
-          </nav>
-        </div>
-
-        {/* Botão Sair no Rodapé da Sidebar */}
-        <div className="pt-4 border-t border-white/10">
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm font-medium"
-          >
-            <LogOut size={18} />
-            Sair
-          </a>
-        </div>
-      </aside>
-
+    <div className="min-h-full bg-secondary text-black font-sans print:bg-white">
       {/* CONTEÚDO PRINCIPAL */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* CABEÇALHO SUPERIOR */}
-        <header className="bg-white border-b border-tertiary px-8 py-4 flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-4">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt="Samuel"
-              className="w-10 h-10 rounded-full object-cover border border-tertiary"
-            />
-            <div>
-              <h2 className="text-base font-bold text-black leading-tight">
-                Olá, Samuel!
-              </h2>
-              <p className="text-xs text-black/60">14 de setembro de 2026</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Campo de Pesquisa com Lupa à Direita */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Pesquisar"
-                className="bg-secondary/60 text-xs pl-4 pr-9 py-2 rounded-full w-64 outline-none focus:ring-2 focus:ring-primary/20 text-black placeholder:text-black/40"
-              />
-              <Search
-                size={16}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-primary"
-              />
-            </div>
-
-            {/* Botão de Notificação Azul com Ponto Vermelho */}
-            <button className="relative p-2.5 rounded-full bg-primary text-white hover:opacity-90 transition-opacity">
-              <Bell size={18} />
-              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-danger border-2 border-white rounded-full" />
-            </button>
-          </div>
-        </header>
-
         {/* PAINEL DE RELATÓRIOS */}
-        <main className="p-8 space-y-6 overflow-y-auto">
+        <main
+          className={`p-8 space-y-6 overflow-y-auto ${carregando && dados ? 'opacity-60' : ''}`}
+        >
           {/* TÍTULO E FILTROS */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -153,12 +295,15 @@ export function Relatorios() {
               <div className="relative">
                 <select
                   value={periodo}
-                  onChange={(e) => setPeriodo(e.target.value)}
+                  onChange={(e) => setPeriodo(e.target.value as ChavePeriodo)}
+                  aria-label="Período do relatório"
                   className="bg-white border border-tertiary text-xs text-black font-medium py-2 pl-3 pr-8 rounded-lg appearance-none outline-none cursor-pointer shadow-sm hover:border-primary transition-colors"
                 >
-                  <option value="semanal">Últimas 7 Semanas</option>
-                  <option value="mensal">Selecione o Período</option>
-                  <option value="anual">Ano de 2026</option>
+                  {OPCOES_PERIODO.map((opcao) => (
+                    <option key={opcao.valor} value={opcao.valor}>
+                      {opcao.rotulo}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown
                   size={14}
@@ -167,6 +312,7 @@ export function Relatorios() {
               </div>
 
               <button
+                type="button"
                 onClick={handleExportarPDF}
                 className="bg-primary hover:opacity-95 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all"
               >
@@ -176,325 +322,341 @@ export function Relatorios() {
             </div>
           </div>
 
-          {/* MÉTRICAS PRINCIPAIS (TOP CARDS) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Card 1: Total de Ocorrências */}
-            <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-black/60">
-                  Total de Ocorrências
-                </span>
-                <span className="w-3 h-3 rounded-full bg-info/30" />
-              </div>
-              <div className="mt-3">
-                <span className="text-2xl font-bold text-black">1,248</span>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-success mt-1">
-                  <TrendingUp size={12} />
-                  <span>+12% em relação ao mês anterior</span>
-                </div>
-              </div>
+          {erro && (
+            <div
+              role="alert"
+              className="flex items-center justify-between gap-4 rounded-xl bg-danger/10 px-5 py-3 text-sm text-danger"
+            >
+              <span>{erro}</span>
+              <button
+                type="button"
+                onClick={recarregar}
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                Tentar novamente
+              </button>
             </div>
+          )}
 
-            {/* Card 2: Taxa de Resolução */}
-            <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-black/60">
-                  Taxa de Resolução
-                </span>
-                <span className="w-3 h-3 rounded-full bg-success/30" />
-              </div>
-              <div className="mt-3">
-                <span className="text-2xl font-bold text-success">94.2%</span>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-success mt-1">
-                  <TrendingUp size={12} />
-                  <span>+1.5% de eficiência média</span>
-                </div>
-              </div>
-            </div>
+          {!dados && !erro && (
+            <p className="py-16 text-center text-sm text-black/50">
+              Carregando relatórios...
+            </p>
+          )}
 
-            {/* Card 3: Tempo Médio (SLA) */}
-            <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-black/60">
-                  Tempo Médio (SLA)
-                </span>
-                <span className="w-3 h-3 rounded-full bg-timer/30" />
-              </div>
-              <div className="mt-3">
-                <span className="text-2xl font-bold text-timer">18h 45m</span>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-success mt-1">
-                  <TrendingDown size={12} />
-                  <span>-4.2h tempo de resposta mais rápido</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Avaliação do Cidadão */}
-            <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-black/60">
-                  Avaliação do Cidadão
-                </span>
-                <span className="w-3 h-3 rounded-full bg-warning/50" />
-              </div>
-              <div className="mt-3">
-                <span className="text-2xl font-bold text-black">4.6 / 5.0</span>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-success mt-1">
-                  <TrendingUp size={12} />
-                  <span>+0.2 pontos de satisfação</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* GRÁFICOS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Gráfico de Linha: Volume de Chamados */}
-            <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-tertiary shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold text-primary">
-                  Volume de Chamados (Semanas)
-                </h3>
-                <div className="flex items-center gap-4 text-xs font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-info" />
-                    <span className="text-black/60">Abertos</span>
+          {dados && (
+            <>
+              {/* MÉTRICAS PRINCIPAIS (TOP CARDS) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Card 1: Total de Ocorrências */}
+                <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-black/60">
+                      Total de Ocorrências
+                    </span>
+                    <span className="w-3 h-3 rounded-full bg-info/30" />
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-success" />
-                    <span className="text-black/60">Concluídos</span>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-black">
+                      {dados.atual.ticketsTotais.toLocaleString('pt-BR')}
+                    </span>
+                    <LinhaVariacao
+                      variacao={variacaoQuantidade(
+                        dados.atual.ticketsTotais,
+                        dados.anterior.ticketsTotais,
+                      )}
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div className="h-48 w-full relative">
-                <svg
-                  className="w-full h-full overflow-visible"
-                  viewBox="0 0 500 150"
-                  preserveAspectRatio="none"
-                >
-                  {/* Linhas de Grade */}
-                  <line
-                    x1="0"
-                    y1="30"
-                    x2="500"
-                    y2="30"
-                    stroke="var(--color-tertiary)"
-                    strokeWidth="1"
-                    strokeDasharray="4 4"
-                  />
-                  <line
-                    x1="0"
-                    y1="75"
-                    x2="500"
-                    y2="75"
-                    stroke="var(--color-tertiary)"
-                    strokeWidth="1"
-                    strokeDasharray="4 4"
-                  />
-                  <line
-                    x1="0"
-                    y1="120"
-                    x2="500"
-                    y2="120"
-                    stroke="var(--color-tertiary)"
-                    strokeWidth="1"
-                    strokeDasharray="4 4"
-                  />
-
-                  {/* Linha Abertos */}
-                  <path
-                    d="M 10 110 L 80 80 L 150 120 L 225 40 L 300 30 L 375 80 L 490 10"
-                    fill="none"
-                    stroke="var(--color-info)"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-
-                  {/* Linha Concluídos */}
-                  <path
-                    d="M 10 120 L 80 95 L 150 98 L 225 65 L 300 50 L 375 55 L 490 5"
-                    fill="none"
-                    stroke="var(--color-success)"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <div className="flex justify-between text-[11px] text-black/50 mt-2">
-                  <span>Semana 1</span>
-                  <span>Semana 2</span>
-                  <span>Semana 3</span>
-                  <span>Semana 4</span>
-                  <span>Semana 5</span>
-                  <span>Semana 6</span>
-                  <span>Semana 7</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Gráfico Rosca: Ocorrências por Categoria */}
-            <div className="bg-white p-6 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
-              <h3 className="text-sm font-bold text-primary mb-4">
-                Ocorrências por Categoria
-              </h3>
-
-              <div className="flex items-center justify-center relative my-2">
-                <svg
-                  className="w-36 h-36 transform -rotate-90"
-                  viewBox="0 0 36 36"
-                >
-                  <path
-                    className="text-secondary"
-                    strokeWidth="4"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-primary"
-                    strokeDasharray="41.7, 100"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-success"
-                    strokeDasharray="34.4, 100"
-                    strokeDashoffset="-41.7"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-timer"
-                    strokeDasharray="23.9, 100"
-                    strokeDashoffset="-76.1"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-[10px] text-black/50 uppercase font-semibold">
-                    Total
-                  </span>
-                  <span className="text-base font-bold text-black leading-tight">
-                    1,248
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 mt-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-                    <span className="font-semibold text-black">Obras</span>
+                {/* Card 2: Taxa de Resolução */}
+                <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-black/60">
+                      Taxa de Resolução
+                    </span>
+                    <span className="w-3 h-3 rounded-full bg-success/30" />
                   </div>
-                  <span className="text-black/60 text-[11px]">
-                    520 chamados (41.7%)
-                  </span>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-success">
+                      {taxaAtual === null ? '—' : `${taxaAtual.toFixed(1)}%`}
+                    </span>
+                    <LinhaVariacao
+                      variacao={variacaoTaxa(taxaAtual, taxaAnterior)}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-success" />
-                    <span className="font-semibold text-black">Iluminação</span>
+                {/* Card 3: Tempo Médio (SLA) */}
+                <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-black/60">
+                      Tempo Médio (SLA)
+                    </span>
+                    <span className="w-3 h-3 rounded-full bg-timer/30" />
                   </div>
-                  <span className="text-black/60 text-[11px]">
-                    430 chamados (34.4%)
-                  </span>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-timer">
+                      {formatarHorasMinutos(
+                        dados.atual.temposTicket.resolucaoMinutos,
+                      )}
+                    </span>
+                    <LinhaVariacao
+                      variacao={variacaoTempo(
+                        dados.atual.temposTicket.resolucaoMinutos,
+                        dados.anterior.temposTicket.resolucaoMinutos,
+                        'tempo de solução mais rápido',
+                        'tempo de solução mais lento',
+                      )}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-timer" />
-                    <span className="font-semibold text-black">Saneamento</span>
+                {/* Card 4: Tempo da primeira resposta */}
+                <div className="bg-white p-5 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-black/60">
+                      Tempo da 1ª Resposta
+                    </span>
+                    <span className="w-3 h-3 rounded-full bg-warning/50" />
                   </div>
-                  <span className="text-black/60 text-[11px]">
-                    298 chamados (23.9%)
-                  </span>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-black">
+                      {formatarHorasMinutos(
+                        dados.atual.temposTicket.primeiraRespostaMinutos,
+                      )}
+                    </span>
+                    <LinhaVariacao
+                      variacao={variacaoTempo(
+                        dados.atual.temposTicket.primeiraRespostaMinutos,
+                        dados.anterior.temposTicket.primeiraRespostaMinutos,
+                        'resposta mais rápida',
+                        'resposta mais lenta',
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* TABELA DE DESEMPENHO POR DEPARTAMENTO */}
-          <div className="bg-white rounded-xl border border-tertiary shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-tertiary">
-              <h3 className="text-sm font-bold text-primary">
-                Desempenho por Departamento
-              </h3>
-            </div>
+              {/* GRÁFICOS */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Gráfico de Linha: Volume de Chamados */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-tertiary shadow-sm">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold text-primary">
+                      Volume de Chamados (Semanas)
+                    </h3>
+                    <div className="flex items-center gap-4 text-xs font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-info" />
+                        <span className="text-black/60">Abertos</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-success" />
+                        <span className="text-black/60">Concluídos</span>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-secondary text-black/70 font-semibold border-b border-tertiary">
-                  <tr>
-                    <th className="py-3 px-6">Secretaria / Departamento</th>
-                    <th className="py-3 px-6 text-center">Chamados Totais</th>
-                    <th className="py-3 px-6 text-center">Concluídos</th>
-                    <th className="py-3 px-6 text-center">
-                      Tempo Médio Solução
-                    </th>
-                    <th className="py-3 px-6 text-center">Status Geral</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-tertiary text-black">
-                  <tr className="hover:bg-secondary/50 transition-colors">
-                    <td className="py-4 px-6 font-semibold">
-                      Secretaria de Obras e Vias Públicas
-                    </td>
-                    <td className="py-4 px-6 text-center">450</td>
-                    <td className="py-4 px-6 text-center">420</td>
-                    <td className="py-4 px-6 text-center">16h 20m</td>
-                    <td className="py-4 px-6 text-center">
-                      <span className="bg-success/15 text-success px-3 py-1 rounded-full text-[11px] font-semibold">
-                        Excelente
+                  {volume.length === 0 ? (
+                    <p className="h-48 flex items-center justify-center text-sm text-black/50">
+                      Sem chamados no período.
+                    </p>
+                  ) : (
+                    <div className="h-48 w-full relative">
+                      <svg
+                        className="w-full h-full overflow-visible"
+                        viewBox="0 0 500 150"
+                        preserveAspectRatio="none"
+                      >
+                        {/* Linhas de Grade */}
+                        {[30, 75, 120].map((y) => (
+                          <line
+                            key={y}
+                            x1="0"
+                            y1={y}
+                            x2="500"
+                            y2={y}
+                            stroke="var(--color-tertiary)"
+                            strokeWidth="1"
+                            strokeDasharray="4 4"
+                          />
+                        ))}
+
+                        {/* Linha Abertos */}
+                        <path
+                          d={caminhoDaSerie(
+                            volume.map((semana) => semana.abertos),
+                            maximoVolume,
+                          )}
+                          fill="none"
+                          stroke="var(--color-info)"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        {/* Linha Concluídos */}
+                        <path
+                          d={caminhoDaSerie(
+                            volume.map((semana) => semana.concluidos),
+                            maximoVolume,
+                          )}
+                          fill="none"
+                          stroke="var(--color-success)"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+
+                      <div className="flex justify-between text-[11px] text-black/50 mt-2">
+                        {rotulosDasSemanas(volume).map((rotulo) => (
+                          <span key={rotulo}>{rotulo}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Gráfico Rosca: Ocorrências por Categoria */}
+                <div className="bg-white p-6 rounded-xl border border-tertiary shadow-sm flex flex-col justify-between">
+                  <h3 className="text-sm font-bold text-primary mb-4">
+                    Ocorrências por Categoria
+                  </h3>
+
+                  <div className="flex items-center justify-center relative my-2">
+                    <svg
+                      className="w-36 h-36 transform -rotate-90"
+                      viewBox="0 0 36 36"
+                    >
+                      <path
+                        className="text-secondary"
+                        strokeWidth="4"
+                        stroke="currentColor"
+                        fill="none"
+                        d={TRACADO_ROSCA}
+                      />
+                      {fatias.map((fatia, indice) => (
+                        <path
+                          key={fatia.nome}
+                          className={CORES_CATEGORIAS[indice].texto}
+                          strokeDasharray={`${fatia.percentual.toFixed(1)}, 100`}
+                          strokeDashoffset={-fatia.deslocamento}
+                          strokeWidth="4"
+                          stroke="currentColor"
+                          fill="none"
+                          d={TRACADO_ROSCA}
+                        />
+                      ))}
+                    </svg>
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span className="text-[10px] text-black/50 uppercase font-semibold">
+                        Total
                       </span>
-                    </td>
-                  </tr>
-
-                  <tr className="hover:bg-secondary/50 transition-colors">
-                    <td className="py-4 px-6 font-semibold">
-                      Departamento de Iluminação Pública
-                    </td>
-                    <td className="py-4 px-6 text-center">312</td>
-                    <td className="py-4 px-6 text-center">290</td>
-                    <td className="py-4 px-6 text-center">12h 05m</td>
-                    <td className="py-4 px-6 text-center">
-                      <span className="bg-success/15 text-success px-3 py-1 rounded-full text-[11px] font-semibold">
-                        Excelente
+                      <span className="text-base font-bold text-black leading-tight">
+                        {totalCategorias.toLocaleString('pt-BR')}
                       </span>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
 
-                  <tr className="hover:bg-secondary/50 transition-colors">
-                    <td className="py-4 px-6 font-semibold">
-                      Secretaria de Saneamento e Meio Ambiente
-                    </td>
-                    <td className="py-4 px-6 text-center">258</td>
-                    <td className="py-4 px-6 text-center">210</td>
-                    <td className="py-4 px-6 text-center">28h 40m</td>
-                    <td className="py-4 px-6 text-center">
-                      <span className="bg-timer/15 text-timer px-3 py-1 rounded-full text-[11px] font-semibold">
-                        Atenção
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                  <div className="space-y-1.5 mt-2 text-xs">
+                    {fatias.length === 0 && (
+                      <p className="text-center text-black/50">
+                        Sem chamados no período.
+                      </p>
+                    )}
+                    {fatias.map((fatia, indice) => (
+                      <div
+                        key={fatia.nome}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className={`w-2.5 h-2.5 shrink-0 rounded-full ${CORES_CATEGORIAS[indice].fundo}`}
+                          />
+                          <span className="font-semibold text-black truncate">
+                            {fatia.nome}
+                          </span>
+                        </div>
+                        <span className="text-black/60 text-[11px] shrink-0">
+                          {fatia.quantidade} chamados (
+                          {fatia.percentual.toFixed(1)}%)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* TABELA DE DESEMPENHO POR DEPARTAMENTO */}
+              <div className="bg-white rounded-xl border border-tertiary shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-tertiary">
+                  <h3 className="text-sm font-bold text-primary">
+                    Desempenho por Departamento
+                  </h3>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-secondary text-black/70 font-semibold border-b border-tertiary">
+                      <tr>
+                        <th className="py-3 px-6">Secretaria / Departamento</th>
+                        <th className="py-3 px-6 text-center">
+                          Chamados Totais
+                        </th>
+                        <th className="py-3 px-6 text-center">Concluídos</th>
+                        <th className="py-3 px-6 text-center">
+                          Tempo Médio Solução
+                        </th>
+                        <th className="py-3 px-6 text-center">Status Geral</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-tertiary text-black">
+                      {dados.departamentos.map((departamento) => (
+                        <tr
+                          key={departamento.idDepartamento}
+                          className="hover:bg-secondary/50 transition-colors"
+                        >
+                          <td className="py-4 px-6 font-semibold">
+                            {departamento.departamento}
+                            <span className="block text-[11px] font-normal text-black/50">
+                              {departamento.secretaria}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {departamento.ticketsTotais}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {departamento.ticketsResolvidos}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {formatarHorasMinutos(
+                              departamento.tempoMedioResolucaoMinutos,
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <span
+                              className={`${CLASSE_STATUS_GERAL[departamento.statusGeral]} px-3 py-1 rounded-full text-[11px] font-semibold`}
+                            >
+                              {departamento.statusGeral}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {dados.departamentos.length === 0 && (
+                    <p className="py-8 text-center text-sm text-black/50">
+                      Nenhum departamento com chamados no período.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </main>
       </div>
     </div>

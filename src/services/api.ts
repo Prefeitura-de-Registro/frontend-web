@@ -4,7 +4,7 @@ export const TOKEN_STORAGE_KEY = 'auth_token';
 
 // TODO: Coloque aqui a URL onde seu back-end Node.js está rodando localmente
 export const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://backend-api-ij3c.onrender.com',
 });
 
 let onUnauthorizedCallback: (() => void) | null = null;

@@ -10,6 +10,7 @@ import {
   LogOut,
   ChevronLeft,
 } from 'lucide-react';
+import { useAuth } from '../../contexts/useAuth';
 import logoFalaRegistro from '../../assets/logo-fala-registro.svg';
 
 interface SidebarServidorProps {
@@ -20,9 +21,10 @@ export const SidebarServidor: React.FC<SidebarServidorProps> = ({
   onToggle,
 }) => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const menuItems = [
-    { to: '/servidor/dashboard', label: 'Home', icon: Home },
+    { to: '/servidor', label: 'Home', icon: Home },
     { to: '/servidor/chamados', label: 'Chamados', icon: FileText },
     { to: '/servidor/mapa', label: 'Mapa de Ocorrência', icon: MapPin },
     { to: '/servidor/operadores', label: 'Operadores', icon: Users },
@@ -31,8 +33,8 @@ export const SidebarServidor: React.FC<SidebarServidorProps> = ({
   ];
 
   const handleSair = () => {
-    localStorage.clear();
-    navigate('/login');
+    signOut();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -64,6 +66,7 @@ export const SidebarServidor: React.FC<SidebarServidorProps> = ({
               <NavLink
                 key={item.to}
                 to={item.to}
+                end={item.to === '/servidor'}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${
                     isActive

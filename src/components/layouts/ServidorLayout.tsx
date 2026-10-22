@@ -2,10 +2,11 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { SidebarServidor } from '../ui/SidebarServidor';
 import NavbarServidor from '../ui/NavbarServidor';
+import { useAuth } from '../../contexts/useAuth';
 
 export const ServidorLayout: React.FC = () => {
-  //Mock
-  const nomeUsuario = 'Samuel';
+  const { usuario } = useAuth();
+  const nomeUsuario = usuario?.nome.trim().split(' ')[0] || 'Gestor';
 
   return (
     <div className="h-screen w-full flex bg-[#f1f5f9] overflow-hidden font-sans">
