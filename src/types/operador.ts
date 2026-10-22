@@ -1,5 +1,8 @@
 export type StatusOperador = 'ativo' | 'inativo';
 
+export type NivelPermissao =
+  'visualizacao' | 'operador_standard' | 'administrador_local';
+
 export interface Operador {
   id: string;
   nomeCompleto: string;
@@ -8,10 +11,10 @@ export interface Operador {
   telefone: string;
   departamento: string;
   cargo: string;
-  chamados: number; // total de chamados atribuídos
+  chamados: number;
   status: StatusOperador;
   foto?: string;
+  nivelPermissao?: NivelPermissao; // seguindo o design do figma
 }
 
-// O que o formulário coleta: sem id e sem chamados (nascem no cadastro)
 export type NovoOperador = Omit<Operador, 'id' | 'chamados'>;
