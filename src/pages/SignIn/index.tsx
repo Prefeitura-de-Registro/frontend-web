@@ -20,9 +20,17 @@ export const SignIn: React.FC = () => {
     setLoading(true);
 
     try {
-      await signIn(email, senha);
+      const usuarioLogado = await signIn(email, senha);
 
-      navigate('/home');
+      // LÊ EXATAMENTE COMO VEM DO BANCO DE DADOS
+      const tipo = usuarioLogado?.tipo_usuario || usuarioLogado?.tipo_usuario;
+
+      // Se for funcionário ou gestor, entra na área administrativa
+      if (tipo === 'funcionario' || tipo === 'gestor') {
+        navigate('/servidor');
+      } else {
+        navigate('/home');
+      }
     } catch (error) {
       const mensagem = isAxiosError<{ message?: string }>(error)
         ? (error.response?.data?.message ?? 'E-mail ou senha inválidos.')

@@ -4,7 +4,7 @@ import type { UsuarioLogado } from '../services/auth.service';
 export interface AuthContextValue {
   usuario: UsuarioLogado | null;
   carregando: boolean;
-  signIn: (email: string, senha: string) => Promise<void>;
+  signIn: (email: string, senha: string) => Promise<UsuarioLogado>;
   signOut: () => void;
 }
 

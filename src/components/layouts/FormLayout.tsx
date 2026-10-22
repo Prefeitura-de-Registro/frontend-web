@@ -1,4 +1,3 @@
-// src/components/layouts/FormLayout.tsx
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
@@ -21,7 +20,7 @@ export interface FotoFormulario {
 }
 
 export interface DadosFormulario {
-  categoria: 'buraco' | 'luz' | 'poda' | 'vazamento' | null;
+  categoria: number | null; // CORREÇÃO: Tipado corretamente como número
   detalhes: string;
   respostasCarrossel: Record<string, 'sim' | 'nao'>;
   endereco: string;
@@ -87,21 +86,18 @@ export function FormLayout() {
   const isFotos = location.pathname.includes('fotos');
   const isEndereco = location.pathname.includes('endereco');
 
-  // Identifica a etapa atual do formulário para o StepperFormulario
   const etapaAtual = isEndereco
     ? 'endereco'
     : isFotos || isRevisao
       ? 'fotos'
       : 'ocorrencia';
 
-  // Define o texto do botão principal com base na rota atual
   const getTextoBotao = () => {
     if (isRevisao) return 'Abrir chamado';
     if (isFotos) return 'Revisão';
     return 'Próximo';
   };
 
-  // Define a ação do botão principal de acordo com o fluxo do formulário
   const handleBotaoPrincipal = () => {
     if (isRevisao) {
       navigate('/conclusao');
@@ -118,7 +114,6 @@ export function FormLayout() {
     }
   };
 
-  // Renderiza os títulos dinâmicos conforme cada tela
   const renderTitulos = () => {
     if (isRevisao) {
       return (
@@ -166,46 +161,41 @@ export function FormLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-50/85 overflow-x-hidden">
-      <div>
-        {/* Header com o seu componente Button (variant="icon") e títulos dinâmicos */}
-        <header className="relative z-10 flex flex-col items-center gap-3 px-6 pt-6 mb-2 w-full max-w-md mx-auto">
-          <div className="relative flex items-center w-full">
-            <div className="absolute left-0 z-10">
-              <Button
-                variant="icon"
-                icon={ChevronLeft}
-                onClick={() => navigate(-1)}
-                aria-label="Voltar"
-              />
-            </div>
-            <div className="flex flex-col w-full items-center py-1">
-              {renderTitulos()}
-            </div>
+    <div className="h-[100dvh] w-full flex flex-col bg-slate-50/85 overflow-hidden">
+      <header className="shrink-0 relative z-10 flex flex-col items-center gap-3 px-6 pt-6 mb-2 w-full max-w-md mx-auto">
+        <div className="relative flex items-center w-full">
+          <div className="absolute left-0 z-10">
+            <Button
+              variant="icon"
+              icon={ChevronLeft}
+              onClick={() => navigate(-1)}
+              aria-label="Voltar"
+            />
           </div>
-        </header>
+          <div className="flex flex-col w-full items-center py-1">
+            {renderTitulos()}
+          </div>
+        </div>
+      </header>
 
-        {/* Conteúdo Dinâmico das Telas do Formulário */}
-        <main className="relative z-10 w-full max-w-md mx-auto px-6 pb-6 flex flex-col">
-          {carregandoRascunho ? (
-            <p className="py-8 text-center text-slate-600">
-              Carregando formulário...
-            </p>
-          ) : (
-            <Outlet context={{ dados, setDados } satisfies FormularioContext} />
-          )}
-        </main>
-      </div>
+      <main className="flex-1 overflow-y-auto relative z-10 w-full max-w-md mx-auto px-6 pb-2 flex flex-col">
+        {carregandoRascunho ? (
+          <p className="py-8 text-center text-slate-600">
+            A carregar formulário...
+          </p>
+        ) : (
+          <Outlet context={{ dados, setDados } satisfies FormularioContext} />
+        )}
+      </main>
 
-      {/* Rodapé Azul Fixo com o seu StepperFormulario e Botão */}
-      <footer className="w-full bg-[#0085C1] rounded-t-3xl pt-2 pb-6 px-6 shadow-xl mt-auto">
+      <footer className="shrink-0 w-full bg-[#0085C1] rounded-t-3xl pt-2 pb-6 px-6 shadow-xl relative z-20">
+        <div className="absolute top-10 -bottom-20 left-0 right-0 bg-[#0085C1] -z-10" />
+
         <div className="max-w-md mx-auto flex flex-col items-center">
-          {/* O seu componente de Stepper do Formulário */}
           <div className="w-full flex justify-center mb-2">
             <StepperFormulario etapaAtual={etapaAtual} />
           </div>
 
-          {/* Botão de Ação Principal utilizando o componente Button */}
           <Button
             variant={isRevisao ? 'solid' : 'outline'}
             fullWidth

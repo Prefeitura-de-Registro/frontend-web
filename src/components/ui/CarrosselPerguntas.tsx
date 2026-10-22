@@ -2,33 +2,38 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SimNaoButton } from './SimNaoButton';
 
-export type TipoCategoria = 'buraco' | 'luz' | 'poda' | 'vazamento';
+export type TipoCategoria = 1 | 2 | 3 | 4;
 
 interface CarrosselPerguntasProps {
-  categoria: TipoCategoria | null;
+  categoria: number | null;
   onRespostaChange?: (respostas: Record<string, 'sim' | 'nao'>) => void;
 }
 
-const PERGUNTAS_POR_CATEGORIA: Record<TipoCategoria, string[]> = {
-  buraco: [
-    'O buraco é grande?',
-    'Cabe uma roda inteira dentro?',
-    'Dá pra ver bem à noite ou o local é escuro?',
+interface Pergunta {
+  id: number; // ID da pergunta no banco (ajuste conforme o seed do back-end)
+  texto: string;
+}
+
+const PERGUNTAS_POR_CATEGORIA: Record<number, Pergunta[]> = {
+  1: [
+    { id: 1, texto: 'O buraco é grande?' },
+    { id: 2, texto: 'Cabe uma roda inteira dentro?' },
+    { id: 3, texto: 'Dá pra ver bem à noite ou o local é escuro?' },
   ],
-  luz: [
-    'A lâmpada está apagada à noite?',
-    'A lâmpada fica acesa de dia?',
-    'O poste está danificado?',
+  2: [
+    { id: 4, texto: 'Os galhos encostam nos fios elétricos?' },
+    { id: 5, texto: 'A árvore está com risco de queda?' },
+    { id: 6, texto: 'Bloqueia a passagem de pedestres?' },
   ],
-  poda: [
-    'Os galhos encostam nos fios elétricos?',
-    'A árvore está com risco de queda?',
-    'Bloqueia a passagem de pedestres?',
+  3: [
+    { id: 7, texto: 'A lâmpada está apagada à noite?' },
+    { id: 8, texto: 'A lâmpada fica acesa de dia?' },
+    { id: 9, texto: 'O poste está danificado?' },
   ],
-  vazamento: [
-    'O vazamento é de água limpa?',
-    'É na rua ou na calçada?',
-    'O fluxo de água é alto?',
+  4: [
+    { id: 10, texto: 'O vazamento é de água limpa?' },
+    { id: 11, texto: 'É na rua ou na calçada?' },
+    { id: 12, texto: 'O fluxo de água é alto?' },
   ],
 };
 
@@ -36,9 +41,7 @@ export function CarrosselPerguntas({
   categoria,
   onRespostaChange,
 }: CarrosselPerguntasProps) {
-  const [prevCategoria, setPrevCategoria] = useState<TipoCategoria | null>(
-    categoria,
-  );
+  const [prevCategoria, setPrevCategoria] = useState<number | null>(categoria);
   const [indexAtual, setIndexAtual] = useState(0);
   const [respostas, setRespostas] = useState<Record<string, 'sim' | 'nao'>>({});
 
@@ -50,14 +53,17 @@ export function CarrosselPerguntas({
 
   if (!categoria) return null;
 
-  const perguntas = PERGUNTAS_POR_CATEGORIA[categoria] || [];
+  const perguntas = PERGUNTAS_POR_CATEGORIA[Number(categoria)] || [];
   const perguntaAtual = perguntas[indexAtual];
-  const respostaSelecionada = respostas[perguntaAtual];
+  const respostaSelecionada = perguntaAtual
+    ? respostas[String(perguntaAtual.id)]
+    : undefined;
 
   const handleResposta = (valor: 'sim' | 'nao') => {
+    if (!perguntaAtual) return;
     const novasRespostas = {
       ...respostas,
-      [perguntaAtual]: valor,
+      [String(perguntaAtual.id)]: valor,
     };
     setRespostas(novasRespostas);
 
@@ -78,11 +84,11 @@ export function CarrosselPerguntas({
     if (indexAtual < perguntas.length - 1) setIndexAtual((prev) => prev + 1);
   };
 
+  if (perguntas.length === 0) return null;
+
   return (
     <div className="w-full flex flex-col items-center my-3">
-      {/* Card Principal */}
       <div className="w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex items-stretch min-h-[120px] relative">
-        {/* Seta Esquerda */}
         <button
           type="button"
           onClick={anterior}
@@ -92,10 +98,9 @@ export function CarrosselPerguntas({
           <ChevronLeft size={22} />
         </button>
 
-        {/* Pergunta + Botões */}
         <div className="flex-1 px-3 py-3.5 flex flex-col justify-between items-center text-center overflow-hidden">
           <h3 className="text-[#0085C1] font-bold text-sm sm:text-base leading-tight mb-2">
-            {perguntaAtual}
+            {perguntaAtual.texto}
           </h3>
 
           <div className="flex gap-2 w-full max-w-[220px] justify-center">
@@ -115,7 +120,6 @@ export function CarrosselPerguntas({
           </div>
         </div>
 
-        {/* Seta Direita */}
         <button
           type="button"
           onClick={proximo}
@@ -126,7 +130,6 @@ export function CarrosselPerguntas({
         </button>
       </div>
 
-      {/* Paginação */}
       <div className="flex gap-2 mt-2.5 justify-center items-center">
         {perguntas.map((_, idx) => (
           <button
@@ -145,5 +148,3 @@ export function CarrosselPerguntas({
     </div>
   );
 }
-
-export default CarrosselPerguntas;

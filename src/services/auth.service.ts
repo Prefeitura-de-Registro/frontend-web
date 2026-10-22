@@ -4,6 +4,7 @@ export interface UsuarioLogado {
   id: string;
   nome: string;
   email: string;
+  tipo_usuario?: string;
 }
 
 interface LoginResponse {
