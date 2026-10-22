@@ -21,6 +21,7 @@ import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
+import { Configuracoes } from '../pages/Configuracoes';
 
 export const router = createBrowserRouter([
   {
@@ -130,6 +131,26 @@ export const router = createBrowserRouter([
   {
     path: '/respostas',
     element: <Respostas />,
+  },
+  {
+    path: '/configuracoes',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/perfil',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/sla',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/notificacoes',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/permissoes',
+    element: <Configuracoes />,
   },
   {
     path: '*',
