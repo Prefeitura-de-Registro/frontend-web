@@ -21,6 +21,7 @@ import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
+import { Relatorios } from '../pages/Relatorios';
 
 export const router = createBrowserRouter([
   {
@@ -130,6 +131,10 @@ export const router = createBrowserRouter([
   {
     path: '/respostas',
     element: <Respostas />,
+  },
+  {
+    path: '/relatorios',
+    element: <Relatorios />,
   },
   {
     path: '*',
