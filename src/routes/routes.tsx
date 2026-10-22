@@ -23,8 +23,6 @@ import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
 import { ProtectedRoute } from '../components/layouts/ProtectedRoute';
 import { Relatorios } from '../pages/Relatorios';
-import GestaoChamados from '../pages/GestaoChamados';
-import HomeChamados from '../pages/HomeChamados';
 
 // Imports da Área do Servidor
 import { ServidorLayout } from '../components/layouts/ServidorLayout';
