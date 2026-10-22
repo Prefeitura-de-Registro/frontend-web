@@ -22,6 +22,9 @@ import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
 import { ProtectedRoute } from '../components/layouts/ProtectedRoute';
+import { Relatorios } from '../pages/Relatorios';
+import GestaoChamados from '../pages/GestaoChamados';
+import HomeChamados from '../pages/HomeChamados';
 
 // Imports da Área do Servidor
 import { ServidorLayout } from '../components/layouts/ServidorLayout';
@@ -157,6 +160,10 @@ export const router = createBrowserRouter([
   /* =========================================================
    * FALLBACK (Erro 404)
    * ========================================================= */
+  {
+    path: '/relatorios',
+    element: <Relatorios />,
+  },
   {
     path: '*',
     element: <EmConstrucao nome="Página Não Encontrada" />,
