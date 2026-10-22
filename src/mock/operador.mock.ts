@@ -11,7 +11,7 @@ export const operadoresMock: Operador[] = [
     cargo: 'Analista Jr.',
     chamados: 38,
     status: 'ativo',
-    foto: 'https://picsum.photos/seed/lucas/80/80',
+    foto: 'https://randomuser.me/api/portraits/men/32.jpg',
   },
   {
     id: '2',
@@ -23,7 +23,7 @@ export const operadoresMock: Operador[] = [
     cargo: 'Técnica Plena',
     chamados: 61,
     status: 'ativo',
-    foto: 'https://picsum.photos/seed/mariana/80/80',
+    foto: 'https://randomuser.me/api/portraits/women/44.jpg',
   },
   {
     id: '3',
@@ -35,7 +35,7 @@ export const operadoresMock: Operador[] = [
     cargo: 'Analista Sr.',
     chamados: 14,
     status: 'inativo',
-    foto: 'https://picsum.photos/seed/rafael/80/80',
+    foto: 'https://randomuser.me/api/portraits/men/75.jpg',
   },
   {
     id: '4',
@@ -47,7 +47,7 @@ export const operadoresMock: Operador[] = [
     cargo: 'Especialista',
     chamados: 52,
     status: 'ativo',
-    foto: 'https://picsum.photos/seed/camila/80/80',
+    foto: 'https://randomuser.me/api/portraits/women/68.jpg',
   },
   {
     id: '5',
@@ -59,7 +59,7 @@ export const operadoresMock: Operador[] = [
     cargo: 'Técnico Jr.',
     chamados: 27,
     status: 'ativo',
-    foto: 'https://picsum.photos/seed/bruno/80/80',
+    foto: 'https://randomuser.me/api/portraits/men/45.jpg',
   },
   {
     id: '6',
@@ -71,6 +71,6 @@ export const operadoresMock: Operador[] = [
     cargo: 'Coordenadora',
     chamados: 9,
     status: 'inativo',
-    foto: 'https://picsum.photos/seed/fernanda/80/80',
+    foto: 'https://randomuser.me/api/portraits/women/26.jpg',
   },
 ];

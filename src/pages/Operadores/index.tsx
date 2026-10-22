@@ -14,6 +14,8 @@ import { Button } from '../../components/ui/Button';
 import SearchInput from '../../components/ui/SearchInput';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { operadoresMock } from '../../mock/operador.mock';
+import type { Operador } from '../../types/operador';
+import EditarOperadorModal from './editarOperadorModal';
 
 const POR_PAGINA = 6;
 
@@ -52,6 +54,13 @@ function Operadores() {
     direcao: 'asc' | 'desc';
   } | null>(null);
 
+  // Operador que está aberto no modal de edição (null = modal fechado)
+  const [operadorEditando, setOperadorEditando] = useState<Operador | null>(
+    null,
+  );
+  // Sobe 1 sempre que salva ou exclui, pra lista recalcular
+  const [versao, setVersao] = useState(0);
+
   const operadoresOrdenados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
 
@@ -75,15 +84,18 @@ function Operadores() {
           : String(va).localeCompare(String(vb), 'pt-BR');
       return ordem.direcao === 'asc' ? cmp : -cmp;
     });
-  }, [busca, ordem]);
+  }, [busca, ordem, versao]);
 
   const totalPaginas = Math.max(
     1,
     Math.ceil(operadoresOrdenados.length / POR_PAGINA),
   );
+  // Se excluir o último da página, volta pra uma página que existe
+  const paginaAtual = Math.min(pagina, totalPaginas);
+
   const operadoresDaPagina = operadoresOrdenados.slice(
-    (pagina - 1) * POR_PAGINA,
-    pagina * POR_PAGINA,
+    (paginaAtual - 1) * POR_PAGINA,
+    paginaAtual * POR_PAGINA,
   );
 
   function ordenarPor(campo: CampoOrdenavel) {
@@ -112,7 +124,7 @@ function Operadores() {
           />
           <Button
             icon={Plus}
-            onClick={() => navigate('novo')}
+            onClick={() => navigate('/operadores/novo')}
             className="px-5 py-2 text-sm rounded-lg"
           >
             Novo
@@ -168,7 +180,7 @@ function Operadores() {
                         {iniciais(op.nomeCompleto)}
                       </span>
                     )}
-                    <span className="font-bold text-slate-800">
+                    <span className="whitespace-nowrap font-bold text-slate-800">
                       {op.nomeCompleto}
                     </span>
                   </div>
@@ -198,6 +210,7 @@ function Operadores() {
                     <button
                       type="button"
                       aria-label="Editar operador"
+                      onClick={() => setOperadorEditando(op)}
                       className="text-warning"
                     >
                       <Pencil className="h-4 w-4" />
@@ -232,8 +245,8 @@ function Operadores() {
             <button
               type="button"
               aria-label="Página anterior"
-              disabled={pagina === 1}
-              onClick={() => setPagina((p) => p - 1)}
+              disabled={paginaAtual === 1}
+              onClick={() => setPagina(paginaAtual - 1)}
               className="flex h-8 w-8 items-center justify-center text-gray-400 disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -245,7 +258,7 @@ function Operadores() {
                 type="button"
                 onClick={() => setPagina(n)}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold ${
-                  n === pagina
+                  n === paginaAtual
                     ? 'bg-primary text-white'
                     : 'text-gray-500 hover:bg-gray-100'
                 }`}
@@ -257,8 +270,8 @@ function Operadores() {
             <button
               type="button"
               aria-label="Próxima página"
-              disabled={pagina === totalPaginas}
-              onClick={() => setPagina((p) => p + 1)}
+              disabled={paginaAtual === totalPaginas}
+              onClick={() => setPagina(paginaAtual + 1)}
               className="flex h-8 w-8 items-center justify-center text-gray-400 disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
@@ -266,6 +279,15 @@ function Operadores() {
           </div>
         </div>
       </div>
+
+      {operadorEditando && (
+        <EditarOperadorModal
+          key={operadorEditando.id}
+          operador={operadorEditando}
+          onFechar={() => setOperadorEditando(null)}
+          onAlterado={() => setVersao((v) => v + 1)}
+        />
+      )}
     </div>
   );
 }

@@ -9,10 +9,10 @@ export const ServidorLayout: React.FC = () => {
 
   return (
     <div className="h-screen w-full flex bg-[#f1f5f9] overflow-hidden font-sans">
-      {/* Sidebar Fixo ocupando 100% da altura do Viewport */}
+      {/* Sidebar */}
       <SidebarServidor />
 
-      {/* Coluna da direita: navbar fixa em cima, conteúdo rolando embaixo */}
+      {/* Navbar */}
       <div className="flex h-full min-w-0 flex-1 flex-col">
         <NavbarServidor nomeUsuario={nomeUsuario} temNotificacaoNova />
 
