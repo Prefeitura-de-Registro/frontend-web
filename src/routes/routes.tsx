@@ -28,6 +28,8 @@ import HomeChamados from '../pages/HomeChamados';
 // Imports da Área do Servidor
 import { ServidorLayout } from '../components/layouts/ServidorLayout';
 import { ServidorDashboard } from '../pages/ServidorDashboard';
+import Operadores from '../pages/Operadores';
+import NovoOperador from '../pages/Operadores/NovoOperador';
 
 export const router = createBrowserRouter([
   {
@@ -142,6 +144,14 @@ export const router = createBrowserRouter([
       {
         path: '',
         element: <ServidorDashboard />,
+      },
+      {
+        path: 'operadores',
+        element: <Operadores />,
+      },
+      {
+        path: 'operadores/novo',
+        element: <NovoOperador />,
       },
     ],
   },

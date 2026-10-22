@@ -1,16 +1,22 @@
 import type { InputHTMLAttributes } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-/**
- * Caixa de busca padrão do projeto.
- * Specs do Figma: 382x40, fundo #F9FAFB, cantos superiores arredondados,
- * borda inferior #E5E7EB, ícone de busca à direita na cor primary.
- */
+interface SearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  wrapperClassName?: string;
+}
+
 function SearchInput({
   className = '',
+  wrapperClassName = '',
   ...props
-}: InputHTMLAttributes<HTMLInputElement>) {
+}: SearchInputProps) {
   return (
-    <div className="w-full max-w-[382px] h-10 flex items-center gap-2 bg-gray-50 rounded-t-2xl border-b-2 border-gray-200 focus-within:border-primary px-4">
+    <div
+      className={twMerge(
+        'w-full max-w-[382px] h-10 flex items-center gap-2 bg-gray-50 rounded-t-2xl border-b-2 border-gray-200 focus-within:border-primary px-4',
+        wrapperClassName,
+      )}
+    >
       <input
         type="text"
         placeholder="Buscar chamado"
