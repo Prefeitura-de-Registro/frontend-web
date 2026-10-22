@@ -1,21 +1,19 @@
-import type { ReactNode } from 'react';
-import { ClipboardPenLine, MapPin, Camera, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, type ReactNode } from 'react';
+import {
+  ClipboardPenLine,
+  MapPin,
+  Camera,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+} from 'lucide-react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
+import type { FormularioContext } from '../../components/layouts/FormLayout';
 import mapaLocalizacao from '../../assets/mapa-localizacao.png';
 
-const ocorrencia = {
-  tipo: 'Buraco',
-  descricao: 'Buraco grande, oferecendo riscos de quedas.',
-  condicoes: ['Mais de 1m', 'Calçada / Passeio público', 'Ciclovia'],
-};
-
-const localizacao = {
-  bairro: 'Jardim das Flores',
-  rua: 'Rua Paulistano',
-  numero: '132',
-};
-
+// --- Interfaces de Tipos ---
 interface RevisionSectionProps {
   titulo: string;
   icon: ReactNode;
@@ -24,7 +22,52 @@ interface RevisionSectionProps {
   contentClassName?: string;
 }
 
-function RevisionSection({
+interface FotoAnexo {
+  id: string | number;
+  arquivo: File;
+}
+
+// --- Lista de Perguntas do Carrossel ---
+const perguntasRevisao = [
+  'Há risco imediato de acidentes?',
+  'O problema está impedindo a passagem de pedestres?',
+  'Já ocorreu algum acidente no local devido a este problema?',
+];
+
+// --- Componentes Auxiliares ---
+export function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
+  const [url, setUrl] = useState('');
+
+  useEffect(() => {
+    const urlTemporaria = URL.createObjectURL(arquivo);
+
+    const frameId = requestAnimationFrame(() => {
+      setUrl(urlTemporaria);
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      URL.revokeObjectURL(urlTemporaria);
+    };
+  }, [arquivo]);
+
+  if (!url) return null;
+
+  if (arquivo.type.startsWith('video/')) {
+    return (
+      <video
+        src={url}
+        aria-label={alt}
+        className="h-full w-full object-cover"
+        muted
+      />
+    );
+  }
+
+  return <img src={url} alt={alt} className="h-full w-full object-cover" />;
+}
+
+export function RevisionSection({
   titulo,
   icon,
   children,
@@ -32,22 +75,20 @@ function RevisionSection({
   contentClassName = '',
 }: RevisionSectionProps) {
   return (
-    <section className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white">
-      {/* Cabeçalho da seção */}
-      <div className="flex h-11 items-center justify-center gap-2 bg-white border-b border-slate-100">
-        <div className="h-5 w-5 text-primary flex items-center justify-center">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex h-11 items-center justify-center gap-2 border-b border-slate-100 bg-white">
+        <div className="flex h-5 w-5 items-center justify-center text-sky-700">
           {icon}
         </div>
-        <h2 className="text-base font-bold text-primary">{titulo}</h2>
+        <h2 className="text-base font-bold text-sky-900">{titulo}</h2>
       </div>
 
       <div className={contentClassName}>{children}</div>
 
-      {/* Botão de Editar */}
       <button
         type="button"
         onClick={onEditar}
-        className="h-11 w-full bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800 flex items-center justify-center gap-2"
+        className="flex h-11 w-full items-center justify-center gap-2 bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800"
       >
         <ClipboardPenLine size={16} />
         Editar
@@ -56,12 +97,45 @@ function RevisionSection({
   );
 }
 
+// --- Componente Principal ---
 function Revisao() {
   const navigate = useNavigate();
+  const { dados, setDados } = useOutletContext<FormularioContext>();
+
+  const [paginaPergunta, setPaginaPergunta] = useState(0);
+  const [respostas, setRespostas] = useState<Record<number, 'sim' | 'nao'>>({});
+
+  const nomesCategorias: Record<string, string> = {
+    buraco: 'Buraco',
+    luz: 'Iluminação pública',
+    poda: 'Poda de árvore',
+    vazamento: 'Vazamento',
+  };
+
+  const perguntaAtual = perguntasRevisao[paginaPergunta];
 
   const handleConfirmar = () => {
-    // Lógica para enviar os dados do formulário para o backend
     navigate('/conclusao');
+  };
+
+  const irParaAnterior = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === 0 ? perguntasRevisao.length - 1 : paginaAtual - 1,
+    );
+  };
+
+  const irParaProxima = () => {
+    setPaginaPergunta((paginaAtual) =>
+      paginaAtual === perguntasRevisao.length - 1 ? 0 : paginaAtual + 1,
+    );
+  };
+
+  const responder = (resposta: 'sim' | 'nao') => {
+    setRespostas((respostasAtuais) => ({
+      ...respostasAtuais,
+      [paginaPergunta]: resposta,
+    }));
+    irParaProxima();
   };
 
   return (
@@ -75,28 +149,41 @@ function Revisao() {
       >
         <div className="space-y-4 text-sm text-slate-800">
           <p>
-            <strong className="text-sky-900 font-semibold">Tipo:</strong>{' '}
-            {ocorrencia.tipo}
+            <strong className="font-semibold text-sky-900">Tipo:</strong>{' '}
+            {dados?.categoria
+              ? nomesCategorias[dados.categoria] || dados.categoria
+              : 'Não informado'}
           </p>
 
           <div>
             <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Descrição:</strong>
+              <strong className="font-semibold text-sky-900">Descrição:</strong>
             </p>
-            <div className="min-h-24 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-slate-700 shadow-sm">
-              {ocorrencia.descricao}
+
+            <div className="min-h-24 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm">
+              {dados?.detalhes?.trim() || 'Não informado'}
             </div>
           </div>
 
           <div>
             <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Condições:</strong>
+              <strong className="font-semibold text-sky-900">Condições:</strong>
             </p>
-            <ul className="list-disc space-y-1 pl-5 text-slate-700">
-              {ocorrencia.condicoes.map((condicao) => (
-                <li key={condicao}>{condicao}</li>
-              ))}
-            </ul>
+
+            {dados?.respostasCarrossel &&
+            Object.entries(dados.respostasCarrossel).length > 0 ? (
+              <ul className="list-disc space-y-1 pl-5 text-slate-700">
+                {Object.entries(dados.respostasCarrossel).map(
+                  ([pergunta, resposta]) => (
+                    <li key={pergunta}>
+                      {pergunta}: {resposta === 'sim' ? 'Sim' : 'Não'}
+                    </li>
+                  ),
+                )}
+              </ul>
+            ) : (
+              <p className="text-slate-500">Nenhuma condição informada.</p>
+            )}
           </div>
         </div>
       </RevisionSection>
@@ -109,57 +196,168 @@ function Revisao() {
         contentClassName="bg-white"
       >
         <div>
-          <div className="px-6 py-3.5 text-sm font-medium text-slate-800 border-b border-slate-100">
-            {localizacao.rua}, {localizacao.numero} — {localizacao.bairro}
+          <div className="border-b border-slate-100 px-6 py-3.5 text-sm font-medium text-slate-800">
+            {dados?.endereco?.trim() || 'Endereço não informado'}
           </div>
 
           <div className="relative h-48 w-full overflow-hidden">
             <img
               src={mapaLocalizacao}
-              alt="Mapa da localização da ocorrência"
+              alt="Mapa ilustrativo da localização da ocorrência"
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
+              <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-500/20">
                 <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
               </div>
             </div>
           </div>
+
+          {dados?.coordenadas && (
+            <p className="px-6 py-2 text-xs text-slate-500">
+              Latitude: {dados.coordenadas.latitude.toFixed(6)} | Longitude:{' '}
+              {dados.coordenadas.longitude.toFixed(6)}
+            </p>
+          )}
         </div>
       </RevisionSection>
 
-      {/* 3. Seção de Fotos / Vídeos (Que estava faltando) */}
+      {/* 3. Seção de Fotos / Vídeos */}
       <RevisionSection
         titulo="Fotos / Vídeos"
         icon={<Camera className="h-5 w-5" />}
         onEditar={() => navigate('/formulario/fotos')}
         contentClassName="bg-slate-50/70 p-5"
       >
-        <div className="flex items-center gap-3">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-slate-300 shadow-sm bg-white">
-            <img
-              src={mapaLocalizacao}
-              alt="Foto da ocorrência"
-              className="w-full h-full object-cover"
-            />
-            {/* Botão de excluir foto (X vermelho) */}
-            <button
-              type="button"
-              className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center shadow hover:bg-red-700 transition"
-              title="Remover foto"
-            >
-              <X size={12} strokeWidth={3} />
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {dados?.fotos && dados.fotos.length > 0 ? (
+            dados.fotos.map((foto: FotoAnexo) => (
+              <div
+                key={foto.id}
+                className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm"
+              >
+                <AnexoPreview
+                  arquivo={foto.arquivo}
+                  alt="Anexo da ocorrência"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDados((prev) => ({
+                      ...prev,
+                      fotos: prev.fotos.filter(
+                        (item: FotoAnexo) => item.id !== foto.id,
+                      ),
+                    }))
+                  }
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow transition hover:bg-red-700"
+                  title="Remover anexo"
+                  aria-label="Remover anexo"
+                >
+                  <X size={12} strokeWidth={3} />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">
+              Nenhuma foto ou vídeo anexado.
+            </p>
+          )}
         </div>
       </RevisionSection>
 
-      {/* Botões Finais de Confirmação e Cancelamento */}
+      {/* 4. Carrossel de Perguntas */}
+      {perguntasRevisao.length > 0 && (
+        <div className="space-y-4 pt-4 border-t border-slate-200">
+          <section className="relative w-full overflow-hidden rounded-2xl bg-[#F2F2F2]">
+            <div className="absolute left-0 top-0 flex h-full w-8 items-center justify-center bg-[#0073A9] transition-colors hover:bg-sky-800">
+              <button
+                type="button"
+                onClick={irParaAnterior}
+                aria-label="Pergunta anterior"
+                className="relative z-10 flex h-full w-full items-center justify-center text-white"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="absolute right-0 top-0 flex h-full w-8 items-center justify-center bg-[#0073A9] transition-colors hover:bg-sky-800">
+              <button
+                type="button"
+                onClick={irParaProxima}
+                aria-label="Próxima pergunta"
+                className="relative z-10 flex h-full w-full items-center justify-center text-white"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="px-12 py-7">
+              <h2 className="flex min-h-[3rem] items-center justify-center text-center text-lg font-bold leading-snug text-[#0073A9]">
+                {perguntaAtual}
+              </h2>
+
+              <div className="mt-6 flex justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => responder('sim')}
+                  className={`rounded-lg px-8 py-2 font-bold transition-colors ${
+                    respostas[paginaPergunta] === 'sim'
+                      ? 'bg-[#0073A9] text-white'
+                      : 'border-2 border-[#0073A9] bg-white text-[#0073A9] hover:bg-[#0073A9] hover:text-white'
+                  }`}
+                >
+                  Sim
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => responder('nao')}
+                  className={`rounded-lg px-8 py-2 font-bold transition-colors ${
+                    respostas[paginaPergunta] === 'nao'
+                      ? 'bg-[#0073A9] text-white'
+                      : 'border-2 border-[#0073A9] bg-white text-[#0073A9] hover:bg-[#0073A9] hover:text-white'
+                  }`}
+                >
+                  Não
+                </button>
+              </div>
+
+              <div className="mt-6 flex justify-center gap-1.5">
+                {perguntasRevisao.map((_, indice) => (
+                  <span
+                    key={indice}
+                    className={`h-2 w-2 rounded-full transition-colors ${
+                      paginaPergunta === indice
+                        ? 'bg-[#0073A9]'
+                        : 'bg-slate-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <button
+            type="button"
+            onClick={() => navigate('/respostas', { state: { respostas } })}
+            className="mx-auto flex w-full max-w-sm items-center justify-center gap-3 rounded-xl bg-sky-100/50 border border-[#0073A9]/20 px-6 py-3 text-sm font-bold text-[#0073A9] hover:bg-sky-100 transition-colors"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0073A9] text-white">
+              <Plus className="h-4 w-4" />
+            </span>
+            Ver todas as respostas
+          </button>
+        </div>
+      )}
+
+      {/* 5. Botões Finais */}
       <div className="flex flex-col gap-3 pt-2">
         <button
           type="button"
           onClick={handleConfirmar}
-          className="w-full bg-sky-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:bg-sky-800 transition text-center"
+          className="w-full rounded-2xl bg-sky-700 px-6 py-3.5 text-center font-bold text-white shadow-md transition hover:bg-sky-800"
         >
           Confirmar
         </button>
@@ -167,7 +365,7 @@ function Revisao() {
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="w-full bg-slate-100 border border-slate-300 text-sky-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-slate-200 transition text-center"
+          className="w-full rounded-2xl border border-slate-300 bg-slate-100 px-6 py-3.5 text-center font-bold text-sky-700 shadow-sm transition hover:bg-slate-200"
         >
           Cancelar
         </button>

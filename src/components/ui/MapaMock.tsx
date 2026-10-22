@@ -1,39 +1,56 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+const POSICAO_INICIAL: [number, number] = [-24.4883, -47.8436];
 
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })
-  ._getIconUrl;
+function ControllerMapa({
+  onPositionChange,
+}: {
+  onPositionChange?: (lat: number, lng: number) => void;
+}) {
+  const map = useMap();
 
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [map]);
 
-const POSICAO_MOCKADA: [number, number] = [-24.4883, -47.8436];
+  useMapEvents({
+    moveend: () => {
+      const center = map.getCenter();
+      if (onPositionChange) {
+        onPositionChange(center.lat, center.lng);
+      }
+    },
+  });
 
-export function MapaMock() {
+  return null;
+}
+
+interface MapaMockProps {
+  onPositionChange?: (lat: number, lng: number) => void;
+}
+
+export function MapaMock({ onPositionChange }: MapaMockProps) {
   return (
-    <div className="w-full h-48 rounded-2xl overflow-hidden border border-slate-200 z-0 relative">
+    <div className="w-full h-full relative">
       <MapContainer
-        center={POSICAO_MOCKADA}
-        zoom={15}
-        scrollWheelZoom={false}
+        center={POSICAO_INICIAL}
+        zoom={16}
+        scrollWheelZoom={true}
         className="w-full h-full"
       >
+        <ControllerMapa onPositionChange={onPositionChange} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={POSICAO_MOCKADA}>
-          <Popup>Ponto selecionado para a ocorrência</Popup>
-        </Marker>
       </MapContainer>
     </div>
   );
 }
+
+export default MapaMock;

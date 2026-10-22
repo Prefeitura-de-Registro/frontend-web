@@ -1,12 +1,42 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Cores principais */
+  --font-sans: 'Montserrat', sans-serif;
+
   --color-primary: #0073a9;
   --color-secondary: #f2f2f2;
   --color-tertiary: #dfe8f1;
   --color-danger: #d92117;
+  --color-success: #20c997;
+  --color-warning: #ffc107;
+  --color-info: #0cb7da;
+  --color-timer: #fd7e14;
+}
 
-  /* Tipografia */
-  --font-sans: 'Inter', sans-serif;
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: #000000;
+  }
+}
+
+/* Classes de Hierarquia Tipográfica Baseadas no Design System */
+.text-titulo {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.text-subtitulo {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.text-corpo {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
 }

@@ -1,65 +1,35 @@
-# Front-end — Aplicação Web
+# Release 17/09 - Squad Front-End / Desenvolvimento Web
 
-> _[A definir]_ Breve descrição do projeto: contexto, objetivo da aplicação.
+Este repositório contém as entregas da equipe de **Desenvolvimento Web e Front-End** referentes à release do dia **17 de setembro**, desenvolvidas para a disciplina de Laboratório de Práticas do curso de Desenvolvimento de Software Multiplataforma da FATEC Registro.
 
-## Tecnologias
+## Resumo da Entrega
 
-- React 19
-- TypeScript 5
-- Vite 7
-- React Router DOM 7
-- Tailwind CSS 4
+Nesta release, focamos na implementação prática e estrutural das interfaces web e da aplicação Progressive Web App (PWA) voltada para o registro e acompanhamento de chamados municipais, garantindo alta performance, componentização escalável e total fidelidade aos protótipos de design.
 
-## Base
+As principais entregas foram estruturadas em duas frentes principais:
 
-- Aplicação Web desenvolvida seguindo o conceito de **Mobile First** (layout e estilos priorizando telas pequenas, escalando para telas maiores).
+### 1. Arquitetura e Tecnologias Web
 
----
+A base de código foi construída utilizando um ecossistema moderno voltado para escalabilidade, tipagem segura e manutenibilidade:
 
-## Descrição do Projeto
+* **Core Tecnológico:** Desenvolvimento em React com TypeScript, utilizando o Vite como empacotador para máxima eficiência e velocidade de build.
+* **Estilização e Design System:** Aplicação de Tailwind CSS estruturado em abordagens *mobile-first*, incorporando componentes reutilizáveis e modulares.
+* **Gerenciamento de Rotas e Estado:** Configuração do React Router para navegação fluida e componentizada entre as etapas do sistema.
 
-_[A definir]_ Contexto do problema que a aplicação resolve, público-alvo e principais funcionalidades (ex: abertura de chamado com foto e geolocalização, acompanhamento de status, etc.).
+### 2. Módulos e Telas Implementadas
 
-## Links
+Foram desenvolvidas, refatoradas e validadas as interfaces interativas que compõem a experiência do munícipe no PWA:
 
-### Aplicação (deploy)
+* **Home e Telas de Acesso Anônimo:**
+* Tela inicial contendo cards de ação dinâmicos (`CardAcaoHome`) para abertura e pesquisa de ocorrências.
+* Interface de acompanhamento de chamados por número de protocolo com redirecionamento direto para a tela de visualização detalhada.
 
-| Branch  | URL           |
-| ------- | ------------- |
-| main    | _[A definir]_ |
-| develop | _[A definir]_ |
 
-### API (Back-end)
+* **Fluxo de Abertura de Ocorrências (Formulários Multi-etapas):**
+* Componente de progresso interativo (*Stepper*) com lógica acumulativa e navegação direta por clique nos ícones das etapas (Ocorrência -> Endereço -> Fotos/Vídeos).
+* Telas de preenchimento de dados da ocorrência, seletores customizados, inserção de localização e área de anexos.
+* Tela de **Revisão** consolidando todas as informações em seções editáveis antes do envio final.
 
-| Ambiente | URL           |
-| -------- | ------------- |
-| main     | _[A definir]_ |
-| develop  | _[A definir]_ |
 
-## Guia de Contribuição
-
-_[A definir]_ Estrutura de branches, padrão de commits, fluxo de Pull Request e regras de merge a serem alinhados com o time.
-
-## Setup Local
-
-_[A definir]_ Instruções de instalação de dependências, configuração de variáveis de ambiente (`.env`) e comandos para rodar o projeto localmente.
-
-## Scripts
-
-_[A definir]_ Lista de comandos disponíveis (ex: `dev`, `build`, `preview`, `lint`).
-
-## Estrutura de Pastas
-
-_[A definir]_ Organização das pastas do projeto (componentes, páginas/telas, hooks, services, tipos, etc.), a ser definida conforme os fluxos de câmera, geolocalização e abertura de chamado.
-
-## Rotas
-
-_[A definir]_ Mapeamento das rotas da aplicação (ex: abertura de chamado, histórico de solicitações, detalhe do chamado).
-
-## Integração com Back-end
-
-_[A definir]_ Forma de comunicação com a API (REST, upload de arquivos, comunicação em tempo real, etc.).
-
-## Observações Gerais
-
-_[A definir]_ Pontos de atenção do time (variáveis de ambiente obrigatórias, rotas sem autenticação, dependências do back-end, etc.).
+* **Visualização de Detalhes do Chamado:**
+* Página dedicada ao acompanhamento do protocolo contendo badges de status, descrição detalhada e linha do tempo (*timeline*) visual das etapas de atendimento.

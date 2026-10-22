@@ -1,5 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import IconeFormulario, { type TipoIconeFormulario } from './IconeFormulario';
+import {
+  AlertTriangle,
+  MapPin,
+  UploadCloud,
+  type LucideIcon,
+} from 'lucide-react';
+
+export type TipoIconeFormulario = 'ocorrencia' | 'endereco' | 'fotos';
 
 interface StepperFormularioProps {
   etapaAtual: TipoIconeFormulario;
@@ -7,34 +14,62 @@ interface StepperFormularioProps {
 
 const ETAPAS: TipoIconeFormulario[] = ['ocorrencia', 'endereco', 'fotos'];
 
-// Mapeamento das rotas correspondentes a cada ícone do stepper
+const ICONES: Record<TipoIconeFormulario, LucideIcon> = {
+  ocorrencia: AlertTriangle,
+  endereco: MapPin,
+  fotos: UploadCloud,
+};
+
 const ROTAS_ETAPAS: Record<TipoIconeFormulario, string> = {
   ocorrencia: '/formulario/ocorrencia',
   endereco: '/formulario/endereco',
   fotos: '/formulario/fotos',
 };
 
-function StepperFormulario({ etapaAtual }: StepperFormularioProps) {
+export function StepperFormulario({ etapaAtual }: StepperFormularioProps) {
   const navigate = useNavigate();
   const currentIndex = ETAPAS.indexOf(etapaAtual);
 
   return (
-    <div className="relative flex items-center justify-between w-full max-w-[260px] mx-auto my-4">
-      {/* Linha conectora de fundo[cite: 2] */}
-      <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-slate-200 rounded -z-0" />
+    <div className="relative flex items-center justify-between w-full max-w-[280px] mx-auto py-4 px-2">
+      {/* Linha conectora posicionada perfeitamente entre as bordas dos círculos */}
+      <div className="absolute top-1/2 left-[44px] right-[44px] h-[2px] bg-white/40 -translate-y-1/2 z-0" />
 
       {ETAPAS.map((etapa, index) => {
-        const jaPassouOuAtual = index <= currentIndex;
+        const Icon = ICONES[etapa];
+        const jaPassou = index < currentIndex;
+        const ehAtual = index === currentIndex;
+        const alcancavel = index <= currentIndex;
 
         return (
           <button
             key={etapa}
             type="button"
-            onClick={() => navigate(ROTAS_ETAPAS[etapa])}
-            className="relative z-10 focus:outline-none transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-            title={`Ir para etapa de ${etapa}`}
+            onClick={() => {
+              if (alcancavel) {
+                navigate(ROTAS_ETAPAS[etapa]);
+              }
+            }}
+            disabled={!alcancavel}
+            className={`
+              relative z-10 focus:outline-none transition-transform
+              ${alcancavel ? 'cursor-pointer hover:scale-105 active:scale-95' : 'cursor-not-allowed opacity-60'}
+            `}
+            title={`Etapa ${etapa}`}
           >
-            <IconeFormulario tipo={etapa} ativo={jaPassouOuAtual} />
+            {ehAtual ? (
+              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+                <Icon size={24} className="text-[#0085C1]" strokeWidth={2.2} />
+              </div>
+            ) : jaPassou ? (
+              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-md transition-all duration-300">
+                <Icon size={22} className="text-[#0085C1]" strokeWidth={2.2} />
+              </div>
+            ) : (
+              <div className="w-11 h-11 bg-[#0085C1] border-2 border-white/80 rounded-full flex items-center justify-center shadow-sm transition-all duration-300">
+                <Icon size={20} className="text-white" strokeWidth={2} />
+              </div>
+            )}
           </button>
         );
       })}

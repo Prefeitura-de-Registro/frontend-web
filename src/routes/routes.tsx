@@ -14,33 +14,76 @@ import Home from '../pages/Home';
 import HomeAnonimo from '../pages/HomeAnonimo';
 import ListaChamadosAnonimo from '../pages/ListaChamadosAnonimo';
 import Revisao from '../pages/Revisao';
+import Respostas from '../pages/Respostas';
+import { Notificacoes } from '../pages/Notificacoes';
+import Splash from '../pages/Splash';
+import Cadastro from '../pages/Cadastro';
+import SignIn from '../pages/SignIn';
+import PesquisarChamado from '../pages/PesquisaChamado';
+import StandardLayout from '../components/layouts/StandardLayout';
+import { Configuracoes } from '../pages/Configuracoes';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginMunicipe />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginMunicipe />,
+      },
+    ],
+  },
+  {
+    path: '/cadastro',
+    element: <Cadastro />,
+  },
+  {
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/signin',
+        element: <SignIn />,
+      },
+    ],
+  },
+
+  {
+    path: '/cadastro',
+    element: <Cadastro />,
   },
   {
     path: '/',
+    element: <Splash />,
+  },
+  {
+    path: '/home',
+    element: <Home />,
+  },
+  {
+    path: '/chamados-id',
     element: <HomeLayout />,
     children: [
       {
         path: '',
-        element: <Home />,
-      },
-      {
-        path: 'chamados-id',
         element: <HomeSecundaria />,
       },
     ],
   },
   {
-    path: 'anonimo',
+    path: '/notificacoes',
+    element: <Notificacoes />,
+  },
+  {
+    path: '/anonimo',
     element: <HomeAnonimo />,
   },
   {
-    path: 'chamados',
+    path: '/chamados',
     element: <ListaChamadosAnonimo />,
+  },
+  {
+    path: '/buscar-chamados',
+    element: <PesquisarChamado />,
   },
   {
     path: '/formulario',
@@ -77,8 +120,37 @@ export const router = createBrowserRouter([
     element: <DetalhesChamado />,
   },
   {
-    path: '/conclusao',
-    element: <Conclusao />,
+    element: <StandardLayout />,
+    children: [
+      {
+        path: '/conclusao',
+        element: <Conclusao />,
+      },
+    ],
+  },
+  {
+    path: '/respostas',
+    element: <Respostas />,
+  },
+  {
+    path: '/configuracoes',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/perfil',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/sla',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/notificacoes',
+    element: <Configuracoes />,
+  },
+  {
+    path: '/configuracoes/permissoes',
+    element: <Configuracoes />,
   },
   {
     path: '*',

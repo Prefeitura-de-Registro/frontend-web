@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { GradientHeader } from '../../components/ui/GradientHeader';
 import CardAcaoHome from '../../components/layouts/CardAcaoHome';
 import Button from '../../components/ui/Button';
 import { Footer } from '../../components/ui/Footer';
@@ -20,49 +19,54 @@ function HomeAnonimo() {
   }
 
   const beneficios = [
-    'Histórico completo dos chamados',
-    'Notificações em tempo real',
+    'Histórico completo dos chamados.',
+    'Notificações em tempo real.',
     'Maior controle',
     'Agilidade nos registros',
   ];
 
   return (
-    <div className="w-full h-200 mx-auto overflow-y-auto flex flex-col bg-white relative">
-      <GradientHeader />
+    <div className="w-full min-h-screen mx-auto flex flex-col justify-between bg-white px-5 pt-20 pb-6 font-sans">
+      <div className="relative w-full pt-1">
+        <div className="max-w-[60%] flex flex-col gap-1">
+          <h1 className="text-[28px] font-bold text-primary leading-tight tracking-tight">
+            Olá, Bem-Vindo!
+          </h1>
 
-      <div className="flex flex-col px-4 pt-5 gap-2 mt-12">
-        <span className="text-2xl font-bold text-primary">Olá, Bem-Vindo!</span>
-        <span className="text-sm font-bold">
-          Crie sua conta e tenha acesso a:
-        </span>
+          <p className="text-xs font-bold text-black mt-1">
+            Crie sua conta e tenha acesso a:
+          </p>
 
-        <div className="h-0.5 w-full bg-linear-to-r from-primary/0 via-primary to-primary/0 my-1" />
+          <div className="w-full h-[1.5px] bg-primary/20 my-2" />
 
-        <div className="flex flex-col gap-2">
-          {beneficios.map((texto) => (
-            <div key={texto} className="flex items-center gap-2">
-              <CircleCheck className="w-5 h-5 shrink-0 stroke-green-500" />
-              <span className="text-xs">{texto}</span>
-            </div>
-          ))}
+          <div className="flex flex-col gap-2">
+            {beneficios.map((texto) => (
+              <div key={texto} className="flex items-center gap-2">
+                <CircleCheck className="w-4 h-4 shrink-0 text-success fill-success text-white" />
+                <span className="text-[11px] font-semibold text-gray-900 leading-tight">
+                  {texto}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            variant="solid"
+            className="mt-4 w-36 h-10 rounded-full text-sm font-semibold shadow-xs"
+            onClick={criarConta}
+          >
+            Criar conta
+          </Button>
         </div>
 
         <img
           src={decorativoClique}
-          className="w-30 h-30 self-end -mt-30"
-          alt="Ilustração de celular com aprovação"
+          className="w-36 h-auto absolute -right-2 top-2 pointer-events-none object-contain"
+          alt="Ilustração telemóvel"
         />
-
-        <Button
-          variant="solid"
-          className="mt-2 w-45 h-10 rounded-3xl! text-lg font-light"
-          onClick={criarConta}
-        >
-          Criar Conta
-        </Button>
       </div>
 
-      <div className="flex flex-col gap-4 px-4 mt-6">
+      <div className="flex flex-col gap-4 my-6">
         <CardAcaoHome
           variante="escuro"
           titulo="Abrir chamado"
@@ -79,7 +83,9 @@ function HomeAnonimo() {
         />
       </div>
 
-      <Footer />
+      <div className="pt-2">
+        <Footer />
+      </div>
     </div>
   );
 }
