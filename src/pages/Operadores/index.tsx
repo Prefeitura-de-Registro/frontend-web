@@ -13,7 +13,13 @@ import {
 import { Button } from '../../components/ui/Button';
 import SearchInput from '../../components/ui/SearchInput';
 import { StatusPill } from '../../components/ui/StatusPill';
-import { operadoresMock } from '../../mock/operador.mock';
+import { useRequisicao } from '../../hooks/useRequisicao';
+import { mensagemDeErro } from '../../services/erros';
+import {
+  desativarFuncionario,
+  listarTodosFuncionarios,
+} from '../../services/funcionarios.service';
+import type { StatusOperador } from '../../types/operador';
 
 const POR_PAGINA = 6;
 
@@ -34,6 +40,17 @@ const COLUNAS: { campo: CampoOrdenavel; label: string }[] = [
   { campo: 'status', label: 'Status' },
 ];
 
+// Linha exibida na tabela, montada a partir do funcionário devolvido pela API
+interface LinhaOperador {
+  id: number;
+  nomeCompleto: string;
+  matricula: string;
+  departamento: string;
+  cargo: string;
+  chamados: number; // chamados atribuídos a ele
+  status: StatusOperador;
+}
+
 function iniciais(nome: string) {
   return nome
     .split(' ')
@@ -52,38 +69,70 @@ function Operadores() {
     direcao: 'asc' | 'desc';
   } | null>(null);
 
+  const [paraDesativar, setParaDesativar] = useState<LinhaOperador | null>(
+    null,
+  );
+  const [desativando, setDesativando] = useState(false);
+  const [erroDesativar, setErroDesativar] = useState<string | null>(null);
+
+  const { dados, erro, carregando, recarregar } = useRequisicao(
+    listarTodosFuncionarios,
+  );
+
+  const operadores = useMemo<LinhaOperador[]>(
+    () =>
+      (dados ?? []).map((funcionario) => ({
+        id: funcionario.id,
+        nomeCompleto: funcionario.name,
+        matricula: funcionario.matricula ?? '—',
+        departamento:
+          funcionario.departamentos
+            .map((departamento) => departamento.nome)
+            .join(', ') || '—',
+        cargo: funcionario.cargo ?? '—',
+        chamados: funcionario.totalTickets,
+        status: funcionario.ativo ? 'ativo' : 'inativo',
+      })),
+    [dados],
+  );
+
   const operadoresOrdenados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
 
     const filtrados = termo
-      ? operadoresMock.filter(
+      ? operadores.filter(
           (o) =>
             o.nomeCompleto.toLowerCase().includes(termo) ||
             o.matricula.toLowerCase().includes(termo) ||
             o.departamento.toLowerCase().includes(termo),
         )
-      : [...operadoresMock];
+      : [...operadores];
 
-    if (!ordem) return filtrados;
+    // sem ordenação escolhida, lista em ordem alfabética
+    const { campo, direcao } = ordem ?? {
+      campo: 'nomeCompleto' as CampoOrdenavel,
+      direcao: 'asc' as const,
+    };
 
     return filtrados.sort((a, b) => {
-      const va = a[ordem.campo];
-      const vb = b[ordem.campo];
+      const va = a[campo];
+      const vb = b[campo];
       const cmp =
         typeof va === 'number' && typeof vb === 'number'
           ? va - vb
           : String(va).localeCompare(String(vb), 'pt-BR');
-      return ordem.direcao === 'asc' ? cmp : -cmp;
+      return direcao === 'asc' ? cmp : -cmp;
     });
-  }, [busca, ordem]);
+  }, [operadores, busca, ordem]);
 
   const totalPaginas = Math.max(
     1,
     Math.ceil(operadoresOrdenados.length / POR_PAGINA),
   );
+  const paginaAtual = Math.min(pagina, totalPaginas);
   const operadoresDaPagina = operadoresOrdenados.slice(
-    (pagina - 1) * POR_PAGINA,
-    pagina * POR_PAGINA,
+    (paginaAtual - 1) * POR_PAGINA,
+    paginaAtual * POR_PAGINA,
   );
 
   function ordenarPor(campo: CampoOrdenavel) {
@@ -93,6 +142,28 @@ function Operadores() {
         : { campo, direcao: 'asc' },
     );
     setPagina(1);
+  }
+
+  async function confirmarDesativacao() {
+    if (!paraDesativar) return;
+
+    setDesativando(true);
+    setErroDesativar(null);
+
+    try {
+      await desativarFuncionario(paraDesativar.id);
+      setParaDesativar(null);
+      recarregar();
+    } catch (erroRequisicao) {
+      setErroDesativar(
+        mensagemDeErro(
+          erroRequisicao,
+          'Não foi possível desativar o operador.',
+        ),
+      );
+    } finally {
+      setDesativando(false);
+    }
   }
 
   return (
@@ -120,7 +191,9 @@ function Operadores() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div
+        className={`mt-6 overflow-hidden rounded-2xl bg-white shadow-sm ${carregando && dados ? 'opacity-60' : ''}`}
+      >
         <table className="w-full text-left text-sm">
           <thead className="bg-secondary text-primary">
             <tr>
@@ -157,17 +230,9 @@ function Operadores() {
               >
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-3">
-                    {op.foto ? (
-                      <img
-                        src={op.foto}
-                        alt={op.nomeCompleto}
-                        className="h-9 w-9 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary text-xs font-bold text-primary">
-                        {iniciais(op.nomeCompleto)}
-                      </span>
-                    )}
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-tertiary text-xs font-bold text-primary">
+                      {iniciais(op.nomeCompleto)}
+                    </span>
                     <span className="font-bold text-slate-800">
                       {op.nomeCompleto}
                     </span>
@@ -204,8 +269,18 @@ function Operadores() {
                     </button>
                     <button
                       type="button"
-                      aria-label="Excluir operador"
-                      className="text-danger"
+                      aria-label="Desativar operador"
+                      title={
+                        op.status === 'inativo'
+                          ? 'Operador já está inativo'
+                          : 'Desativar operador'
+                      }
+                      disabled={op.status === 'inativo'}
+                      onClick={() => {
+                        setErroDesativar(null);
+                        setParaDesativar(op);
+                      }}
+                      className="text-danger disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -216,7 +291,26 @@ function Operadores() {
           </tbody>
         </table>
 
-        {operadoresOrdenados.length === 0 && (
+        {erro && (
+          <div className="space-y-3 py-8 text-center">
+            <p className="text-sm text-danger">{erro}</p>
+            <button
+              type="button"
+              onClick={recarregar}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
+        {!erro && !dados && carregando && (
+          <p className="py-8 text-center text-gray-500">
+            Carregando operadores...
+          </p>
+        )}
+
+        {!erro && dados && operadoresOrdenados.length === 0 && (
           <p className="py-8 text-center text-gray-500">
             Nenhum operador encontrado.
           </p>
@@ -232,8 +326,8 @@ function Operadores() {
             <button
               type="button"
               aria-label="Página anterior"
-              disabled={pagina === 1}
-              onClick={() => setPagina((p) => p - 1)}
+              disabled={paginaAtual === 1}
+              onClick={() => setPagina(paginaAtual - 1)}
               className="flex h-8 w-8 items-center justify-center text-gray-400 disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -245,7 +339,7 @@ function Operadores() {
                 type="button"
                 onClick={() => setPagina(n)}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold ${
-                  n === pagina
+                  n === paginaAtual
                     ? 'bg-primary text-white'
                     : 'text-gray-500 hover:bg-gray-100'
                 }`}
@@ -257,8 +351,8 @@ function Operadores() {
             <button
               type="button"
               aria-label="Próxima página"
-              disabled={pagina === totalPaginas}
-              onClick={() => setPagina((p) => p + 1)}
+              disabled={paginaAtual === totalPaginas}
+              onClick={() => setPagina(paginaAtual + 1)}
               className="flex h-8 w-8 items-center justify-center text-gray-400 disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
@@ -266,6 +360,60 @@ function Operadores() {
           </div>
         </div>
       </div>
+
+      {paraDesativar && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onMouseDown={(evento) => {
+            if (evento.target === evento.currentTarget && !desativando) {
+              setParaDesativar(null);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="desativar-operador-titulo"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <h2
+              id="desativar-operador-titulo"
+              className="text-lg font-bold text-primary"
+            >
+              Desativar operador
+            </h2>
+            <p className="mt-3 text-sm text-slate-700">
+              Deseja desativar <strong>{paraDesativar.nomeCompleto}</strong>?
+              Ele não conseguirá mais entrar no sistema. O histórico de chamados
+              é mantido.
+            </p>
+
+            {erroDesativar && (
+              <p className="mt-3 text-sm text-danger">{erroDesativar}</p>
+            )}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={desativando}
+                onClick={() => setParaDesativar(null)}
+                className="rounded-lg border-transparent bg-gray-100 px-6 py-2.5 text-sm text-slate-700 hover:bg-gray-200"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                disabled={desativando}
+                onClick={confirmarDesativacao}
+                className="rounded-lg px-6 py-2.5 text-sm"
+              >
+                {desativando ? 'Desativando...' : 'Desativar'}
+              </Button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,14 +5,14 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Image as ImageIcon } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff, Image as ImageIcon } from 'lucide-react';
 
 import { Button } from '../../components/ui/Button';
 import RadioButton from '../../components/ui/RadioButton';
-import type { StatusOperador } from '../../types/operador';
+import { useRequisicao } from '../../hooks/useRequisicao';
+import { listarDepartamentos } from '../../services/departamentos.service';
 import { cadastrarOperador } from './cadastrarOperador';
 
-const DEPARTAMENTOS = ['Suporte N1', 'Suporte N2', 'Infraestrutura', 'Redes'];
 const CARGOS = [
   'Analista Jr.',
   'Analista Pleno',
@@ -25,6 +25,16 @@ const CARGOS = [
 
 const TIPOS_FOTO = ['image/png', 'image/jpeg', 'image/webp'];
 const MAX_FOTO_BYTES = 10 * 1024 * 1024;
+
+// Formato exigido pelo back: sigla + hífen + 4 dígitos (ex.: SISP-0001)
+const REGEX_MATRICULA = /^[A-Za-z]{2,10}-\d{4}$/;
+
+// O back devolve os erros de validação com o nome do campo da API;
+// aqui traduzimos para o nome do campo deste formulário.
+const CAMPO_API_PARA_FORM: Record<string, string> = {
+  nome: 'nomeCompleto',
+  departamentoIds: 'departamento',
+};
 
 const inputClass =
   'w-full h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary';
@@ -50,12 +60,18 @@ function Campo({ label, htmlFor, obrigatorio, erro, children }: CampoProps) {
   );
 }
 
+interface OpcaoSelect {
+  valor: string;
+  rotulo: string;
+}
+
 interface CampoSelectProps {
   id: string;
   value: string;
   onChange: (valor: string) => void;
-  opcoes: string[];
+  opcoes: OpcaoSelect[];
   placeholder?: string;
+  disabled?: boolean;
 }
 
 function CampoSelect({
@@ -64,12 +80,14 @@ function CampoSelect({
   onChange,
   opcoes,
   placeholder,
+  disabled,
 }: CampoSelectProps) {
   return (
     <div className="relative">
       <select
         id={id}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         className={`${inputClass} appearance-none pr-10 ${
           value ? 'text-gray-800' : 'text-gray-400'
@@ -81,8 +99,8 @@ function CampoSelect({
           </option>
         )}
         {opcoes.map((o) => (
-          <option key={o} value={o} className="text-gray-800">
-            {o}
+          <option key={o.valor} value={o.valor} className="text-gray-800">
+            {o.rotulo}
           </option>
         ))}
       </select>
@@ -94,15 +112,20 @@ function CampoSelect({
 function NovoOperador() {
   const navigate = useNavigate();
 
+  const departamentos = useRequisicao(listarDepartamentos);
+
   const [form, setForm] = useState({
     nomeCompleto: '',
     matricula: '',
     email: '',
     telefone: '',
-    departamento: 'Suporte N1',
+    cpf: '',
+    senha: '',
+    departamento: '',
     cargo: '',
     status: 'ativo',
   });
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [foto, setFoto] = useState<string | undefined>();
   const [erros, setErros] = useState<Record<string, string>>({});
   const [erroGeral, setErroGeral] = useState('');
@@ -134,15 +157,21 @@ function NovoOperador() {
 
   function validar() {
     const novosErros: Record<string, string> = {};
-    if (!form.nomeCompleto.trim())
+    if (form.nomeCompleto.trim().length < 3)
       novosErros.nomeCompleto = 'Informe o nome completo.';
     if (!form.matricula.trim()) novosErros.matricula = 'Informe a matrícula.';
+    else if (!REGEX_MATRICULA.test(form.matricula.trim()))
+      novosErros.matricula = 'Use o formato SIGLA-0000 (ex.: SISP-0001).';
     if (!form.email.trim()) novosErros.email = 'Informe o e-mail corporativo.';
     else if (!/^\S+@\S+\.\S+$/.test(form.email))
       novosErros.email = 'E-mail inválido.';
+    if (form.cpf.replace(/\D/g, '').length !== 11)
+      novosErros.cpf = 'Informe um CPF com 11 dígitos.';
+    if (form.senha.length < 8)
+      novosErros.senha = 'A senha deve ter pelo menos 8 caracteres.';
+    if (!form.departamento)
+      novosErros.departamento = 'Selecione o departamento.';
     if (!form.cargo) novosErros.cargo = 'Selecione o cargo.';
-    // Telefone opcional no Figma. Pra tornar obrigatório:
-    // if (!form.telefone.trim()) novosErros.telefone = 'Informe o telefone.';
     setErros(novosErros);
     return Object.keys(novosErros).length === 0;
   }
@@ -156,13 +185,28 @@ function NovoOperador() {
     setEnviando(true);
     try {
       const resultado = await cadastrarOperador({
-        ...form,
-        status: form.status as StatusOperador,
-        foto,
+        nome: form.nomeCompleto.trim(),
+        email: form.email.trim(),
+        senha: form.senha,
+        cpf: form.cpf.trim(),
+        cargo: form.cargo,
+        matricula: form.matricula.trim().toUpperCase(),
+        departamentoIds: [Number(form.departamento)],
+        status: form.status === 'ativo',
+        tipoUsuario: 'funcionario',
       });
 
       if (!resultado.ok) {
-        setErroGeral(resultado.erro);
+        const camposDoForm = Object.entries(resultado.campos).map(
+          ([campo, mensagem]) =>
+            [CAMPO_API_PARA_FORM[campo] ?? campo, mensagem] as [string, string],
+        );
+
+        if (camposDoForm.length > 0) {
+          setErros(Object.fromEntries(camposDoForm));
+        } else {
+          setErroGeral(resultado.erro);
+        }
         return;
       }
 
@@ -173,6 +217,13 @@ function NovoOperador() {
       setEnviando(false);
     }
   }
+
+  const opcoesDepartamento: OpcaoSelect[] = (departamentos.dados ?? []).map(
+    (departamento) => ({
+      valor: String(departamento.id),
+      rotulo: departamento.nome,
+    }),
+  );
 
   return (
     <div className="px-10 py-8">
@@ -235,7 +286,7 @@ function NovoOperador() {
             <input
               id="matricula"
               className={inputClass}
-              placeholder="Ex: OP-00123"
+              placeholder="Ex: SISP-0001"
               value={form.matricula}
               onChange={(e) => atualizar('matricula', e.target.value)}
             />
@@ -271,12 +322,70 @@ function NovoOperador() {
             />
           </Campo>
 
-          <Campo label="Departamento" htmlFor="departamento" obrigatorio>
+          <Campo label="CPF" htmlFor="cpf" obrigatorio erro={erros.cpf}>
+            <input
+              id="cpf"
+              inputMode="numeric"
+              className={inputClass}
+              placeholder="000.000.000-00"
+              value={form.cpf}
+              onChange={(e) => atualizar('cpf', e.target.value)}
+            />
+          </Campo>
+
+          <Campo
+            label="Senha provisória"
+            htmlFor="senha"
+            obrigatorio
+            erro={erros.senha}
+          >
+            <div className="relative">
+              <input
+                id="senha"
+                type={mostrarSenha ? 'text' : 'password'}
+                autoComplete="new-password"
+                className={`${inputClass} pr-11`}
+                placeholder="Mínimo de 8 caracteres"
+                value={form.senha}
+                onChange={(e) => atualizar('senha', e.target.value)}
+              />
+              <button
+                type="button"
+                aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+                onClick={() => setMostrarSenha((atual) => !atual)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800"
+              >
+                {mostrarSenha ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </Campo>
+
+          <Campo
+            label="Departamento"
+            htmlFor="departamento"
+            obrigatorio
+            erro={
+              erros.departamento ||
+              (departamentos.erro
+                ? 'Não foi possível carregar os departamentos.'
+                : '')
+            }
+          >
             <CampoSelect
               id="departamento"
               value={form.departamento}
               onChange={(v) => atualizar('departamento', v)}
-              opcoes={DEPARTAMENTOS}
+              opcoes={opcoesDepartamento}
+              placeholder={
+                departamentos.carregando
+                  ? 'Carregando departamentos...'
+                  : 'Selecione o departamento'
+              }
+              disabled={departamentos.carregando || !!departamentos.erro}
             />
           </Campo>
 
@@ -285,7 +394,7 @@ function NovoOperador() {
               id="cargo"
               value={form.cargo}
               onChange={(v) => atualizar('cargo', v)}
-              opcoes={CARGOS}
+              opcoes={CARGOS.map((cargo) => ({ valor: cargo, rotulo: cargo }))}
               placeholder="Selecione o cargo"
             />
           </Campo>
@@ -328,7 +437,7 @@ function NovoOperador() {
           </Button>
           <Button
             type="submit"
-            disabled={enviando}
+            disabled={enviando || departamentos.carregando}
             className="rounded-lg px-6 py-2.5 text-sm"
           >
             {enviando ? 'Cadastrando...' : 'Cadastrar'}

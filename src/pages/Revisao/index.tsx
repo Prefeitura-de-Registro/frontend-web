@@ -96,6 +96,14 @@ function Revisao() {
   };
 
   const handleConfirmar = async () => {
+    // 1. Trava de segurança: impede envio sem categoria
+    if (!dados.categoria) {
+      alert(
+        'Por favor, volte à primeira tela e selecione o tipo de problema (Buraco, Poda, etc).',
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -137,8 +145,11 @@ function Revisao() {
         payload.longitude = Number(dados.coordenadas.longitude);
       }
 
+      // Imprime o que está sendo enviado para ajudar no debug
+      console.log('Dados enviados para a API:', payload);
+
       const response = await axios.post(
-        'http://localhost:3000/api/tickets',
+        'https://backend-api-ij3c.onrender.com/api/tickets',
         payload,
         {
           headers: {
@@ -153,7 +164,7 @@ function Revisao() {
       console.error('Erro ao enviar ocorrência:', error);
 
       let mensagemErro =
-        'Falha ao enviar a ocorrência. Verifique a sua ligação e tente novamente.';
+        'Falha no servidor. Verifique os logs do Render para saber o motivo exato.';
 
       if (axios.isAxiosError(error) && error.response?.data?.message) {
         mensagemErro = error.response.data.message;
