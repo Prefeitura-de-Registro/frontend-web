@@ -26,6 +26,7 @@ export function HomeLayout() {
             </p>
           </div>
         </div>
+        _
         <button className="bg-sky-600 text-white p-2.5 rounded-full shadow-md hover:bg-sky-700 transition">
           <Bell size={20} strokeWidth={2.5} />
         </button>

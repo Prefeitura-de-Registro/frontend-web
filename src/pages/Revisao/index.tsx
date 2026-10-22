@@ -1,20 +1,14 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ClipboardPenLine, MapPin, Camera, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import axios from 'axios';
+import { TOKEN_STORAGE_KEY } from '../../services/api';
 
+import type {
+  FormularioContext,
+  FotoFormulario,
+} from '../../components/layouts/FormLayout';
 import mapaLocalizacao from '../../assets/mapa-localizacao.png';
-
-const ocorrencia = {
-  tipo: 'Buraco',
-  descricao: 'Buraco grande, oferecendo riscos de quedas.',
-  condicoes: ['Mais de 1m', 'Calçada / Passeio público', 'Ciclovia'],
-};
-
-const localizacao = {
-  bairro: 'Jardim das Flores',
-  rua: 'Rua Paulistano',
-  numero: '132',
-};
 
 interface RevisionSectionProps {
   titulo: string;
@@ -24,7 +18,44 @@ interface RevisionSectionProps {
   contentClassName?: string;
 }
 
-function RevisionSection({
+interface PayloadDTO {
+  idCategoria: number;
+  descricao: string;
+  respostas: { idPergunta: number; valor: boolean }[];
+  latitude?: number;
+  longitude?: number;
+}
+
+export function AnexoPreview({ arquivo, alt }: { arquivo: File; alt: string }) {
+  const [url, setUrl] = useState('');
+
+  useEffect(() => {
+    const urlTemporaria = URL.createObjectURL(arquivo);
+    const frameId = requestAnimationFrame(() => setUrl(urlTemporaria));
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      URL.revokeObjectURL(urlTemporaria);
+    };
+  }, [arquivo]);
+
+  if (!url) return null;
+
+  if (arquivo.type.startsWith('video/')) {
+    return (
+      <video
+        src={url}
+        aria-label={alt}
+        className="h-full w-full object-cover"
+        muted
+      />
+    );
+  }
+
+  return <img src={url} alt={alt} className="h-full w-full object-cover" />;
+}
+
+export function RevisionSection({
   titulo,
   icon,
   children,
@@ -32,22 +63,18 @@ function RevisionSection({
   contentClassName = '',
 }: RevisionSectionProps) {
   return (
-    <section className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white">
-      {/* Cabeçalho da seção */}
-      <div className="flex h-11 items-center justify-center gap-2 bg-white border-b border-slate-100">
-        <div className="h-5 w-5 text-primary flex items-center justify-center">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex h-11 items-center justify-center gap-2 border-b border-slate-100 bg-white">
+        <div className="flex h-5 w-5 items-center justify-center text-sky-700">
           {icon}
         </div>
-        <h2 className="text-base font-bold text-primary">{titulo}</h2>
+        <h2 className="text-base font-bold text-sky-900">{titulo}</h2>
       </div>
-
       <div className={contentClassName}>{children}</div>
-
-      {/* Botão de Editar */}
       <button
         type="button"
         onClick={onEditar}
-        className="h-11 w-full bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800 flex items-center justify-center gap-2"
+        className="flex h-11 w-full items-center justify-center gap-2 bg-sky-700 text-sm font-bold text-white transition-colors hover:bg-sky-800"
       >
         <ClipboardPenLine size={16} />
         Editar
@@ -58,15 +85,99 @@ function RevisionSection({
 
 function Revisao() {
   const navigate = useNavigate();
+  const { dados, setDados } = useOutletContext<FormularioContext>();
+  const [loading, setLoading] = useState(false);
 
-  const handleConfirmar = () => {
-    // Lógica para enviar os dados do formulário para o backend
-    navigate('/conclusao');
+  const nomesCategorias: Record<number, string> = {
+    1: 'Buraco',
+    2: 'Poda de árvore',
+    3: 'Iluminação pública',
+    4: 'Vazamento',
+  };
+
+  const handleConfirmar = async () => {
+    // 1. Trava de segurança: impede envio sem categoria
+    if (!dados.categoria) {
+      alert(
+        'Por favor, volte à primeira tela e selecione o tipo de problema (Buraco, Poda, etc).',
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+      const respostasFormatadas = dados.respostasCarrossel
+        ? Object.entries(dados.respostasCarrossel)
+            .filter(([chave]) => !isNaN(Number(chave)))
+            .map(([idPergunta, valor]) => ({
+              idPergunta: Number(idPergunta),
+              valor: valor === 'sim',
+            }))
+        : [];
+
+      const nomeArquivos =
+        dados.fotos && dados.fotos.length > 0
+          ? `\n\n[Arquivos anexos: ${dados.fotos.map((f: FotoFormulario) => f.arquivo.name).join(', ')}]`
+          : '';
+
+      let descricaoFinal =
+        (dados.detalhes?.trim() || 'Ocorrência relatada via aplicativo.') +
+        nomeArquivos;
+
+      if (descricaoFinal.length > 2000) {
+        descricaoFinal = descricaoFinal.substring(0, 1997) + '...';
+      }
+
+      const payload: PayloadDTO = {
+        idCategoria: Number(dados.categoria),
+        descricao: descricaoFinal,
+        respostas: respostasFormatadas,
+      };
+
+      if (
+        dados.coordenadas &&
+        dados.coordenadas.latitude !== undefined &&
+        dados.coordenadas.longitude !== undefined
+      ) {
+        payload.latitude = Number(dados.coordenadas.latitude);
+        payload.longitude = Number(dados.coordenadas.longitude);
+      }
+
+      // Imprime o que está sendo enviado para ajudar no debug
+      console.log('Dados enviados para a API:', payload);
+
+      const response = await axios.post(
+        'https://backend-api-ij3c.onrender.com/api/tickets',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const protocoloGerado = response.data?.protocolo;
+      navigate('/conclusao', { state: { protocolo: protocoloGerado } });
+    } catch (error: unknown) {
+      console.error('Erro ao enviar ocorrência:', error);
+
+      let mensagemErro =
+        'Falha no servidor. Verifique os logs do Render para saber o motivo exato.';
+
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        mensagemErro = error.response.data.message;
+      }
+
+      alert(`Erro: ${mensagemErro}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="w-full space-y-6 pb-6">
-      {/* 1. Seção de Ocorrência */}
       <RevisionSection
         titulo="Ocorrência"
         icon={<ClipboardPenLine className="h-5 w-5" />}
@@ -75,33 +186,23 @@ function Revisao() {
       >
         <div className="space-y-4 text-sm text-slate-800">
           <p>
-            <strong className="text-sky-900 font-semibold">Tipo:</strong>{' '}
-            {ocorrencia.tipo}
+            <strong className="font-semibold text-sky-900">Tipo:</strong>{' '}
+            {dados?.categoria
+              ? nomesCategorias[Number(dados.categoria)]
+              : 'Não informado'}
           </p>
 
           <div>
             <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Descrição:</strong>
+              <strong className="font-semibold text-sky-900">Descrição:</strong>
             </p>
-            <div className="min-h-24 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-slate-700 shadow-sm">
-              {ocorrencia.descricao}
+            <div className="min-h-24 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm">
+              {dados?.detalhes?.trim() || 'Não informado'}
             </div>
-          </div>
-
-          <div>
-            <p className="mb-1.5">
-              <strong className="text-sky-900 font-semibold">Condições:</strong>
-            </p>
-            <ul className="list-disc space-y-1 pl-5 text-slate-700">
-              {ocorrencia.condicoes.map((condicao) => (
-                <li key={condicao}>{condicao}</li>
-              ))}
-            </ul>
           </div>
         </div>
       </RevisionSection>
 
-      {/* 2. Seção de Localização */}
       <RevisionSection
         titulo="Localização"
         icon={<MapPin className="h-5 w-5" />}
@@ -109,18 +210,18 @@ function Revisao() {
         contentClassName="bg-white"
       >
         <div>
-          <div className="px-6 py-3.5 text-sm font-medium text-slate-800 border-b border-slate-100">
-            {localizacao.rua}, {localizacao.numero} — {localizacao.bairro}
+          <div className="border-b border-slate-100 px-6 py-3.5 text-sm font-medium text-slate-800">
+            {dados?.endereco?.trim() || 'Endereço não informado'}
           </div>
 
           <div className="relative h-48 w-full overflow-hidden">
             <img
               src={mapaLocalizacao}
-              alt="Mapa da localização da ocorrência"
+              alt="Mapa ilustrativo"
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
+              <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-500/20">
                 <MapPin className="h-8 w-8 text-red-600 drop-shadow" />
               </div>
             </div>
@@ -128,46 +229,59 @@ function Revisao() {
         </div>
       </RevisionSection>
 
-      {/* 3. Seção de Fotos / Vídeos (Que estava faltando) */}
       <RevisionSection
         titulo="Fotos / Vídeos"
         icon={<Camera className="h-5 w-5" />}
         onEditar={() => navigate('/formulario/fotos')}
         contentClassName="bg-slate-50/70 p-5"
       >
-        <div className="flex items-center gap-3">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-slate-300 shadow-sm bg-white">
-            <img
-              src={mapaLocalizacao}
-              alt="Foto da ocorrência"
-              className="w-full h-full object-cover"
-            />
-            {/* Botão de excluir foto (X vermelho) */}
-            <button
-              type="button"
-              className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center shadow hover:bg-red-700 transition"
-              title="Remover foto"
-            >
-              <X size={12} strokeWidth={3} />
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {dados?.fotos && dados.fotos.length > 0 ? (
+            dados.fotos.map((foto: FotoFormulario) => (
+              <div
+                key={foto.id}
+                className="relative h-20 w-20 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm"
+              >
+                <AnexoPreview arquivo={foto.arquivo} alt="Anexo" />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDados((prev) => ({
+                      ...prev,
+                      fotos: prev.fotos.filter(
+                        (item: FotoFormulario) => item.id !== foto.id,
+                      ),
+                    }))
+                  }
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow transition hover:bg-red-700"
+                >
+                  <X size={12} strokeWidth={3} />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">
+              Nenhuma foto ou vídeo anexado.
+            </p>
+          )}
         </div>
       </RevisionSection>
 
-      {/* Botões Finais de Confirmação e Cancelamento */}
       <div className="flex flex-col gap-3 pt-2">
         <button
           type="button"
           onClick={handleConfirmar}
-          className="w-full bg-sky-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md hover:bg-sky-800 transition text-center"
+          disabled={loading}
+          className="w-full rounded-2xl bg-sky-700 px-6 py-3.5 text-center font-bold text-white shadow-md transition hover:bg-sky-800 disabled:opacity-70"
         >
-          Confirmar
+          {loading ? 'A enviar...' : 'Confirmar'}
         </button>
 
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="w-full bg-slate-100 border border-slate-300 text-sky-700 font-bold py-3.5 px-6 rounded-2xl shadow-sm hover:bg-slate-200 transition text-center"
+          disabled={loading}
+          className="w-full rounded-2xl border border-slate-300 bg-slate-100 px-6 py-3.5 text-center font-bold text-sky-700 shadow-sm transition hover:bg-slate-200"
         >
           Cancelar
         </button>
