@@ -7,8 +7,8 @@ export default function FormularioOcorrencia() {
   const { dados, setDados } = useOutletContext<FormularioContext>();
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between relative overflow-hidden">
-      <main className="px-4 pt-8 pb-32 flex-1 max-w-md mx-auto w-full">
+    <div className="h-full flex-1 bg-[#f8fafc] flex flex-col relative overflow-hidden w-full">
+      <main className="px-4 pt-4 pb-6 flex-1 w-full max-w-md mx-auto overflow-y-auto">
         <div className="mb-6">
           <h2 className="text-[#0085C1] font-bold text-lg mb-3">
             Qual é o problema?
@@ -16,31 +16,23 @@ export default function FormularioOcorrencia() {
           <div className="grid grid-cols-2 gap-3">
             <CategoriaCard
               tipo="buraco"
-              isActive={dados.categoria === 'buraco'}
-              onClick={() =>
-                setDados((prev) => ({ ...prev, categoria: 'buraco' }))
-              }
+              isActive={Number(dados.categoria) === 1}
+              onClick={() => setDados((prev) => ({ ...prev, categoria: 1 }))}
             />
             <CategoriaCard
               tipo="poda"
-              isActive={dados.categoria === 'poda'}
-              onClick={() =>
-                setDados((prev) => ({ ...prev, categoria: 'poda' }))
-              }
+              isActive={Number(dados.categoria) === 2}
+              onClick={() => setDados((prev) => ({ ...prev, categoria: 2 }))}
             />
             <CategoriaCard
               tipo="luz"
-              isActive={dados.categoria === 'luz'}
-              onClick={() =>
-                setDados((prev) => ({ ...prev, categoria: 'luz' }))
-              }
+              isActive={Number(dados.categoria) === 3}
+              onClick={() => setDados((prev) => ({ ...prev, categoria: 3 }))}
             />
             <CategoriaCard
               tipo="vazamento"
-              isActive={dados.categoria === 'vazamento'}
-              onClick={() =>
-                setDados((prev) => ({ ...prev, categoria: 'vazamento' }))
-              }
+              isActive={Number(dados.categoria) === 4}
+              onClick={() => setDados((prev) => ({ ...prev, categoria: 4 }))}
             />
           </div>
         </div>

@@ -35,6 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(usuarioLogado));
 
     setUsuario(usuarioLogado);
+
+    // RETORNA O USUÁRIO LOGADO PARA O SUBMIT DO FRONTEND
+    return usuarioLogado;
   }, []);
 
   return (

@@ -21,9 +21,8 @@ import Cadastro from '../pages/Cadastro';
 import SignIn from '../pages/SignIn';
 import PesquisarChamado from '../pages/PesquisaChamado';
 import StandardLayout from '../components/layouts/StandardLayout';
+import { ProtectedRoute } from '../components/layouts/ProtectedRoute';
 import { Relatorios } from '../pages/Relatorios';
-import GestaoChamados from '../pages/GestaoChamados';
-import HomeChamados from '../pages/HomeChamados';
 
 // Imports da Área do Servidor
 import { ServidorLayout } from '../components/layouts/ServidorLayout';
@@ -32,6 +31,9 @@ import Operadores from '../pages/Operadores';
 import NovoOperador from '../pages/Operadores/NovoOperador';
 
 export const router = createBrowserRouter([
+  /* =========================================================
+   * ROTAS PÚBLICAS (Abertas para todos)
+   * ========================================================= */
   {
     path: '/',
     element: <Splash />,
@@ -47,33 +49,11 @@ export const router = createBrowserRouter([
         path: '/signin',
         element: <SignIn />,
       },
-      {
-        path: '/conclusao',
-        element: <Conclusao />,
-      },
     ],
   },
   {
     path: '/cadastro',
     element: <Cadastro />,
-  },
-  {
-    path: '/home',
-    element: <Home />,
-  },
-  {
-    path: '/chamados-id',
-    element: <HomeLayout />,
-    children: [
-      {
-        path: '',
-        element: <HomeSecundaria />,
-      },
-    ],
-  },
-  {
-    path: '/notificacoes',
-    element: <Notificacoes />,
   },
   {
     path: '/anonimo',
@@ -84,50 +64,8 @@ export const router = createBrowserRouter([
     element: <ListaChamadosAnonimo />,
   },
   {
-    path: '/home-chamados',
-    element: <HomeChamados />,
-  },
-  {
     path: '/buscar-chamados',
     element: <PesquisarChamado />,
-  },
-  {
-    path: '/formulario',
-    element: <FormLayout />,
-    children: [
-      {
-        path: '',
-        element: <EmConstrucao nome="Formulário" />,
-      },
-      {
-        path: 'ocorrencia',
-        element: <FormularioOcorrencia />,
-      },
-      {
-        path: 'endereco',
-        element: <FormularioLocalizacao />,
-      },
-      {
-        path: 'fotos',
-        element: <FormularioFotos />,
-      },
-      {
-        path: 'confirmacao',
-        element: <EmConstrucao nome="Confirmação" />,
-      },
-      {
-        path: 'revisao',
-        element: <Revisao />,
-      },
-    ],
-  },
-  {
-    path: '/detalhes',
-    element: <DetalhesChamado />,
-  },
-  {
-    path: '/respostas',
-    element: <Respostas />,
   },
   {
     path: '/teste-componentes',
@@ -135,11 +73,72 @@ export const router = createBrowserRouter([
   },
 
   /* =========================================================
-   * ROTAS SEPARADAS DA ÁREA DO SERVIDOR (PAINEL ADMINISTRATIVO)
+   * ROTAS PROTEGIDAS - APENAS MUNÍCIPES
+   * ========================================================= */
+  {
+    element: <ProtectedRoute allowedRoles={['municipe']} />,
+    children: [
+      {
+        path: '/home',
+        element: <Home />,
+      },
+      {
+        path: '/chamados-id',
+        element: <HomeLayout />,
+        children: [
+          {
+            path: '',
+            element: <HomeSecundaria />,
+          },
+        ],
+      },
+      {
+        path: '/notificacoes',
+        element: <Notificacoes />,
+      },
+      {
+        path: '/formulario',
+        element: <FormLayout />,
+        children: [
+          { path: '', element: <EmConstrucao nome="Formulário" /> },
+          { path: 'ocorrencia', element: <FormularioOcorrencia /> },
+          { path: 'endereco', element: <FormularioLocalizacao /> },
+          { path: 'fotos', element: <FormularioFotos /> },
+          { path: 'confirmacao', element: <EmConstrucao nome="Confirmação" /> },
+          { path: 'revisao', element: <Revisao /> },
+        ],
+      },
+      {
+        path: '/detalhes',
+        element: <DetalhesChamado />,
+      },
+      {
+        path: '/respostas',
+        element: <Respostas />,
+      },
+      // Manter a conclusão no layout padrão protegida
+      {
+        element: <StandardLayout />,
+        children: [
+          {
+            path: '/conclusao',
+            element: <Conclusao />,
+          },
+        ],
+      },
+    ],
+  },
+
+  /* =========================================================
+   * ROTAS PROTEGIDAS - APENAS SERVIDORES (PAINEL ADMINISTRATIVO)
    * ========================================================= */
   {
     path: '/servidor',
-    element: <ServidorLayout />,
+    element: (
+      <ProtectedRoute allowedRoles={['servidor']}>
+        <ServidorLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: '',
@@ -156,10 +155,9 @@ export const router = createBrowserRouter([
     ],
   },
 
-  {
-    path: '/gestao-chamados',
-    element: <GestaoChamados />,
-  },
+  /* =========================================================
+   * FALLBACK (Erro 404)
+   * ========================================================= */
   {
     path: '/relatorios',
     element: <Relatorios />,

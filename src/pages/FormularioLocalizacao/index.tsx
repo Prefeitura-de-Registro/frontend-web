@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { MapaMock } from '../../components/ui/MapaMock';
 import type { FormularioContext } from '../../components/layouts/FormLayout';
@@ -6,6 +6,15 @@ import type { FormularioContext } from '../../components/layouts/FormLayout';
 export function FormularioLocalizacao() {
   const { dados, setDados } = useOutletContext<FormularioContext>();
   const [carregando, setCarregando] = useState(false);
+
+  // Mantém o fix para o Leaflet renderizar por completo sem blocos cinzentos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const buscarEndereco = useCallback(
     async (lat: number, lng: number) => {
@@ -67,7 +76,11 @@ export function FormularioLocalizacao() {
   );
 
   return (
-    <div className="relative w-[calc(100%+2rem)] -mx-4 h-[calc(100vh-320px)] min-h-70 flex flex-col justify-end -mb-4">
+    // CORREÇÕES APLICADAS AQUI:
+    // flex-1: Ocupa toda a altura disponível até ao rodapé
+    // w-[calc(100%+3rem)] e -mx-6: Ignora as margens laterais (px-6) do FormLayout
+    // -mb-6: Ignora a margem inferior (pb-6) do FormLayout para colar na barra azul
+    <div className="relative flex-1 w-[calc(100%+3rem)] -mx-6 -mb-6 flex flex-col justify-end">
       <div className="absolute inset-0 z-0 h-full w-full [&>div]:h-full! [&>div]:w-full! [&_.leaflet-container]:h-full! [&_.leaflet-container]:w-full! [&_.leaflet-control-container]:hidden [&_.leaflet-marker-pane]:hidden">
         <MapaMock onPositionChange={buscarEndereco} />
       </div>
